@@ -1,0 +1,29 @@
+name: Apply guided intake implementation
+
+on:
+  push:
+    branches: [implementation/guided-intake-form]
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: ${{ !contains(github.event.head_commit.message, 'Apply guided intake implementation') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: implementation/guided-intake-form
+          fetch-depth: 0
+      - name: Apply verified implementation patch
+        run: |
+          cat .implementation/patchpart-* | base64 -d | gzip -d > /tmp/intake.patch
+          git apply --index /tmp/intake.patch
+          rm -rf .implementation
+          rm -f .github/workflows/apply-guided-intake.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Apply guided intake implementation"
+          git push origin HEAD:implementation/guided-intake-form
