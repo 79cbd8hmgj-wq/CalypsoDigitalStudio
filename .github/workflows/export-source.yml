@@ -3,6 +3,7 @@ name: Export source
 on:
   push:
     branches: [automation/export-guided-intake-source]
+  pull_request:
 
 permissions:
   contents: read
@@ -20,4 +21,3 @@ jobs:
           path: .
           include-hidden-files: true
           retention-days: 1
-# Source export for local implementation
