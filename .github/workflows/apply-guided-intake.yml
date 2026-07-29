@@ -28,8 +28,56 @@ jobs:
         run: |
           cat .implementation/patchpart-* | base64 -d | gzip -d > /tmp/intake.patch
           git apply --index /tmp/intake.patch
-          base64 -d .implementation/fix.patch.gz.b64 | gzip -d > /tmp/intake-fix.patch
-          git apply --index /tmp/intake-fix.patch
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path: str, old: str, new: str) -> None:
+              file = Path(path)
+              text = file.read_text()
+              if text.count(old) != 1:
+                  raise SystemExit(f'Expected one match in {path}: {old!r}')
+              file.write_text(text.replace(old, new, 1))
+
+          needs = Path('src/components/intake/steps/NeedsStep.astro')
+          text = needs.read_text()
+          text = text.replace('  goalOptions,\n', '')
+          text = text.replace('  yesNoNotSureOptions\n', '')
+          text = text.replace(')[value] }));', ')[value] ?? value }));')
+          needs.write_text(text)
+
+          materials = Path('src/components/intake/steps/MaterialsStep.astro')
+          text = materials.read_text()
+          text = text.replace(')[value] }));', ')[value] ?? value }));')
+          materials.write_text(text)
+
+          test_file = 'tests/e2e/intake.spec.ts'
+          replace_once(
+              test_file,
+              "await page.getByLabel('Business email').fill('jordan@example.com');",
+              "await page.getByRole('textbox', { name: 'Business email (required)' }).fill('jordan@example.com');"
+          )
+          replace_once(
+              test_file,
+              "  await page.getByLabel(label).check();\n  for (const addition of additions) await page.getByLabel(addition).check();",
+              "  await page.getByRole('radio', { name: label }).check();\n  for (const addition of additions) await page.getByRole('checkbox', { name: addition }).check();"
+          )
+          replace_once(
+              test_file,
+              "  await page.getByLabel('Look more professional').check();\n  await page.getByLabel('Home').check();\n  await page.getByLabel('Contact').check();\n  await page.getByLabel('Contact form').check();",
+              "  await page.locator('#needs-goals-professional').check();\n  await page.locator('#needs-pages-home').check();\n  await page.locator('#needs-pages-contact').check();\n  await page.locator('#needs-features-contact-form').check();"
+          )
+          replace_once(
+              test_file,
+              "await expect(page.getByText('Step 6 of 6')).toBeVisible();",
+              "await expect(page.getByText('Step 6 of 6', { exact: true })).toBeVisible();"
+          )
+          replace_once(
+              test_file,
+              "await expect(page.getByText('Step 1 of 6')).toBeVisible();",
+              "await expect(page.getByText('Step 1 of 6', { exact: true })).toBeVisible();"
+          )
+          PY
+          git diff --check
           rm -rf .implementation
           rm -f .github/workflows/apply-guided-intake.yml
       - name: Install locked dependencies
