@@ -73,6 +73,11 @@ jobs:
           )
           replace_once(
               test_file,
+              "await expect(page.getByText(/2–3 business days/)).toBeVisible();",
+              "await expect(page.locator('[data-confirmation-message]')).toContainText('2–3 business days');"
+          )
+          replace_once(
+              test_file,
               "await expect(page.getByText('Step 6 of 6')).toBeVisible();",
               "await expect(page.getByText('Step 6 of 6', { exact: true })).toBeVisible();"
           )
@@ -87,8 +92,8 @@ jobs:
           rm -f .github/workflows/apply-guided-intake.yml
       - name: Install locked dependencies
         run: npm ci
-      - name: Install Playwright browser
-        run: npx playwright install --with-deps chromium
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium webkit
       - name: Run foundation and intake tests
         run: npm test
       - name: Verify assets
