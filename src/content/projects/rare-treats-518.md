@@ -10,8 +10,8 @@ focus:
   - Market and event information
   - Mobile-first layout
 featured: true
-primaryImage: /assets/projects/rare-treats-518/home-mobile.svg
-secondaryImage: /assets/projects/rare-treats-518/custom-orders-mobile.svg
+primaryImage: /assets/projects/rare-treats-518/home-mobile.webp
+secondaryImage: /assets/projects/rare-treats-518/custom-orders-mobile.webp
 ---
 
 The site gives customers clear routes for exploring the brand, planning custom orders, and finding Rare Treats at markets in Troy, New York.

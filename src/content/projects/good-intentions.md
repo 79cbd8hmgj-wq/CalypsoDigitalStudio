@@ -10,8 +10,8 @@ focus:
   - Style-bundle process
   - Clothing-donation workflow
 featured: true
-primaryImage: /assets/projects/good-intentions/home-mobile.svg
-secondaryImage: /assets/projects/good-intentions/style-bundles-mobile.svg
+primaryImage: /assets/projects/good-intentions/home-mobile.webp
+secondaryImage: /assets/projects/good-intentions/style-bundles-mobile.webp
 ---
 
 The project is presented as work in progress. Draft inventory and inactive checkout are not represented as live commerce.
