@@ -3,7 +3,7 @@
 *,*::before,*::after{box-sizing:border-box}
 html{color-scheme:light;background:var(--color-canvas);scroll-behavior:smooth}
 body{margin:0;min-width:320px;background:radial-gradient(circle at 12% 8%,rgb(229 178 158 / .22),transparent 28rem),radial-gradient(circle at 88% 18%,rgb(216 214 234 / .28),transparent 30rem),var(--color-canvas);color:var(--color-ink);font-family:var(--font-body);font-size:var(--step-0);line-height:1.65;text-rendering:optimizeLegibility}
-img,svg{display:block;max-width:100%}
+img,svg{display:block;max-width:100%;height:auto}
 button,input,select,textarea{font:inherit}
 a{color:inherit}
 h1,h2,h3,p{margin-block-start:0}
