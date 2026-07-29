@@ -1,0 +1,6 @@
+---
+interface Props{eyebrow:string;title:string;description:string}
+const{eyebrow,title,description}=Astro.props;
+---
+<header class="page-intro container"><p class="eyebrow">{eyebrow}</p><h1>{title}</h1><p>{description}</p></header>
+<style>.page-intro{padding-block:var(--space-8) var(--space-7)}.page-intro p:last-child{font-size:var(--step-1)}</style>
