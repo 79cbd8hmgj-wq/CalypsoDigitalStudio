@@ -5,13 +5,16 @@ on:
     branches: [foundation/astro-site]
     paths:
       - .github/workflows/materialize-foundation.yml
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: write
 
 jobs:
   materialize:
-    if: github.event.head_commit.message != 'Materialize Astro website foundation'
+    if: github.event_name == 'pull_request' || github.event.head_commit.message != 'Materialize Astro website foundation'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
