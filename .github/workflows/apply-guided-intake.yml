@@ -68,6 +68,11 @@ jobs:
           )
           replace_once(
               test_file,
+              "await page.getByLabel('Approximate budget range').selectOption('1000-2500');",
+              "await page.locator('#budget-website').selectOption('1000-2500');"
+          )
+          replace_once(
+              test_file,
               "await expect(page.getByText('Step 6 of 6')).toBeVisible();",
               "await expect(page.getByText('Step 6 of 6', { exact: true })).toBeVisible();"
           )
