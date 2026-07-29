@@ -1,10 +1,6 @@
 name: Materialize website foundation
 
 on:
-  push:
-    branches: [foundation/astro-site]
-    paths:
-      - .github/workflows/materialize-foundation.yml
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened]
@@ -14,7 +10,6 @@ permissions:
 
 jobs:
   materialize:
-    if: github.event_name == 'pull_request' || github.event.head_commit.message != 'Materialize Astro website foundation'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,19 +17,29 @@ jobs:
           ref: foundation/astro-site
           fetch-depth: 0
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.2
+          cache: npm
+          cache-dependency-path: package.json
+
       - name: Install image tools
+        if: ${{ hashFiles('.bootstrap/text-payload.b64') != '' }}
         run: |
           sudo apt-get update
           sudo apt-get install -y poppler-utils imagemagick
 
       - name: Expand project source
+        if: ${{ hashFiles('.bootstrap/text-payload.b64') != '' }}
         run: |
           base64 --decode .bootstrap/text-payload.b64 > /tmp/calypso-text.tar.gz
           tar -xzf /tmp/calypso-text.tar.gz -C .
+          rm -f .github/workflows/bootstrap-lockfile.yml
           mkdir -p public/assets/brand
           cp .bootstrap/assets/public/assets/brand/calypso-master.svg public/assets/brand/calypso-master.svg
 
       - name: Generate optimized portfolio artwork from source archive
+        if: ${{ hashFiles('.bootstrap/text-payload.b64') != '' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -73,12 +78,31 @@ jobs:
           render_svg '/tmp/calypso-source/Good Intentions.pdf' 'good-home' 'public/assets/projects/good-intentions/home-mobile.svg'
           render_svg '/tmp/calypso-source/Style bundles | Good Intentions.pdf' 'good-bundles' 'public/assets/projects/good-intentions/style-bundles-mobile.svg'
 
+      - name: Generate npm lockfile
+        run: npm install --package-lock-only
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate foundation
+        run: |
+          npm test
+          npm run verify:assets
+          npm run verify:content
+          npm run check
+          npm run build
+          npm run verify:build
+
       - name: Commit materialized foundation
         run: |
           rm -rf .bootstrap
-          rm .github/workflows/materialize-foundation.yml
+          rm -f .github/workflows/bootstrap-lockfile.yml
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
+          if git diff --cached --quiet; then
+            echo 'Foundation already materialized and validated.'
+            exit 0
+          fi
           git commit -m 'Materialize Astro website foundation'
           git push origin HEAD:foundation/astro-site
