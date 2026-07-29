@@ -1,0 +1,109 @@
+name: Upgrade portfolio image quality
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/portfolio-image-quality
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.2
+          cache: npm
+
+      - name: Install image tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils imagemagick
+
+      - name: Generate high-resolution portfolio captures
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/calypso-source /tmp/calypso-render
+          mkdir -p /tmp/calypso-source /tmp/calypso-render
+          unzip -q 'Archive 9.zip' -d /tmp/calypso-source
+          find /tmp/calypso-source -name '._*' -delete
+
+          render_webp() {
+            local pdf="$1"
+            local slug="$2"
+            local output="$3"
+            mkdir -p "$(dirname "$output")"
+            pdftoppm -f 1 -singlefile -jpeg -r 216 "$pdf" "/tmp/calypso-render/$slug"
+            convert "/tmp/calypso-render/$slug.jpg" \
+              -gravity north \
+              -crop 1242x2250+0+0 +repage \
+              -strip \
+              -quality 90 \
+              "$output"
+            identify "$output"
+          }
+
+          render_webp '/tmp/calypso-source/Portfolio | LRL Photography.pdf' 'lrl-portfolio' 'public/assets/projects/lrl-photography/portfolio-mobile.webp'
+          render_webp '/tmp/calypso-source/Book a Session | LRL Photography.pdf' 'lrl-booking' 'public/assets/projects/lrl-photography/booking-mobile.webp'
+          render_webp '/tmp/calypso-source/Rare Treats 518.pdf' 'rare-home' 'public/assets/projects/rare-treats-518/home-mobile.webp'
+          render_webp '/tmp/calypso-source/Custom Orders | Rare Treats 518.pdf' 'rare-orders' 'public/assets/projects/rare-treats-518/custom-orders-mobile.webp'
+          render_webp '/tmp/calypso-source/Good Intentions.pdf' 'good-home' 'public/assets/projects/good-intentions/home-mobile.webp'
+          render_webp '/tmp/calypso-source/Style bundles | Good Intentions.pdf' 'good-bundles' 'public/assets/projects/good-intentions/style-bundles-mobile.webp'
+
+          rm -f \
+            public/assets/projects/lrl-photography/portfolio-mobile.svg \
+            public/assets/projects/lrl-photography/booking-mobile.svg \
+            public/assets/projects/rare-treats-518/home-mobile.svg \
+            public/assets/projects/rare-treats-518/custom-orders-mobile.svg \
+            public/assets/projects/good-intentions/home-mobile.svg \
+            public/assets/projects/good-intentions/style-bundles-mobile.svg
+
+      - name: Update image references and intrinsic dimensions
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          paths = [
+              Path('src/content/projects/lrl-photography.md'),
+              Path('src/content/projects/rare-treats-518.md'),
+              Path('src/content/projects/good-intentions.md'),
+              Path('src/pages/index.astro'),
+              Path('scripts/verify-assets.mjs'),
+          ]
+
+          for path in paths:
+              text = path.read_text(encoding='utf-8').replace('-mobile.svg', '-mobile.webp')
+              path.write_text(text, encoding='utf-8')
+
+          for path in [Path('src/pages/index.astro'), Path('src/components/ProjectCard.astro')]:
+              text = path.read_text(encoding='utf-8')
+              text = text.replace('width="828" height="1500"', 'width="1242" height="2250"')
+              path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Validate upgraded foundation
+        run: |
+          npm ci
+          npm test
+          npm run verify:assets
+          npm run verify:content
+          npm run check
+          npm run build
+          npm run verify:build
+
+      - name: Commit upgraded portfolio images
+        run: |
+          rm .github/workflows/upgrade-portfolio-images.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Upgrade portfolio image quality'
+          git push origin HEAD:fix/portfolio-image-quality
