@@ -28,6 +28,8 @@ jobs:
         run: |
           cat .implementation/patchpart-* | base64 -d | gzip -d > /tmp/intake.patch
           git apply --index /tmp/intake.patch
+          base64 -d .implementation/fix.patch.gz.b64 | gzip -d > /tmp/intake-fix.patch
+          git apply --index /tmp/intake-fix.patch
           rm -rf .implementation
           rm -f .github/workflows/apply-guided-intake.yml
       - name: Install locked dependencies
