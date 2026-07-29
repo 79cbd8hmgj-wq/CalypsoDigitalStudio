@@ -1,0 +1,73 @@
+---
+import ErrorSummary from '../ErrorSummary.astro';
+import FormField from '../FormField.astro';
+import SelectField from '../SelectField.astro';
+import TextAreaField from '../TextAreaField.astro';
+const websiteBudgets = [
+  { value: 'under-500', label: 'Under $500' }, { value: '500-1000', label: '$500–$1,000' },
+  { value: '1000-2500', label: '$1,000–$2,500' }, { value: '2500-5000', label: '$2,500–$5,000' },
+  { value: 'over-5000', label: 'More than $5,000' }, { value: 'not-sure', label: 'Not sure yet' }
+];
+const toolBudgets = [
+  { value: 'under-1000', label: 'Under $1,000' }, { value: '1000-2500', label: '$1,000–$2,500' },
+  { value: '2500-5000', label: '$2,500–$5,000' }, { value: '5000-10000', label: '$5,000–$10,000' },
+  { value: 'over-10000', label: 'More than $10,000' }, { value: 'not-sure', label: 'Not sure yet' }
+];
+const oneTimeBudgets = [
+  { value: 'under-250', label: 'Under $250' }, { value: '250-500', label: '$250–$500' },
+  { value: '500-1000', label: '$500–$1,000' }, { value: 'over-1000', label: 'More than $1,000' },
+  { value: 'not-sure', label: 'Not sure yet' }
+];
+const monthlyBudgets = [
+  { value: 'under-100-month', label: 'Under $100 per month' }, { value: '100-250-month', label: '$100–$250 per month' },
+  { value: '250-500-month', label: '$250–$500 per month' }, { value: 'over-500-month', label: 'More than $500 per month' },
+  { value: 'not-sure', label: 'Not sure yet' }
+];
+const timing = [
+  { value: 'asap', label: 'As soon as reasonably possible' }, { value: 'within-month', label: 'Within one month' },
+  { value: '1-3-months', label: 'Within 1–3 months' }, { value: '3-6-months', label: 'Within 3–6 months' },
+  { value: 'flexible', label: 'Flexible' }, { value: 'not-sure', label: 'Not sure yet' }
+];
+---
+<section class="wizard-step" data-step-index="4" data-step-id="budget" aria-labelledby="budget-step-title" hidden>
+  <header class="step-heading" tabindex="-1">
+    <p class="eyebrow">Step 5 of 6</p>
+    <h2 id="budget-step-title">Budget, timing, and readiness</h2>
+    <p>This helps me recommend an appropriate scope. It is not an estimate, quote, or commitment.</p>
+  </header>
+  <ErrorSummary />
+  <div class="form-grid">
+    <div data-budget-set="website">
+      <SelectField id="budget-website" name="budgetAndTiming.budgetRange" label="Approximate budget range" options={websiteBudgets} required />
+    </div>
+    <div data-budget-set="custom-tool" hidden>
+      <SelectField id="budget-tool" name="budgetAndTiming.budgetRange" label="Approximate budget range" options={toolBudgets} required />
+    </div>
+    <div data-budget-set="support" hidden>
+      <SelectField id="support-type" name="budgetAndTiming.supportType" label="Support type" options={[
+        { value: 'one-time', label: 'One-time support' }, { value: 'recurring', label: 'Recurring monthly support' }, { value: 'not-sure', label: 'Not sure yet' }
+      ]} />
+      <div data-support-budget="one-time">
+        <SelectField id="budget-support-once" name="budgetAndTiming.budgetRange" label="Approximate one-time budget" options={oneTimeBudgets} required />
+      </div>
+      <div data-support-budget="recurring" hidden>
+        <SelectField id="budget-support-monthly" name="budgetAndTiming.budgetRange" label="Approximate monthly budget" options={monthlyBudgets} required />
+      </div>
+    </div>
+    <SelectField id="preferred-timing" name="budgetAndTiming.preferredTiming" label="Preferred timing" options={timing} required />
+    <SelectField id="date-flexibility" name="budgetAndTiming.dateFlexibility" label="Is there a specific launch date?" options={[
+      { value: 'fixed', label: 'Yes, the date is fixed' }, { value: 'flexible', label: 'There is a flexible target' }, { value: 'none', label: 'No specific date' }
+    ]} />
+    <FormField id="launch-date" name="budgetAndTiming.launchDate" label="Desired launch date" type="date" />
+    <TextAreaField id="deadline-context" name="budgetAndTiming.deadlineContext" label="Is the timing connected to an event, opening, promotion, or seasonal need?" maxlength={2000} />
+    <SelectField id="readiness" name="budgetAndTiming.readiness" label="How ready are you to begin?" options={[
+      { value: 'ready', label: 'Ready to begin' }, { value: 'preparing-materials', label: 'Preparing materials' },
+      { value: 'comparing-options', label: 'Comparing options' }, { value: 'early-research', label: 'Early research' },
+      { value: 'not-sure', label: 'Not sure yet' }
+    ]} required />
+    <SelectField id="decision-maker" name="budgetAndTiming.decisionMaker" label="Who makes the final project decision?" options={[
+      { value: 'client', label: 'I do' }, { value: 'shared', label: 'It is a shared decision' }, { value: 'someone-else', label: 'Someone else does' }
+    ]} required />
+    <TextAreaField id="other-approvers" name="budgetAndTiming.otherApprovers" label="Who else is involved in approving the work?" maxlength={500} />
+  </div>
+</section>

@@ -1,102 +1,37 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageIntro from '../components/PageIntro.astro';
-import { projectTypes } from '../data/intake';
+import IntakeWizard from '../components/intake/IntakeWizard.astro';
 import { contact } from '../data/contact';
 ---
-
 <BaseLayout
   title="Start Your Project"
-  description="Choose the type of website or digital tool your business may need and prepare for a project conversation."
+  description="Share your business and project needs through Calypso Digital Studio's guided client intake form."
 >
   <PageIntro
     eyebrow="Start your project"
-    title="Begin with the option closest to what the business needs."
-    description="You do not need to know the exact pages, platform, or technical solution before reaching out."
+    title="Tell me what the business needs—without translating it into technical language."
+    description="This guided form organizes the information I need to review the project and prepare a custom recommendation and quote."
   />
 
-  <section class="types container">
-    {projectTypes.map(([title, description]) => (
-      <article class="surface">
-        <h2>{title}</h2>
-        <p>{description}</p>
-      </article>
-    ))}
-  </section>
+  <IntakeWizard />
 
-  <section class="note container">
-    <div>
-      <p class="eyebrow">What the full guided form will cover</p>
-      <h2>Business goals, pages, features, materials, visual direction, budget, and timeframe.</h2>
-      <p>
-        Submitting the finished form will not commit you to purchasing services.
-        It will help me understand the project and prepare an accurate recommendation.
-      </p>
-    </div>
-
-    <aside class="surface">
-      <h2>Ready to discuss it now?</h2>
-      <p>
-        Until the guided form is activated, email the business and include whatever
-        you already know about the project. You can also reach Calypso Digital Studio
-        through Instagram or Facebook.
-      </p>
-      <div class="contact-links">
-        <a class="contact-links__email" href={contact.emailHref}>{contact.email}</a>
-        <a href={contact.instagram.href} target="_blank" rel="noreferrer">
-          Message on {contact.instagram.label}
-        </a>
-        <a href={contact.facebook.href} target="_blank" rel="noreferrer">
-          View {contact.facebook.label}
-        </a>
+  <section class="direct-contact container" aria-labelledby="direct-contact-title">
+    <div class="surface">
+      <p class="eyebrow">Prefer direct contact?</p>
+      <h2 id="direct-contact-title">The guided form is the best way to receive an accurate review.</h2>
+      <p>Email remains available for accessibility problems, corrections, or a project that cannot be described through the form.</p>
+      <div class="direct-contact__links">
+        <a href={contact.emailHref}>{contact.email}</a>
+        <a href={contact.instagram.href} target="_blank" rel="noreferrer">Instagram</a>
+        <a href={contact.facebook.href} target="_blank" rel="noreferrer">Facebook</a>
       </div>
-    </aside>
+    </div>
   </section>
 </BaseLayout>
-
 <style>
-  .types {
-    display: grid;
-    gap: var(--space-4);
-  }
-
-  .types article,
-  .note aside {
-    padding: var(--space-5);
-  }
-
-  .note {
-    display: grid;
-    gap: var(--space-5);
-    padding-block: var(--space-8);
-  }
-
-  .contact-links {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-3);
-  }
-
-  .contact-links a {
-    font-weight: 800;
-    text-decoration-color: var(--color-rust);
-    text-decoration-thickness: 0.12em;
-    text-underline-offset: 0.2em;
-  }
-
-  .contact-links__email {
-    overflow-wrap: anywhere;
-    font-size: var(--step-1);
-  }
-
-  @media (min-width: 48rem) {
-    .types {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .note {
-      grid-template-columns: 1.2fr 0.8fr;
-    }
-  }
+  .direct-contact { padding-bottom: var(--space-8); }
+  .direct-contact > div { width: min(100%, 58rem); margin-inline: auto; padding: clamp(1.25rem, 3vw, 2.5rem); }
+  .direct-contact__links { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+  .direct-contact__links a { overflow-wrap: anywhere; color: var(--color-rust); font-weight: 800; text-underline-offset: .2em; }
 </style>

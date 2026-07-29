@@ -1,0 +1,43 @@
+---
+interface Props {
+  id: string;
+  name: string;
+  label: string;
+  type?: 'text' | 'email' | 'tel' | 'url' | 'date';
+  help?: string;
+  required?: boolean;
+  maxlength?: number;
+  placeholder?: string;
+  autocomplete?: string;
+  wide?: boolean;
+}
+const {
+  id,
+  name,
+  label,
+  type = 'text',
+  help = '',
+  required = false,
+  maxlength,
+  placeholder,
+  autocomplete,
+  wide = false
+} = Astro.props;
+const helpId = `${id}-help`;
+const errorId = `${id}-error`;
+---
+<div class:list={['form-field', { 'form-field--wide': wide }]} data-field-path={name}>
+  <label for={id}>{label}{required && <span class="required-note"> (required)</span>}</label>
+  {help && <p class="field-help" id={helpId}>{help}</p>}
+  <input
+    id={id}
+    name={name}
+    type={type}
+    required={required}
+    maxlength={maxlength}
+    placeholder={placeholder}
+    autocomplete={autocomplete}
+    aria-describedby={`${help ? helpId : ''} ${errorId}`.trim()}
+  />
+  <p class="field-error" id={errorId} data-field-error hidden></p>
+</div>

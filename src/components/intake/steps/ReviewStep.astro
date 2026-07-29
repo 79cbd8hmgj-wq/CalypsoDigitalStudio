@@ -1,0 +1,46 @@
+---
+import ChoiceGroup from '../ChoiceGroup.astro';
+import ErrorSummary from '../ErrorSummary.astro';
+import FormField from '../FormField.astro';
+import ReviewSummary from '../ReviewSummary.astro';
+import TextAreaField from '../TextAreaField.astro';
+import { contactMethodOptions } from '../../../data/intake';
+---
+<section class="wizard-step" data-step-index="5" data-step-id="review" aria-labelledby="review-step-title" hidden>
+  <header class="step-heading" tabindex="-1">
+    <p class="eyebrow">Step 6 of 6</p>
+    <h2 id="review-step-title">Review the request and choose how I should respond.</h2>
+    <p>No price is generated here. I’ll personally review the information and follow up within 2–3 business days.</p>
+  </header>
+  <ErrorSummary />
+  <ReviewSummary />
+  <section class="contact-preferences" aria-labelledby="contact-preferences-title">
+    <h3 id="contact-preferences-title">Contact preferences</h3>
+    <ChoiceGroup id="contact-method" name="contact.preferredMethod" legend="Preferred contact method" options={contactMethodOptions} mode="radio" required />
+    <div class="form-grid">
+      <FormField id="contact-time" name="contact.preferredTime" label="Best days or times to respond" maxlength={120} />
+      <FormField id="contact-timezone" name="contact.timeZone" label="Time zone" help="Requested when you provide a preferred time." maxlength={120} />
+      <FormField id="contact-social" name="contact.socialAccount" label="Instagram or Facebook account" help="Required only when you choose a social platform and did not provide a link earlier." maxlength={500} wide />
+      <TextAreaField id="contact-additional" name="contact.additionalInfo" label="Anything else I should understand about the project?" maxlength={2000} />
+      <FormField id="contact-referral" name="contact.referralSource" label="How did you hear about Calypso Digital Studio?" maxlength={500} wide />
+    </div>
+  </section>
+  <fieldset class="consent-group">
+    <legend>Before submitting</legend>
+    <label class="consent-option" for="consent-accurate">
+      <input id="consent-accurate" name="consent.accurate" type="checkbox" value="true" />
+      <span>The information is accurate to the best of my knowledge.</span>
+    </label>
+    <p class="field-error" id="consent-accurate-error" data-field-error data-field-path="consent.accurate" hidden></p>
+    <label class="consent-option" for="consent-contact">
+      <input id="consent-contact" name="consent.contactPermission" type="checkbox" value="true" />
+      <span>I understand that submitting does not commit me to purchasing services, and Calypso Digital Studio may contact me about this request.</span>
+    </label>
+    <p class="field-error" id="consent-contact-error" data-field-error data-field-path="consent.contactPermission" hidden></p>
+  </fieldset>
+  <div class="turnstile-region" data-turnstile-region>
+    <div data-turnstile-widget></div>
+    <p class="field-help" data-turnstile-status>Security verification will appear before submission.</p>
+  </div>
+  <div class="submission-error" data-submission-error hidden tabindex="-1" aria-live="assertive"></div>
+</section>

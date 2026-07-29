@@ -1,0 +1,140 @@
+---
+import BusinessStep from './steps/BusinessStep.astro';
+import ProjectStep from './steps/ProjectStep.astro';
+import NeedsStep from './steps/NeedsStep.astro';
+import MaterialsStep from './steps/MaterialsStep.astro';
+import BudgetStep from './steps/BudgetStep.astro';
+import ReviewStep from './steps/ReviewStep.astro';
+import RestoreDraftNotice from './RestoreDraftNotice.astro';
+import SubmissionConfirmation from './SubmissionConfirmation.astro';
+import WizardNavigation from './WizardNavigation.astro';
+import WizardProgress from './WizardProgress.astro';
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
+const submissionEnabled = turnstileSiteKey.trim().length > 0;
+---
+<div
+  class="intake-wizard container"
+  data-intake-wizard
+  data-turnstile-site-key={turnstileSiteKey}
+  data-submission-enabled={String(submissionEnabled)}
+>
+  <section class="intake-welcome surface" data-intake-welcome>
+    <p class="eyebrow">Guided project form</p>
+    <h2>Start with what you know.</h2>
+    <p>The form usually takes 5–10 minutes. Technical knowledge is not required, no price is generated, and submitting does not commit you to purchasing services.</p>
+    <ul>
+      <li>Your unfinished progress is saved on this device for 30 days.</li>
+      <li>No logo, photos, or documents need to be uploaded now.</li>
+      <li>I’ll personally review the request within 2–3 business days.</li>
+    </ul>
+    <button class="button" type="button" data-start-intake>Start Your Project</button>
+  </section>
+
+  <RestoreDraftNotice />
+
+  <section class="wizard-shell surface" data-wizard-shell hidden>
+    <WizardProgress />
+    <form novalidate data-intake-form>
+      <BusinessStep />
+      <ProjectStep />
+      <NeedsStep />
+      <MaterialsStep />
+      <BudgetStep />
+      <ReviewStep />
+      <div class="honeypot" aria-hidden="true">
+        <label for="company-confirmation">Leave this field empty</label>
+        <input id="company-confirmation" name="honeypot" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+      <WizardNavigation />
+    </form>
+  </section>
+
+  <SubmissionConfirmation />
+
+  <noscript>
+    <section class="noscript-fallback surface">
+      <h2>The guided form requires JavaScript.</h2>
+      <p>Email <a href="mailto:calydigital@outlook.com">calydigital@outlook.com</a> with your business name, what you need, desired features, available branding, approximate budget, timeline, and preferred contact method.</p>
+    </section>
+  </noscript>
+</div>
+
+<style is:global>
+  .intake-wizard { padding-block: var(--space-6) var(--space-8); }
+  .intake-welcome, .restore-notice, .wizard-shell, .submission-confirmation, .noscript-fallback { width: min(100%, 58rem); margin-inline: auto; padding: clamp(1.25rem, 3vw, 2.5rem); }
+  .intake-welcome ul { display: grid; gap: var(--space-2); padding-left: 1.25rem; margin-bottom: var(--space-5); }
+  .button { display: inline-flex; min-height: 3rem; align-items: center; justify-content: center; border: 1px solid transparent; border-radius: var(--radius-small); padding: .75rem 1.1rem; background: var(--color-rust); color: var(--color-surface); font-weight: 800; text-align: center; text-decoration: none; cursor: pointer; }
+  .button--secondary { border-color: var(--color-ink); background: transparent; color: var(--color-ink); }
+  .button:disabled { cursor: not-allowed; opacity: .55; }
+  .button-row { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+  .wizard-shell { padding: 0; overflow: clip; }
+  .wizard-progress { border-bottom: var(--border-thin); padding: var(--space-4); background: color-mix(in srgb, var(--color-lavender) 35%, var(--color-surface)); }
+  .wizard-progress__current { margin: 0; font-weight: 800; }
+  .wizard-progress ol { display: none; margin: var(--space-4) 0 0; padding: 0; list-style: none; gap: var(--space-2); }
+  .wizard-progress button { display: grid; width: 100%; gap: .25rem; border: 0; background: transparent; color: var(--color-muted); font-size: var(--step--1); text-align: left; }
+  .wizard-progress button span { display: grid; width: 1.75rem; height: 1.75rem; place-items: center; border: 1px solid currentColor; border-radius: 50%; font-weight: 800; }
+  .wizard-progress button[aria-current="step"] { color: var(--color-rust); }
+  .wizard-progress button[data-complete="true"] { color: var(--color-sage); cursor: pointer; }
+  [data-intake-form] { padding: clamp(1.25rem, 3vw, 2.5rem); }
+  .wizard-step { display: grid; gap: var(--space-5); }
+  .wizard-step[hidden], [data-condition][hidden], [data-value-condition][hidden], [data-budget-set][hidden], [data-support-budget][hidden] { display: none !important; }
+  .step-heading { scroll-margin-top: 1rem; }
+  .step-heading p:last-child { margin-bottom: 0; color: var(--color-muted); }
+  .form-grid { display: grid; gap: var(--space-4); }
+  .form-field, .choice-group { min-width: 0; margin: 0; }
+  .form-field > label, .choice-group > legend { display: block; margin-bottom: var(--space-1); font-weight: 800; }
+  .choice-group { border: 0; padding: 0; }
+  .field-help, .section-help { margin: 0 0 var(--space-2); color: var(--color-muted); font-size: var(--step--1); }
+  .required-note { font-weight: 600; color: var(--color-muted); }
+  input:not([type="checkbox"]):not([type="radio"]), select, textarea { width: 100%; min-height: 3rem; border: 1px solid var(--color-border); border-radius: var(--radius-small); padding: .75rem .85rem; background: var(--color-surface); color: var(--color-ink); }
+  textarea { min-height: 8rem; resize: vertical; }
+  input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="true"] { border-color: #9c261d; box-shadow: 0 0 0 2px rgb(156 38 29 / .15); }
+  .field-error { margin: .35rem 0 0; color: #8b1f18; font-size: var(--step--1); font-weight: 700; }
+  .error-summary { border-left: .35rem solid #8b1f18; border-radius: var(--radius-small); padding: var(--space-4); background: rgb(182 79 48 / .1); }
+  .error-summary h3 { font-size: var(--step-1); }
+  .error-summary ul { margin-bottom: 0; }
+  .choice-grid { display: grid; gap: var(--space-2); }
+  .choice-option, .consent-option { display: flex; min-height: 3rem; align-items: flex-start; gap: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-small); padding: .8rem; background: var(--color-surface); cursor: pointer; }
+  .choice-option:has(input:checked), .consent-option:has(input:checked) { border-width: 2px; border-color: var(--color-sage); background: color-mix(in srgb, var(--color-sage) 10%, var(--color-surface)); }
+  .choice-option input, .consent-option input { width: 1.25rem; height: 1.25rem; flex: 0 0 auto; margin-top: .15rem; accent-color: var(--color-rust); }
+  .choice-option__copy { display: grid; gap: .2rem; }
+  .choice-option__copy small { color: var(--color-muted); }
+  .conditional-panel { display: grid; gap: var(--space-4); border-top: var(--border-thin); padding-top: var(--space-5); }
+  .conditional-panel h3 { margin-bottom: 0; }
+  .repeatable-row { display: grid; grid-template-columns: 1fr auto; gap: var(--space-2); margin-bottom: var(--space-2); }
+  .repeatable-row button, .text-button, .review-card button { border: 0; padding: .35rem; background: transparent; color: var(--color-rust); font-weight: 800; text-decoration: underline; text-underline-offset: .2em; cursor: pointer; }
+  .review-summary { display: grid; gap: var(--space-4); }
+  .review-grid { display: grid; gap: var(--space-3); }
+  .review-card { padding: var(--space-4); box-shadow: none; }
+  .review-card header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+  .review-card h4 { margin: 0; font-family: var(--font-display); font-size: var(--step-1); }
+  .review-card dl, .submission-confirmation dl { display: grid; gap: var(--space-2); margin: var(--space-3) 0 0; }
+  .review-card dl div, .submission-confirmation dl div { display: grid; gap: .15rem; }
+  .review-card dt, .submission-confirmation dt { color: var(--color-muted); font-size: var(--step--1); font-weight: 800; }
+  .review-card dd, .submission-confirmation dd { margin: 0; overflow-wrap: anywhere; }
+  .contact-preferences, .consent-group { display: grid; gap: var(--space-4); border-top: var(--border-thin); padding-top: var(--space-5); }
+  .consent-group { border-right: 0; border-bottom: 0; border-left: 0; padding-inline: 0; }
+  .turnstile-region { max-width: 100%; overflow: hidden; }
+  .submission-error { border-radius: var(--radius-small); padding: var(--space-4); background: rgb(182 79 48 / .12); color: #7a1c16; font-weight: 700; }
+  .wizard-navigation { position: sticky; z-index: 5; bottom: 0; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--space-3); margin: var(--space-6) calc(clamp(1.25rem, 3vw, 2.5rem) * -1) calc(clamp(1.25rem, 3vw, 2.5rem) * -1); border-top: var(--border-thin); padding: var(--space-3) clamp(1.25rem, 3vw, 2.5rem); background: rgb(255 253 248 / .96); backdrop-filter: blur(10px); }
+  .save-status { margin: 0; color: var(--color-muted); font-size: var(--step--1); text-align: center; }
+  .honeypot { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+  .submission-confirmation { display: grid; gap: var(--space-4); }
+  .submission-confirmation[hidden] { display: none; }
+  @media (min-width: 48rem) {
+    .wizard-progress ol { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .wizard-progress__current { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+    .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .form-field--wide, .choice-group, .conditional-panel, .repeatable-field { grid-column: 1 / -1; }
+    .choice-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .choice-group--cards .choice-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .review-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .intake-wizard * { scroll-behavior: auto; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+  }
+</style>
+
+<script>
+  import '../../scripts/intake-wizard';
+</script>

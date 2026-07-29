@@ -1,0 +1,29 @@
+---
+interface Props {
+  id: string;
+  name: string;
+  label: string;
+  help?: string;
+  required?: boolean;
+  maxlength?: number;
+  rows?: number;
+  placeholder?: string;
+}
+const { id, name, label, help = '', required = false, maxlength = 2000, rows = 4, placeholder } = Astro.props;
+const helpId = `${id}-help`;
+const errorId = `${id}-error`;
+---
+<div class="form-field form-field--wide" data-field-path={name}>
+  <label for={id}>{label}{required && <span class="required-note"> (required)</span>}</label>
+  {help && <p class="field-help" id={helpId}>{help}</p>}
+  <textarea
+    id={id}
+    name={name}
+    required={required}
+    maxlength={maxlength}
+    rows={rows}
+    placeholder={placeholder}
+    aria-describedby={`${help ? helpId : ''} ${errorId}`.trim()}
+  ></textarea>
+  <p class="field-error" id={errorId} data-field-error hidden></p>
+</div>

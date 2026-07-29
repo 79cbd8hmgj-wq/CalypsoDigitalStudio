@@ -1,0 +1,17 @@
+<section class="review-summary" aria-labelledby="review-summary-title">
+  <div class="review-summary__intro">
+    <h3 id="review-summary-title">Review your project details</h3>
+    <p>Check each section before submitting. Use Edit to return to a step without losing your answers.</p>
+  </div>
+  <div class="review-grid" data-review-summary>
+    {['Business', 'Project', 'Needs', 'Materials', 'Budget & timing', 'Contact'].map((title, index) => (
+      <article class="review-card surface" data-review-section={index}>
+        <header>
+          <h4>{title}</h4>
+          <button type="button" data-edit-step={index}>Edit</button>
+        </header>
+        <dl data-review-rows></dl>
+      </article>
+    ))}
+  </div>
+</section>

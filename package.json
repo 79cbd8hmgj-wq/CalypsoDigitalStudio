@@ -3,17 +3,34 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.12.0 <23" },
+  "engines": {
+    "node": ">=22.12.0 <23"
+  },
   "scripts": {
     "dev": "astro dev",
+    "dev:pages": "npm run build && wrangler pages dev dist",
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check && tsc --noEmit",
-    "test": "node --test scripts/*.test.mjs",
+    "test": "npm run test:foundation && npm run test:unit",
+    "test:foundation": "node --test scripts/*.test.mjs",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:e2e": "PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA npm run build && playwright test",
     "verify:content": "node scripts/verify-content-config.mjs",
     "verify:assets": "node scripts/verify-assets.mjs",
     "verify:build": "node scripts/verify-build-output.mjs"
   },
-  "dependencies": { "astro": "7.0.9" },
-  "devDependencies": { "@astrojs/check": "0.9.9", "typescript": "5.9.3" }
+  "dependencies": {
+    "astro": "7.0.9"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.9",
+    "@cloudflare/workers-types": "5.20260729.1",
+    "@playwright/test": "1.62.0",
+    "happy-dom": "20.11.1",
+    "typescript": "5.9.3",
+    "vitest": "4.1.10",
+    "wrangler": "4.115.0"
+  }
 }
