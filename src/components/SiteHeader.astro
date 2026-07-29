@@ -2,5 +2,128 @@
 import BrandWordmark from './BrandWordmark.astro';
 import { navigation } from '../data/navigation';
 ---
-<header class="site-header"><div class="site-header__inner container"><BrandWordmark/><details class="navigation"><summary>Menu</summary><nav aria-label="Primary navigation"><ul>{navigation.map((item)=><li><a class:list={{'navigation__emphasis':item.emphasis}} href={item.href}>{item.label}</a></li>)}</ul></nav></details></div></header>
-<style>.site-header{position:relative;z-index:10;border-bottom:var(--border-thin);background:rgb(247 241 231 / .92);backdrop-filter:blur(14px)}.site-header__inner{display:flex;min-height:5rem;align-items:center;justify-content:space-between;gap:var(--space-4)}.navigation summary{cursor:pointer;font-weight:800}.navigation nav{position:absolute;inset:calc(100% + 1px) 0 auto;border-bottom:var(--border-thin);background:var(--color-canvas);padding:var(--space-4) 1rem var(--space-5)}.navigation ul{display:grid;gap:var(--space-3);width:min(100%,var(--container));margin:0 auto;padding:0;list-style:none}.navigation a{display:block;padding:.5rem 0;font-weight:750;text-decoration:none}.navigation__emphasis{color:var(--color-rust)}@media(min-width:58rem){.navigation summary{display:none}.navigation nav{position:static;border:0;background:transparent;padding:0}.navigation ul{display:flex;align-items:center;gap:var(--space-5)}.navigation__emphasis{border-radius:var(--radius-small);background:var(--color-rust);color:var(--color-surface)!important;padding:.7rem .95rem!important}}</style>
+
+<header class="site-header">
+  <div class="site-header__inner container">
+    <BrandWordmark />
+
+    <nav class="desktop-navigation" aria-label="Primary navigation">
+      <ul>
+        {navigation.map((item) => (
+          <li>
+            <a
+              class:list={{ navigation__emphasis: item.emphasis }}
+              href={item.href}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <details class="mobile-navigation">
+      <summary>Menu</summary>
+      <nav aria-label="Mobile navigation">
+        <ul>
+          {navigation.map((item) => (
+            <li>
+              <a
+                class:list={{ navigation__emphasis: item.emphasis }}
+                href={item.href}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </details>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: relative;
+    z-index: 10;
+    border-bottom: var(--border-thin);
+    background: rgb(247 241 231 / 0.92);
+    backdrop-filter: blur(14px);
+  }
+
+  .site-header__inner {
+    display: flex;
+    min-height: 5rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    font-weight: 750;
+    text-decoration: none;
+  }
+
+  .navigation__emphasis {
+    color: var(--color-rust);
+  }
+
+  .desktop-navigation {
+    display: none;
+  }
+
+  .mobile-navigation summary {
+    cursor: pointer;
+    font-weight: 800;
+  }
+
+  .mobile-navigation nav {
+    position: absolute;
+    inset: calc(100% + 1px) 0 auto;
+    border-bottom: var(--border-thin);
+    background: var(--color-canvas);
+    padding: var(--space-4) 1rem var(--space-5);
+  }
+
+  .mobile-navigation ul {
+    display: grid;
+    gap: var(--space-3);
+    width: min(100%, var(--container));
+    margin: 0 auto;
+  }
+
+  .mobile-navigation a {
+    display: block;
+    padding: 0.5rem 0;
+  }
+
+  @media (min-width: 58rem) {
+    .mobile-navigation {
+      display: none;
+    }
+
+    .desktop-navigation {
+      display: block;
+    }
+
+    .desktop-navigation ul {
+      display: flex;
+      align-items: center;
+      gap: var(--space-5);
+    }
+
+    .desktop-navigation .navigation__emphasis {
+      display: inline-flex;
+      border-radius: var(--radius-small);
+      background: var(--color-rust);
+      color: var(--color-surface);
+      padding: 0.7rem 0.95rem;
+    }
+  }
+</style>
