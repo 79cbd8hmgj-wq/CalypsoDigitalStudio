@@ -10,8 +10,8 @@ focus:
   - Integrated booking flow
   - Mobile usability
 featured: true
-primaryImage: /assets/projects/lrl-photography/portfolio-mobile.svg
-secondaryImage: /assets/projects/lrl-photography/booking-mobile.svg
+primaryImage: /assets/projects/lrl-photography/portfolio-mobile.webp
+secondaryImage: /assets/projects/lrl-photography/booking-mobile.webp
 ---
 
 The site organizes Lindsay's services, portfolio, pricing, and scheduling into one clear client journey.
