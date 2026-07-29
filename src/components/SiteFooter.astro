@@ -1,7 +1,109 @@
 ---
 import BrandWordmark from './BrandWordmark.astro';
 import { navigation } from '../data/navigation';
-const year=new Date().getFullYear();
+import { contact } from '../data/contact';
+
+const year = new Date().getFullYear();
 ---
-<footer class="site-footer"><div class="site-footer__inner container"><div><BrandWordmark/><p>Custom websites and practical digital tools built around your business.</p></div><nav aria-label="Footer navigation"><ul>{navigation.slice(1).map((item)=><li><a href={item.href}>{item.label}</a></li>)}</ul></nav><p class="meta">Based in New York's Capital Region. Working with clients anywhere.<br/>© {year} Calypso Digital Studio.</p></div></footer>
-<style>.site-footer{margin-top:var(--space-8);border-top:var(--border-thin);background:var(--color-ink);color:var(--color-canvas)}.site-footer__inner{display:grid;gap:var(--space-6);padding-block:var(--space-7)}.site-footer :global(.wordmark){color:var(--color-canvas)}.site-footer ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-2) var(--space-5);margin:0;padding:0;list-style:none}.site-footer a{color:inherit}.meta{color:rgb(247 241 231 / .74);font-size:var(--step--1)}@media(min-width:52rem){.site-footer__inner{grid-template-columns:1.2fr .8fr}.meta{grid-column:1/-1}}</style>
+
+<footer class="site-footer">
+  <div class="site-footer__inner container">
+    <div class="site-footer__brand">
+      <BrandWordmark />
+      <p>Custom websites and practical digital tools built around your business.</p>
+    </div>
+
+    <nav aria-label="Footer navigation">
+      <ul>
+        {navigation.slice(1).map((item) => (
+          <li><a href={item.href}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="site-footer__contact">
+      <p class="site-footer__label">Contact</p>
+      <a href={contact.emailHref}>{contact.email}</a>
+      <a href={contact.instagram.href} target="_blank" rel="noreferrer">
+        {contact.instagram.label}
+      </a>
+      <a href={contact.facebook.href} target="_blank" rel="noreferrer">
+        {contact.facebook.label}
+      </a>
+    </div>
+
+    <p class="meta">
+      Based in New York’s Capital Region. Working with clients anywhere.
+      <br />
+      © {year} Calypso Digital Studio.
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--space-8);
+    border-top: var(--border-thin);
+    background: var(--color-ink);
+    color: var(--color-canvas);
+  }
+
+  .site-footer__inner {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--space-7);
+  }
+
+  .site-footer :global(.wordmark) {
+    color: var(--color-canvas);
+  }
+
+  .site-footer ul {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2) var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-footer a {
+    color: inherit;
+  }
+
+  .site-footer__contact {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .site-footer__contact a {
+    overflow-wrap: anywhere;
+  }
+
+  .site-footer__label {
+    margin: 0;
+    color: var(--color-clay);
+    font-size: var(--step--1);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .meta {
+    color: rgb(247 241 231 / 0.74);
+    font-size: var(--step--1);
+  }
+
+  @media (min-width: 52rem) {
+    .site-footer__inner {
+      grid-template-columns: 1.1fr 0.75fr 0.7fr;
+      align-items: start;
+    }
+
+    .meta {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

@@ -1,4 +1,206 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';import PageIntro from '../components/PageIntro.astro';import ButtonLink from '../components/ButtonLink.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageIntro from '../components/PageIntro.astro';
+import ButtonLink from '../components/ButtonLink.astro';
+import { contact } from '../data/contact';
 ---
-<BaseLayout title="About" description="Meet Evan and learn why Calypso Digital Studio combines thoughtful design with practical software development."><PageIntro eyebrow="About the studio" title="A personal design studio with the technical range to build more than a brochure site." description="I work directly with business owners to turn unclear ideas, scattered information, and inefficient workflows into understandable digital experiences."/><section class="about container"><div><h2>Design and development belong in the same conversation.</h2><p>I started Calypso Digital Studio to help small businesses get websites that feel like their actual business while still working clearly for customers. The same approach extends into custom tools when a standard website cannot solve the whole problem.</p><p>The studio is based in New York's Capital Region and can work with clients anywhere.</p></div><figure class="surface"><img src="/assets/brand/calypso-master.webp" alt="Calypso Digital Studio illustrated logo" width="1200" height="1200"/><figcaption>The studio is named after Calypso. Her markings and personality influence the warm, organic identity without turning the business into a novelty brand.</figcaption></figure></section><section class="principles container"><p class="eyebrow">Studio principles</p><div><article><h2>Understandable</h2><p>Clients should not need development vocabulary to explain what their business needs.</p></article><article><h2>Purpose-built</h2><p>Pages and features should exist because they serve the business or its customers.</p></article><article><h2>Honest</h2><p>Project status, limitations, recommendations, and next steps should always be clear.</p></article></div><ButtonLink href="/start">Start Your Project</ButtonLink></section></BaseLayout><style>.about{display:grid;gap:var(--space-6);align-items:center}.about figure{margin:0;overflow:hidden}.about figcaption{padding:var(--space-4)}.principles{padding-block:var(--space-8)}.principles>div{display:grid;gap:var(--space-4);margin-bottom:var(--space-5)}@media(min-width:56rem){.about{grid-template-columns:1fr .8fr}.principles>div{grid-template-columns:repeat(3,minmax(0,1fr))}}</style>
+
+<BaseLayout
+  title="About"
+  description="Meet Evan Lebrecht and learn how clear communication, practical problem-solving, and hands-on development shape Calypso Digital Studio."
+>
+  <PageIntro
+    eyebrow="About the studio"
+    title="I build by understanding the business before choosing the solution."
+    description="Calypso Digital Studio combines thoughtful design, practical development, and a direct working relationship with the person building your project."
+  />
+
+  <section class="about container">
+    <div class="about__story">
+      <p class="eyebrow">The person behind the work</p>
+      <h2>Practical problem-solving, shaped by hands-on experience.</h2>
+      <p>
+        I’m Evan Lebrecht, the designer and developer behind Calypso Digital Studio.
+        My background includes customer-facing work, team leadership, independent
+        software projects, and hands-on responsibility for solving problems with
+        limited time and resources.
+      </p>
+      <p>
+        Those experiences taught me to listen closely, explain complicated
+        requirements in plain language, organize scattered information, and keep a
+        project moving when the path is not obvious.
+      </p>
+      <p>
+        I do not assume an existing process is the best process. I look at what
+        customers need, where a workflow slows down, what information is missing,
+        and what can be made clearer or more efficient. That approach guides every
+        website and custom tool I build.
+      </p>
+      <p>
+        The studio is based in New York’s Capital Region and works with clients
+        anywhere.
+      </p>
+    </div>
+
+    <figure class="about__brand surface">
+      <img
+        src="/assets/brand/calypso-master.webp"
+        alt="Calypso Digital Studio illustrated logo"
+        width="1200"
+        height="1200"
+      />
+      <figcaption>
+        The studio is named after Calypso. Her markings and personality shaped
+        the warm, organic identity without turning the business into a novelty brand.
+      </figcaption>
+    </figure>
+  </section>
+
+  <section class="mindset container">
+    <header class="mindset__intro">
+      <p class="eyebrow">How I approach the work</p>
+      <h2>The goal is not to sell the most features. It is to build what the business will actually use.</h2>
+      <p>
+        I focus on what a project needs to accomplish in real use: what customers
+        must understand, what the owner needs to manage, where the current process
+        creates friction, and what will still make sense after launch.
+      </p>
+    </header>
+
+    <div class="mindset__grid">
+      <article>
+        <h3>Business-first recommendations</h3>
+        <p>
+          Recommendations come from the business goals, customer journey, and actual
+          workflow—not from trends, templates, or a platform I am trying to sell.
+        </p>
+      </article>
+      <article>
+        <h3>Plain-language communication</h3>
+        <p>
+          Clients should understand what is being built, why it matters, and what
+          decisions still need to be made.
+        </p>
+      </article>
+      <article>
+        <h3>Practical functionality</h3>
+        <p>
+          Every page and feature should help a customer take action, reduce
+          confusion, or make the business easier to run.
+        </p>
+      </article>
+      <article>
+        <h3>Clear accountability</h3>
+        <p>
+          Scope, limitations, progress, and recommendations should stay clear
+          throughout the project—even when the honest answer is that a feature is
+          unnecessary.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section class="contact-card container surface">
+    <div>
+      <p class="eyebrow">Contact Evan</p>
+      <h2>Have a business problem that may need a website or custom tool?</h2>
+      <p>
+        Email is the most direct way to begin. You can also follow the studio and
+        see current work through its social profiles.
+      </p>
+    </div>
+    <div class="contact-card__links">
+      <a class="contact-card__email" href={contact.emailHref}>{contact.email}</a>
+      <a href={contact.instagram.href} target="_blank" rel="noreferrer">
+        {contact.instagram.label}
+      </a>
+      <a href={contact.facebook.href} target="_blank" rel="noreferrer">
+        {contact.facebook.label}
+      </a>
+      <ButtonLink href="/start">Start Your Project</ButtonLink>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .about {
+    display: grid;
+    gap: var(--space-6);
+    align-items: center;
+  }
+
+  .about__story p:not(.eyebrow) {
+    max-width: 66ch;
+  }
+
+  .about__brand {
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .about__brand figcaption {
+    padding: var(--space-4);
+  }
+
+  .mindset {
+    padding-block: var(--space-8);
+  }
+
+  .mindset__intro {
+    max-width: 52rem;
+    margin-bottom: var(--space-6);
+  }
+
+  .mindset__grid {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .mindset__grid article {
+    border-top: 2px solid var(--color-ink);
+    padding-block: var(--space-5);
+  }
+
+  .contact-card {
+    display: grid;
+    gap: var(--space-6);
+    margin-block: var(--space-7);
+    padding: var(--space-6);
+  }
+
+  .contact-card__links {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .contact-card__links > a:not(.button) {
+    font-weight: 800;
+    text-decoration-color: var(--color-rust);
+    text-decoration-thickness: 0.12em;
+    text-underline-offset: 0.2em;
+  }
+
+  .contact-card__email {
+    overflow-wrap: anywhere;
+    font-size: var(--step-1);
+  }
+
+  @media (min-width: 48rem) {
+    .mindset__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 56rem) {
+    .about {
+      grid-template-columns: 1.15fr 0.75fr;
+    }
+
+    .contact-card {
+      grid-template-columns: 1.2fr 0.8fr;
+      padding: var(--space-7);
+    }
+  }
+</style>
