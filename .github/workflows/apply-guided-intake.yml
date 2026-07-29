@@ -87,9 +87,9 @@ jobs:
               "await expect(page.getByText('Step 1 of 6', { exact: true })).toBeVisible();"
           )
           PY
+          git restore --source=HEAD --staged --worktree .github/workflows/validate.yml
           git diff --check
           rm -rf .implementation
-          rm -f .github/workflows/apply-guided-intake.yml
       - name: Install locked dependencies
         run: npm ci
       - name: Install Playwright browsers
