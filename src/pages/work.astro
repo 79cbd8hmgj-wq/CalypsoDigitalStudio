@@ -1,4 +1,9 @@
 ---
-import {getCollection} from 'astro:content';import BaseLayout from '../layouts/BaseLayout.astro';import PageIntro from '../components/PageIntro.astro';import ProjectCard from '../components/ProjectCard.astro';const projects=(await getCollection('projects')).sort((a,b)=>a.data.title.localeCompare(b.data.title));
+import {getCollection} from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageIntro from '../components/PageIntro.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+const projectOrder=new Map([['lrl-photography',0],['rare-treats-518',1],['good-intentions',2]]);
+const projects=(await getCollection('projects')).sort((a,b)=>(projectOrder.get(a.data.slug)??99)-(projectOrder.get(b.data.slug)??99));
 ---
 <BaseLayout title="Work" description="Selected website and storefront work from Calypso Digital Studio."><PageIntro eyebrow="Selected work" title="Three businesses, three different systems, three different visual directions." description="The work is presented with honest project status and real interface captures."/><section class="work-list container">{projects.map((p,i)=><article class="entry"><ProjectCard title={p.data.title} summary={p.data.summary} projectType={p.data.projectType} status={p.data.status} image={i%2===0?p.data.primaryImage:p.data.secondaryImage}/><div class="details"><p class="eyebrow">Project focus</p><ul>{p.data.focus.map((x)=><li>{x}</li>)}</ul>{p.data.liveUrl&&<a class="text-link" href={p.data.liveUrl}>Visit the live website</a>}</div></article>)}</section></BaseLayout><style>.work-list{display:grid;gap:var(--space-8)}.entry{display:grid;gap:var(--space-5);align-items:center}.details{padding:var(--space-4)}.details ul{padding-left:1.2rem}@media(min-width:52rem){.entry{grid-template-columns:minmax(0,1fr) minmax(18rem,.7fr)}.entry:nth-child(even)>:first-child{order:2}}</style>
