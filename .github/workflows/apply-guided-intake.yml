@@ -3,6 +3,8 @@ name: Apply guided intake implementation
 on:
   push:
     branches: [implementation/guided-intake-form]
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: write
@@ -11,17 +13,43 @@ jobs:
   apply:
     if: ${{ github.actor != 'github-actions[bot]' }}
     runs-on: ubuntu-latest
+    env:
+      PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
     steps:
       - uses: actions/checkout@v4
         with:
           ref: implementation/guided-intake-form
           fetch-depth: 0
-      - name: Apply verified implementation patch
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.2
+          cache: npm
+      - name: Apply implementation patch
         run: |
           cat .implementation/patchpart-* | base64 -d | gzip -d > /tmp/intake.patch
           git apply --index /tmp/intake.patch
           rm -rf .implementation
           rm -f .github/workflows/apply-guided-intake.yml
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: Run foundation and intake tests
+        run: npm test
+      - name: Verify assets
+        run: npm run verify:assets
+      - name: Verify content
+        run: npm run verify:content
+      - name: Run Astro and TypeScript checks
+        run: npm run check
+      - name: Build production site
+        run: npm run build
+      - name: Verify production output
+        run: npm run verify:build
+      - name: Run browser tests
+        run: npm run test:e2e
+      - name: Commit verified implementation
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
