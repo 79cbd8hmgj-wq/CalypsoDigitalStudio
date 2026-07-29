@@ -1,0 +1,10 @@
+---
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import '../styles/global.css';
+interface Props{title:string;description:string;image?:string}
+const{title,description,image='/assets/brand/calypso-master.webp'}=Astro.props;
+const fullTitle=title==='Calypso Digital Studio'?title:`${title} | Calypso Digital Studio`;
+---
+<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width"/><meta name="description" content={description}/><meta name="theme-color" content="#F7F1E7"/><meta property="og:title" content={fullTitle}/><meta property="og:description" content={description}/><meta property="og:type" content="website"/><meta property="og:image" content={image}/><link rel="icon" href="/favicon.svg" type="image/svg+xml"/><link rel="manifest" href="/site.webmanifest"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet"/><title>{fullTitle}</title></head><body><a class="skip-link" href="#main-content">Skip to content</a><SiteHeader/><main id="main-content"><slot/></main><SiteFooter/></body></html>
+<style is:global>.skip-link{position:fixed;z-index:100;top:.5rem;left:.5rem;transform:translateY(-150%);border-radius:var(--radius-small);background:var(--color-ink);color:var(--color-surface);padding:.75rem 1rem}.skip-link:focus{transform:translateY(0)}</style>
