@@ -6,3 +6,10 @@ dist/
 !.env.example
 .DS_Store
 source-assets/
+
+.worktrees/
+playwright-report/
+test-results/
+.wrangler/
+.dev.vars
+coverage/

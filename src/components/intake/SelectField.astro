@@ -1,0 +1,30 @@
+---
+interface Option { value: string; label: string; }
+interface Props {
+  id: string;
+  name: string;
+  label: string;
+  options: readonly (string | Option)[];
+  help?: string;
+  required?: boolean;
+  emptyLabel?: string;
+}
+const { id, name, label, options, help = '', required = false, emptyLabel = 'Choose an option' } = Astro.props;
+const helpId = `${id}-help`;
+const errorId = `${id}-error`;
+const display = (option: string | Option): Option => typeof option === 'string'
+  ? { value: option, label: option.replaceAll('-', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase()) }
+  : option;
+---
+<div class="form-field" data-field-path={name}>
+  <label for={id}>{label}{required && <span class="required-note"> (required)</span>}</label>
+  {help && <p class="field-help" id={helpId}>{help}</p>}
+  <select id={id} name={name} required={required} aria-describedby={`${help ? helpId : ''} ${errorId}`.trim()}>
+    <option value="">{emptyLabel}</option>
+    {options.map((option) => {
+      const item = display(option);
+      return <option value={item.value}>{item.label}</option>;
+    })}
+  </select>
+  <p class="field-error" id={errorId} data-field-error hidden></p>
+</div>

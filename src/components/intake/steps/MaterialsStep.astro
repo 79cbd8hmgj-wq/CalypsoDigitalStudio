@@ -1,0 +1,59 @@
+---
+import ChoiceGroup from '../ChoiceGroup.astro';
+import ErrorSummary from '../ErrorSummary.astro';
+import TextAreaField from '../TextAreaField.astro';
+import { materialOptions, visualWordOptions } from '../../../data/intake';
+const materials = materialOptions.map((value) => ({ value, label: ({
+  logo: 'Logo', 'brand-colors': 'Brand colors', fonts: 'Preferred fonts',
+  'business-photos': 'Professional business photos', 'product-photos': 'Product photos',
+  'page-copy': 'Written page content', 'service-descriptions': 'Service descriptions',
+  'product-information': 'Product information', testimonials: 'Customer testimonials',
+  domain: 'Domain name', hosting: 'Website hosting', 'business-email': 'Business email',
+  policies: 'Privacy policy or other business policies', 'existing-content': 'Existing website content',
+  none: 'None of these yet'
+} as Record<string, string>)[value] ?? value }));
+const visualWords = visualWordOptions.map((value) => ({ value, label: value === 'other' ? 'Other' : value[0]!.toUpperCase() + value.slice(1) }));
+---
+<section class="wizard-step" data-step-index="3" data-step-id="materials" aria-labelledby="materials-step-title" hidden>
+  <header class="step-heading" tabindex="-1">
+    <p class="eyebrow">Step 4 of 6</p>
+    <h2 id="materials-step-title">What branding and materials already exist?</h2>
+    <p>No files are needed now. I’ll request the relevant materials after reviewing the project.</p>
+  </header>
+  <ErrorSummary />
+  <ChoiceGroup id="materials-available" name="materials.available" legend="Available materials" options={materials} help="Select everything that already exists." />
+  <ChoiceGroup id="materials-visual-words" name="materials.visualWords" legend="Choose up to three words for the finished project" options={visualWords} help="These describe the visual direction, not technical features." />
+  <div data-value-condition="materials.visualWords:other" hidden>
+    <TextAreaField id="materials-custom-word" name="materials.customVisualWord" label="Your other visual word or phrase" required maxlength={80} rows={2} />
+  </div>
+  <div class="form-grid">
+    <TextAreaField id="materials-must-remain" name="materials.brandMustRemain" label="Are there brand elements that must remain?" maxlength={2000} />
+    <TextAreaField id="materials-avoid" name="materials.avoid" label="Are there colors or styles to avoid?" maxlength={2000} />
+    <div class="repeatable-field form-field form-field--wide" data-repeatable="materials.likedSites" data-max-items="3" data-field-path="materials.likedSites">
+      <label for="materials-liked-site-0">Websites you like</label>
+      <p class="field-help" id="materials-liked-sites-help">Optional. Add up to three links.</p>
+      <div data-repeatable-items>
+        <div class="repeatable-row">
+          <input id="materials-liked-site-0" name="materials.likedSites" type="url" maxlength="500" aria-describedby="materials-liked-sites-help materials-liked-sites-error" />
+          <button type="button" data-remove-repeatable aria-label="Remove liked website" hidden>Remove</button>
+        </div>
+      </div>
+      <button type="button" class="text-button" data-add-repeatable>Add another link</button>
+      <p class="field-error" id="materials-liked-sites-error" data-field-error hidden></p>
+    </div>
+    <TextAreaField id="materials-liked-reasons" name="materials.likedReasons" label="What do you like about those examples?" maxlength={2000} />
+    <div class="repeatable-field form-field form-field--wide" data-repeatable="materials.dislikedSites" data-max-items="3" data-field-path="materials.dislikedSites">
+      <label for="materials-disliked-site-0">Websites you dislike</label>
+      <p class="field-help" id="materials-disliked-sites-help">Optional. Add up to three links.</p>
+      <div data-repeatable-items>
+        <div class="repeatable-row">
+          <input id="materials-disliked-site-0" name="materials.dislikedSites" type="url" maxlength="500" aria-describedby="materials-disliked-sites-help materials-disliked-sites-error" />
+          <button type="button" data-remove-repeatable aria-label="Remove disliked website" hidden>Remove</button>
+        </div>
+      </div>
+      <button type="button" class="text-button" data-add-repeatable>Add another link</button>
+      <p class="field-error" id="materials-disliked-sites-error" data-field-error hidden></p>
+    </div>
+    <TextAreaField id="materials-disliked-reasons" name="materials.dislikedReasons" label="What do you dislike about those examples?" maxlength={2000} />
+  </div>
+</section>

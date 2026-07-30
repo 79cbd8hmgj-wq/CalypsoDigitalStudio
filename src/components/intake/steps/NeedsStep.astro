@@ -1,0 +1,199 @@
+---
+import ChoiceGroup from '../ChoiceGroup.astro';
+import ErrorSummary from '../ErrorSummary.astro';
+import FormField from '../FormField.astro';
+import SelectField from '../SelectField.astro';
+import TextAreaField from '../TextAreaField.astro';
+import {
+  bookingModeOptions,
+  featureOptions,
+  pageOptions,
+  paymentPurposeOptions,
+  productCountOptions,
+  productTypeOptions,
+  supportHelpOptions,
+  supportUrgencyOptions,
+} from '../../../data/intake';
+const labeledGoals = [
+  { value: 'professional', label: 'Look more professional' },
+  { value: 'explain-business', label: 'Help customers understand the business' },
+  { value: 'inquiries', label: 'Generate inquiries' },
+  { value: 'bookings', label: 'Accept bookings' },
+  { value: 'sell-products', label: 'Sell products' },
+  { value: 'improve-process', label: 'Improve an existing process' },
+  { value: 'replace-paperwork', label: 'Replace manual paperwork' },
+  { value: 'manage-information', label: 'Make information easier to manage' },
+  { value: 'other', label: 'Something else' }
+];
+const labeledPages = pageOptions.map((value) => ({ value, label: ({
+  home: 'Home', about: 'About', services: 'Services', 'service-pages': 'Individual service pages',
+  portfolio: 'Portfolio or gallery', testimonials: 'Testimonials', faq: 'Frequently asked questions',
+  contact: 'Contact', booking: 'Booking', policies: 'Policies', blog: 'Blog or updates',
+  other: 'Other', 'not-sure': 'Not sure yet'
+} as Record<string, string>)[value] ?? value }));
+const labeledFeatures = featureOptions.map((value) => ({ value, label: ({
+  'contact-form': 'Contact form', 'quote-form': 'Quote-request form', 'booking-request': 'Booking request',
+  map: 'Map or service-area information', 'social-links': 'Social media links', testimonials: 'Reviews or testimonials',
+  gallery: 'Photo gallery', downloads: 'Downloadable documents', 'email-signup': 'Email signup',
+  'online-payment': 'Online payment', 'members-only': 'Members-only content', 'multiple-locations': 'Multiple business locations',
+  other: 'Other', 'not-sure': 'Not sure yet'
+} as Record<string, string>)[value] ?? value }));
+const yesNo = [
+  { value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'not-sure', label: 'Not sure' }
+];
+---
+<section class="wizard-step" data-step-index="2" data-step-id="needs" aria-labelledby="needs-step-title" hidden>
+  <header class="step-heading" tabindex="-1">
+    <p class="eyebrow">Step 3 of 6</p>
+    <h2 id="needs-step-title">What should the project help accomplish?</h2>
+    <p>You do not need to design the solution. Answer in terms of what customers or staff should be able to do.</p>
+  </header>
+  <ErrorSummary />
+  <ChoiceGroup id="needs-goals" name="needs.goals" legend="Main goals" options={labeledGoals} required />
+  <div data-value-condition="needs.goals:other" hidden>
+    <TextAreaField id="needs-other-goal" name="needs.otherGoal" label="Describe the other goal" required maxlength={500} />
+  </div>
+
+  <section class="conditional-panel" data-condition="standard-website" hidden>
+    <h3>Website pages and features</h3>
+    <p class="section-help">These choices are a starting point, not a final page count.</p>
+    <ChoiceGroup id="needs-pages" name="needs.pages" legend="Pages that may be needed" options={labeledPages} required />
+    <div data-value-condition="needs.pages:other" hidden>
+      <TextAreaField id="needs-other-page" name="needs.otherPage" label="Describe the other page" required maxlength={500} />
+    </div>
+    <ChoiceGroup id="needs-features" name="needs.features" legend="Features that may be needed" options={labeledFeatures} required />
+    <div data-value-condition="needs.features:other" hidden>
+      <TextAreaField id="needs-other-feature" name="needs.otherFeature" label="Describe the other feature" required maxlength={500} />
+    </div>
+  </section>
+
+  <section class="conditional-panel" data-condition="redesign" hidden>
+    <h3>Current website</h3>
+    <div class="form-grid">
+      <FormField id="redesign-url" name="needs.redesign.websiteUrl" label="Current website address" type="url" maxlength={500} wide />
+      <FormField id="redesign-platform" name="needs.redesign.platform" label="Current platform" help="Examples: Squarespace, Wix, WordPress, Shopify, or “I do not know.”" maxlength={120} />
+      <TextAreaField id="redesign-works-well" name="needs.redesign.worksWell" label="What currently works well?" maxlength={2000} />
+      <TextAreaField id="redesign-change-most" name="needs.redesign.changeMost" label="What needs to change most?" required maxlength={2000} />
+      <SelectField id="redesign-content" name="needs.redesign.contentPreference" label="Existing written content" options={[
+        { value: 'reuse', label: 'Reuse it' }, { value: 'rewrite', label: 'Rewrite it' },
+        { value: 'review-first', label: 'Review it first' }, { value: 'not-sure', label: 'Not sure' }
+      ]} />
+      <SelectField id="redesign-media" name="needs.redesign.mediaPreference" label="Existing photos and media" options={[
+        { value: 'reuse', label: 'Reuse them' }, { value: 'replace', label: 'Replace them' },
+        { value: 'combination', label: 'Use a combination' }, { value: 'not-sure', label: 'Not sure' }
+      ]} />
+      <SelectField id="redesign-migrate" name="needs.redesign.migrateContent" label="Does information need to be moved from the current site?" options={yesNo} />
+      <TextAreaField id="redesign-broken" name="needs.redesign.brokenIssues" label="Is anything broken or stopping customers from taking action?" maxlength={2000} />
+    </div>
+  </section>
+
+  <section class="conditional-panel" data-condition="store" hidden>
+    <h3>Products and purchasing</h3>
+    <div class="form-grid">
+      <SelectField id="store-product-count" name="needs.store.productCount" label="Approximate number of products" options={productCountOptions} required />
+      <FormField id="store-category-count" name="needs.store.categoryCount" label="Approximate number of product categories" maxlength={120} />
+      <ChoiceGroup id="store-product-types" name="needs.store.productTypes" legend="What kind of products are they?" options={productTypeOptions} required />
+      <TextAreaField id="store-variations" name="needs.store.variations" label="Product choices or variations" help="Examples: size, color, flavor, package, or personalization." maxlength={2000} />
+      <SelectField id="store-shipping" name="needs.store.shipping" label="Shipping needed?" options={yesNo} />
+      <SelectField id="store-delivery" name="needs.store.localDelivery" label="Local delivery needed?" options={yesNo} />
+      <SelectField id="store-pickup" name="needs.store.localPickup" label="Local pickup needed?" options={yesNo} />
+      <SelectField id="store-inventory" name="needs.store.inventory" label="Inventory tracking needed?" options={yesNo} />
+      <SelectField id="store-discounts" name="needs.store.discounts" label="Discount codes or promotions needed?" options={yesNo} />
+      <SelectField id="store-custom-orders" name="needs.store.customOrders" label="Custom orders or customer notes needed?" options={yesNo} />
+      <SelectField id="store-tax-status" name="needs.store.taxStatus" label="Current tax setup" options={[
+        { value: 'understood', label: 'Already understood' }, { value: 'need-guidance', label: 'Need professional guidance' }, { value: 'not-sure', label: 'Not sure' }
+      ]} />
+      <FormField id="store-payment-provider" name="needs.store.paymentProvider" label="Existing payment provider" help="Optional. Examples: Square, Stripe, PayPal, Shopify." maxlength={120} />
+      <SelectField id="store-description-status" name="needs.store.descriptionsStatus" label="Product descriptions" options={[
+        { value: 'ready', label: 'Ready' }, { value: 'partial', label: 'Some are ready' }, { value: 'needed', label: 'Still needed' }
+      ]} />
+      <SelectField id="store-photo-status" name="needs.store.photosStatus" label="Product photos" options={[
+        { value: 'ready', label: 'Ready' }, { value: 'partial', label: 'Some are ready' }, { value: 'needed', label: 'Still needed' }
+      ]} />
+      <TextAreaField id="store-migration" name="needs.store.migration" label="Is there an existing store or product list to move?" maxlength={2000} />
+    </div>
+  </section>
+
+  <section class="conditional-panel" data-condition="custom-tool" hidden>
+    <h3>Business process</h3>
+    <div class="form-grid">
+      <TextAreaField id="tool-process" name="needs.customTool.processToImprove" label="What task or process should the tool improve?" required maxlength={3000} />
+      <TextAreaField id="tool-current-process" name="needs.customTool.currentProcess" label="How is the work handled now?" required maxlength={3000} />
+      <TextAreaField id="tool-users" name="needs.customTool.users" label="Who needs to use the tool?" required maxlength={2000} />
+      <TextAreaField id="tool-inputs" name="needs.customTool.inputs" label="What information goes into the process?" maxlength={3000} />
+      <TextAreaField id="tool-outputs" name="needs.customTool.outputs" label="What should the tool produce, calculate, organize, or help complete?" required maxlength={3000} />
+      <TextAreaField id="tool-access" name="needs.customTool.accessLevels" label="Are different access levels needed?" help="For example: owner, staff, and customer access." maxlength={2000} />
+      <TextAreaField id="tool-notifications" name="needs.customTool.notifications" label="Should it send reminders, updates, or notifications?" maxlength={2000} />
+      <TextAreaField id="tool-reports" name="needs.customTool.reports" label="Are reports, printable summaries, or downloads needed?" maxlength={2000} />
+      <ChoiceGroup id="tool-devices" name="needs.customTool.devices" legend="Where will it mainly be used?" options={[
+        { value: 'phones', label: 'Phones' }, { value: 'computers', label: 'Computers' },
+        { value: 'tablets', label: 'Tablets' }, { value: 'combination', label: 'A combination' }
+      ]} />
+      <TextAreaField id="tool-integrations" name="needs.customTool.integrations" label="Does it need to work with software already in use?" maxlength={2000} />
+      <TextAreaField id="tool-problem" name="needs.customTool.biggestProblem" label="What is the biggest problem with the current process?" required maxlength={3000} />
+      <TextAreaField id="tool-success" name="needs.customTool.successLooksLike" label="What would successful everyday use look like?" required maxlength={3000} />
+    </div>
+  </section>
+
+  <section class="conditional-panel" data-condition="support" hidden>
+    <h3>Current website support</h3>
+    <div class="form-grid">
+      <FormField id="support-url" name="needs.support.websiteUrl" label="Current website address" type="url" maxlength={500} wide />
+      <FormField id="support-platform" name="needs.support.platform" label="Current platform" maxlength={120} />
+      <ChoiceGroup id="support-help-types" name="needs.support.helpTypes" legend="What help is needed?" options={supportHelpOptions} required />
+      <div data-value-condition="needs.support.helpTypes:other" hidden>
+        <TextAreaField id="support-other-help" name="needs.support.otherHelp" label="Describe the other help" required maxlength={500} />
+      </div>
+      <SelectField id="support-cadence" name="needs.support.supportCadence" label="One-time or continuing support?" options={[
+        { value: 'one-time', label: 'One-time help' }, { value: 'recurring', label: 'Continuing support' }, { value: 'not-sure', label: 'Not sure' }
+      ]} required />
+      <SelectField id="support-urgency" name="needs.support.urgency" label="How urgent is it?" options={supportUrgencyOptions} required />
+      <TextAreaField id="support-current-issue" name="needs.support.currentIssue" label="What is happening now?" required maxlength={2000} />
+      <TextAreaField id="support-result" name="needs.support.desiredResult" label="What result is needed?" required maxlength={2000} />
+      <SelectField id="support-access" name="needs.support.accessStatus" label="Do you have access to the domain, hosting, and website account?" options={yesNo} required />
+    </div>
+  </section>
+
+  <section class="conditional-panel" data-condition="not-sure" hidden>
+    <h3>Describe the problem in everyday terms</h3>
+    <div class="form-grid">
+      <TextAreaField id="not-sure-improve" name="needs.notSure.improveOnline" label="What would you like the business to do better online?" required maxlength={2000} />
+      <TextAreaField id="not-sure-problem" name="needs.notSure.currentProblem" label="What problem is happening now?" required maxlength={2000} />
+      <TextAreaField id="not-sure-capabilities" name="needs.notSure.desiredCapabilities" label="What should customers or staff be able to do?" required maxlength={2000} />
+      <FormField id="not-sure-existing" name="needs.notSure.existingWebsite" label="Existing website" type="url" maxlength={500} wide />
+      <ChoiceGroup id="not-sure-outcomes" name="needs.notSure.outcomes" legend="Which outcomes matter most?" options={labeledGoals} required />
+    </div>
+  </section>
+
+  <section class="conditional-panel" data-condition="booking" hidden>
+    <h3>Booking or appointment requests</h3>
+    <SelectField id="booking-mode" name="needs.booking.mode" label="Booking style" options={bookingModeOptions.map((value) => ({ value, label: value === 'request-only' ? 'Customer sends a request' : 'Customer immediately confirms a time' }))} required />
+    <TextAreaField id="booking-services" name="needs.booking.services" label="What appointments or services can be booked?" required maxlength={2000} />
+    <FormField id="booking-provider" name="needs.booking.provider" label="Existing calendar or booking service" maxlength={120} />
+    <SelectField id="booking-deposit" name="needs.booking.deposit" label="Are deposits required?" options={yesNo} />
+  </section>
+
+  <section class="conditional-panel" data-condition="standalone-payments" hidden>
+    <h3>Online payments</h3>
+    <ChoiceGroup id="payment-purposes" name="needs.payments.purposes" legend="What are payments for?" options={paymentPurposeOptions} required />
+    <div data-value-condition="needs.payments.purposes:other" hidden>
+      <TextAreaField id="payment-other-purpose" name="needs.payments.otherPurpose" label="Describe the other payment purpose" required maxlength={500} />
+    </div>
+    <FormField id="payment-provider" name="needs.payments.provider" label="Existing payment provider" maxlength={120} />
+  </section>
+
+  <section class="conditional-panel" data-condition="custom-forms" hidden>
+    <h3>Custom form</h3>
+    <TextAreaField id="custom-form-audience" name="needs.customForms.audience" label="Who will complete the form?" required maxlength={2000} />
+    <TextAreaField id="custom-form-information" name="needs.customForms.information" label="What information should it collect?" required maxlength={3000} />
+    <TextAreaField id="custom-form-after" name="needs.customForms.afterSubmit" label="What should happen after submission?" required maxlength={2000} />
+  </section>
+
+  <section class="conditional-panel" data-condition="maintenance" hidden>
+    <h3>Website maintenance</h3>
+    <SelectField id="maintenance-cadence" name="needs.maintenance.cadence" label="Type of maintenance" options={[
+      { value: 'one-time', label: 'One-time cleanup' }, { value: 'recurring', label: 'Recurring help' }, { value: 'not-sure', label: 'Not sure' }
+    ]} required />
+    <TextAreaField id="maintenance-frequency" name="needs.maintenance.frequency" label="How often are updates expected?" required maxlength={500} />
+  </section>
+</section>

@@ -1,0 +1,45 @@
+---
+import ChoiceGroup from '../ChoiceGroup.astro';
+import ErrorSummary from '../ErrorSummary.astro';
+import FormField from '../FormField.astro';
+import TextAreaField from '../TextAreaField.astro';
+const serviceAreas = [
+  { value: 'local', label: 'Local only' },
+  { value: 'regional', label: 'Regional' },
+  { value: 'nationwide', label: 'Nationwide' },
+  { value: 'online', label: 'Online' },
+  { value: 'combination', label: 'A combination' }
+];
+---
+<section class="wizard-step" data-step-index="0" data-step-id="business" aria-labelledby="business-step-title">
+  <header class="step-heading" tabindex="-1">
+    <p class="eyebrow">Step 1 of 6</p>
+    <h2 id="business-step-title">Tell me about the business.</h2>
+    <p>This gives me the context I need before recommending pages or technical features.</p>
+  </header>
+  <ErrorSummary />
+  <div class="form-grid">
+    <FormField id="business-full-name" name="business.fullName" label="Your full name" required maxlength={120} autocomplete="name" />
+    <FormField id="business-name" name="business.businessName" label="Business or project name" help="A working name is fine. You can enter “Not decided yet.”" required maxlength={120} autocomplete="organization" />
+    <FormField id="business-email" name="business.email" label="Business email" type="email" required maxlength={254} autocomplete="email" />
+    <FormField id="business-phone" name="business.phone" label="Phone number" type="tel" help="Optional unless you later choose phone or text as your preferred contact method." maxlength={32} autocomplete="tel" />
+    <FormField id="business-location" name="business.location" label="Where is the business based?" help="City and state, or “Online only.”" required maxlength={120} autocomplete="address-level2" />
+    <ChoiceGroup id="business-service-areas" name="business.serviceAreas" legend="Where does the business serve customers?" options={serviceAreas} required />
+    <FormField id="business-existing-website" name="business.existingWebsite" label="Existing website" type="url" help="Optional. Paste the address even without https://." maxlength={500} wide />
+    <div class="repeatable-field form-field form-field--wide" data-repeatable="business.socialLinks" data-max-items="5" data-field-path="business.socialLinks">
+      <label for="business-social-link-0">Social media links</label>
+      <p class="field-help" id="business-social-links-help">Optional. Add up to five business profiles.</p>
+      <div data-repeatable-items>
+        <div class="repeatable-row">
+          <input id="business-social-link-0" name="business.socialLinks" type="url" maxlength="500" aria-describedby="business-social-links-help business-social-links-error" />
+          <button type="button" data-remove-repeatable aria-label="Remove social link" hidden>Remove</button>
+        </div>
+      </div>
+      <button type="button" class="text-button" data-add-repeatable>Add another link</button>
+      <p class="field-error" id="business-social-links-error" data-field-error hidden></p>
+    </div>
+    <TextAreaField id="business-offer" name="business.offer" label="What does the business offer?" help="Example: family photography, handmade clothing, catering, consulting, or a specific service." required maxlength={2000} />
+    <TextAreaField id="business-customers" name="business.customers" label="Who are the main customers?" help="Describe the people, organizations, or communities the business serves." required maxlength={2000} />
+    <TextAreaField id="business-difference" name="business.difference" label="What makes the business different?" help="Optional. “Still figuring this out” is a valid answer." maxlength={2000} />
+  </div>
+</section>

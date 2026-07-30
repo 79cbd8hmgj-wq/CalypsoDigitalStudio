@@ -1,0 +1,45 @@
+---
+interface Option { value: string; label: string; description?: string; }
+interface Props {
+  id: string;
+  name: string;
+  legend: string;
+  options: readonly (string | Option)[];
+  mode?: 'radio' | 'checkbox';
+  help?: string;
+  required?: boolean;
+  card?: boolean;
+}
+const { id, name, legend, options, mode = 'checkbox', help = '', required = false, card = false } = Astro.props;
+const helpId = `${id}-help`;
+const errorId = `${id}-error`;
+const display = (option: string | Option): Option => typeof option === 'string'
+  ? { value: option, label: option.replaceAll('-', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase()) }
+  : option;
+---
+<fieldset class:list={['choice-group', { 'choice-group--cards': card }]} data-field-path={name}>
+  <legend>{legend}{required && <span class="required-note"> (required)</span>}</legend>
+  {help && <p class="field-help" id={helpId}>{help}</p>}
+  <div class="choice-grid">
+    {options.map((option) => {
+      const item = display(option);
+      const optionId = `${id}-${item.value}`;
+      return (
+        <label class="choice-option" for={optionId}>
+          <input
+            id={optionId}
+            type={mode}
+            name={name}
+            value={item.value}
+            aria-describedby={`${help ? helpId : ''} ${errorId}`.trim()}
+          />
+          <span class="choice-option__copy">
+            <strong>{item.label}</strong>
+            {item.description && <small>{item.description}</small>}
+          </span>
+        </label>
+      );
+    })}
+  </div>
+  <p class="field-error" id={errorId} data-field-error hidden></p>
+</fieldset>
