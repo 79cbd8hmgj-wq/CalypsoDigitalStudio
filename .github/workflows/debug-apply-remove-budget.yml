@@ -33,12 +33,14 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import subprocess
-          import textwrap
 
           workflow = Path('.github/workflows/apply-remove-budget-step.yml').read_text(encoding='utf-8')
           start = workflow.index("          python - <<'PY'\n") + len("          python - <<'PY'\n")
           end = workflow.index("\n          PY\n", start)
-          script = textwrap.dedent(workflow[start:end])
+          script = '\n'.join(
+              line[10:] if line.startswith('          ') else line
+              for line in workflow[start:end].splitlines()
+          )
           Path('/tmp/apply-remove-budget.py').write_text(script, encoding='utf-8')
           result = subprocess.run(['python', '/tmp/apply-remove-budget.py'], text=True, capture_output=True)
           Path('apply-budget-debug.log').write_text(
