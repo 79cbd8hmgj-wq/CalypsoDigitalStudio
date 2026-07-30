@@ -4,7 +4,7 @@
 
 **Goal:** Convert the guided intake into a five-step flow and remove all budget, timing, readiness, launch-date, and approval questions from the form, review, validation, and emails without invalidating version-one saved drafts.
 
-**Architecture:** Keep `budgetAndTiming` as a recognized compatibility object in version-one drafts and API payloads, but remove every visible control, required-path rule, business-value validation, and summary output that uses it. Centralize the active step count in `wizardSteps`, clamp legacy saved step `5` to the new final step `4`, and update all client/server error-routing maps to the five-step order.
+**Architecture:** Keep `budgetAndTiming` as a recognized compatibility object in version-one drafts and API payloads, but remove every visible control, required-path rule, business-value validation, and summary output that uses it. Make `wizardSteps` the source of truth for the active five-step sequence, clamp legacy stored step `5` to the new final step `4`, and update all browser and server error-routing maps to the same order.
 
 **Tech Stack:** Astro 7, TypeScript 5.9, Cloudflare Pages Functions, Vitest 4, happy-dom, Playwright 1.62, Node.js 22.
 
@@ -18,46 +18,41 @@
 - New drafts keep an empty `budgetAndTiming` object.
 - Legacy recognized budget/timing values may remain internally, but are never displayed, required, business-validated, reviewed, or emailed.
 - Preserve strict unknown-field rejection for unrelated fields.
-- Do not change Turnstile behavior, Resend behavior, submission references, or confirmation copy outside removed budget/timing content.
-- Use TDD: add or update a focused failing test before each production change.
-- Node commands must run under Node `>=22.12.0 <23`.
+- Do not change Turnstile behavior, Resend behavior, submission references, deployment variables, or confirmation copy outside removed budget/timing content.
+- Add or update a focused failing test before each production change.
+- Run commands under Node `>=22.12.0 <23`.
 
----
+## File Structure
 
-## File Structure Map
+### Flow and compatibility
 
-### Active flow and compatibility
+- `src/lib/intake/types.ts` — active step-index type; retains `BudgetAndTimingAnswers`.
+- `src/data/intake.ts` — authoritative five-entry `wizardSteps` metadata.
+- `src/lib/intake/storage.ts` — new-draft defaults, legacy draft acceptance, and step clamping.
+- `src/lib/intake/conditions.ts` — conditional required paths without budget/timing rules.
+- `src/lib/intake/schema.ts` — structural compatibility without budget/timing business validation.
 
-- `src/lib/intake/types.ts` — active step-index type and retained compatibility interfaces.
-- `src/data/intake.ts` — authoritative ordered `wizardSteps` list.
-- `src/lib/intake/storage.ts` — empty draft creation, legacy draft acceptance, and step clamping.
-- `src/lib/intake/conditions.ts` — conditional required paths; budget/timing requirements are removed here.
-- `src/lib/intake/schema.ts` — structural payload validation; compatibility keys remain accepted while their business rules are removed.
+### UI and output
 
-### UI and navigation
+- `src/components/intake/IntakeWizard.astro` — five-step composition and layout.
+- `src/components/intake/WizardProgress.astro` — accessible progress copy.
+- `src/components/intake/steps/ReviewStep.astro` — final step at index `4`.
+- `src/components/intake/steps/BudgetStep.astro` — deleted.
+- `src/scripts/intake-wizard.ts` — navigation, validation loop, review rendering, and Turnstile loading.
+- `src/components/intake/ReviewSummary.astro` — five review cards.
+- `src/lib/intake/email.ts` — five shared summary sections for browser review and both emails.
 
-- `src/components/intake/IntakeWizard.astro` — step composition and five-column desktop progress styling.
-- `src/components/intake/WizardProgress.astro` — initial accessible progress text and progress buttons.
-- `src/components/intake/steps/ReviewStep.astro` — new final step index and copy.
-- `src/components/intake/steps/BudgetStep.astro` — delete after its import and render call are removed.
-- `src/scripts/intake-wizard.ts` — browser step routing, validation loops, progress text, draft opening, and review rendering.
+### Validation feedback
 
-### Review and email output
+- `src/scripts/intake-server-validation-feedback.ts` — client precheck and issue-to-step routing.
+- `src/scripts/intake-response-feedback.ts` — API validation response routing.
 
-- `src/components/intake/ReviewSummary.astro` — five visible review cards and edit-step indexes.
-- `src/lib/intake/email.ts` — shared summary sections used by browser review and both emails.
+### Tests and build verification
 
-### Server-validation feedback routing
-
-- `src/scripts/intake-server-validation-feedback.ts` — client precheck and server issue-to-step routing.
-- `src/scripts/intake-response-feedback.ts` — API validation response-to-step routing.
-
-### Tests and verification
-
+- `tests/intake/fixtures.ts`
 - `tests/intake/storage.test.ts`
 - `tests/intake/conditions.test.ts`
 - `tests/intake/schema.test.ts`
-- `tests/intake/fixtures.ts`
 - `tests/intake/markup.test.ts`
 - `tests/intake/wizard.test.ts`
 - `tests/intake/email.test.ts`
@@ -68,7 +63,7 @@
 
 ---
 
-### Task 1: Preserve Version-One Draft Compatibility While Removing Budget Requirements
+### Task 1: Preserve Version-One Compatibility and Remove Budget Requirements
 
 **Files:**
 - Modify: `src/lib/intake/types.ts:26-28`
@@ -82,18 +77,20 @@
 - Modify: `tests/intake/schema.test.ts`
 
 **Interfaces:**
-- Consumes: existing `IntakeDraft`, `IntakeAnswers`, `validateAndNormalizeIntake`, and `requiredPathsFor` APIs.
-- Produces: `WizardStepIndex = 0 | 1 | 2 | 3 | 4`; a five-item `wizardSteps`; `loadDraft()` that accepts legacy stored step `5` but returns active step `4`; schema validation that accepts recognized historical `budgetAndTiming` values without requiring or validating them.
+- Consumes: `IntakeDraft`, `IntakeAnswers`, `validateAndNormalizeIntake`, and `requiredPathsFor`.
+- Produces: active `WizardStepIndex` values `0 | 1 | 2 | 3 | 4`; five `wizardSteps`; `loadDraft()` that accepts stored step `5` but returns step `4`; schema acceptance of recognized historical `budgetAndTiming` values.
 
-- [ ] **Step 1: Add failing storage and step-metadata tests**
+- [ ] **Step 1: Add failing five-step and legacy-draft tests**
 
-Add these imports and tests to `tests/intake/storage.test.ts`:
+Add this import to `tests/intake/storage.test.ts`:
 
 ```ts
 import { wizardSteps } from '../../src/data/intake';
+```
 
-// Existing imports remain.
+Add these tests:
 
+```ts
 test('defines exactly five active wizard steps ending with review', () => {
   expect(wizardSteps.map((step) => [step.index, step.id])).toEqual([
     [0, 'business'],
@@ -118,7 +115,7 @@ test('clamps a legacy final-step draft to the new review step', () => {
 });
 ```
 
-- [ ] **Step 2: Add failing required-path and schema compatibility tests**
+- [ ] **Step 2: Add failing required-path and schema tests**
 
 Replace the deadline-focused test in `tests/intake/conditions.test.ts` with:
 
@@ -138,10 +135,10 @@ test('derives contact and other-add-on requirements without budget paths', () =>
 });
 ```
 
-Replace the fixed-date schema test in `tests/intake/schema.test.ts` and add a legacy-data test:
+Replace the fixed-date test in `tests/intake/schema.test.ts` with:
 
 ```ts
-test('enforces the phone requirement without requiring budget or timing fields', () => {
+test('enforces phone without requiring budget or timing fields', () => {
   const request = createValidWebsiteSubmission();
   request.answers.contact.preferredMethod = 'phone';
   request.answers.budgetAndTiming = {
@@ -156,8 +153,12 @@ test('enforces the phone requirement without requiring budget or timing fields',
   expect(result.issues.map((issue) => issue.path)).toContain('business.phone');
   expect(result.issues.some((issue) => issue.path.startsWith('budgetAndTiming.'))).toBe(false);
 });
+```
 
-test('accepts recognized historical budget and timing values as ignored compatibility data', () => {
+Add this test:
+
+```ts
+test('accepts recognized historical budget data as ignored compatibility data', () => {
   const request = createValidWebsiteSubmission();
   Object.assign(request.answers.budgetAndTiming, {
     budgetRange: 'legacy-range',
@@ -175,24 +176,22 @@ test('accepts recognized historical budget and timing values as ignored compatib
 });
 ```
 
-In the `ongoing-support` branch case, remove these lines:
+Remove these lines from the `ongoing-support` branch fixture inside `tests/intake/schema.test.ts`:
 
 ```ts
 request.answers.budgetAndTiming.supportType = 'one-time';
 request.answers.budgetAndTiming.budgetRange = '500-1000';
 ```
 
-- [ ] **Step 3: Run the focused tests to verify they fail**
-
-Run:
+- [ ] **Step 3: Run focused tests and confirm the red state**
 
 ```bash
 npx vitest run tests/intake/storage.test.ts tests/intake/conditions.test.ts tests/intake/schema.test.ts
 ```
 
-Expected: failures showing six wizard steps, legacy step `5` not clamped, budget/timing required paths still present, and legacy values rejected.
+Expected: failures for six step metadata, unclamped stored step `5`, remaining budget required paths, and rejected historical compatibility values.
 
-- [ ] **Step 4: Reduce the active step type and metadata to five steps**
+- [ ] **Step 4: Reduce active step metadata to five steps**
 
 In `src/lib/intake/types.ts`, replace:
 
@@ -218,29 +217,29 @@ export const wizardSteps: ReadonlyArray<{ index: WizardStepIndex; id: string; la
 ];
 ```
 
-Do not remove `BudgetAndTimingAnswers` or `IntakeAnswers.budgetAndTiming`.
+Keep `BudgetAndTimingAnswers` and `IntakeAnswers.budgetAndTiming` in `src/lib/intake/types.ts`.
 
-- [ ] **Step 5: Make stored-draft validation explicitly accept legacy step 5 and clamp it**
+- [ ] **Step 5: Accept legacy stored step 5 and clamp it to active step 4**
 
-In `src/lib/intake/storage.ts`, add this type near the imports:
+Add this type after the imports in `src/lib/intake/storage.ts`:
 
 ```ts
 type StoredIntakeDraft = Omit<IntakeDraft, 'currentStep'> & { currentStep: number };
 ```
 
-Change the draft guard signature:
+Change the guard signature to:
 
 ```ts
 function isDraft(value: unknown): value is StoredIntakeDraft {
 ```
 
-Keep the stored range check at `0` through `5` so version-one legacy drafts remain accepted:
+Keep the stored range check compatible with old version-one drafts:
 
 ```ts
 if (!Number.isInteger(value.currentStep) || Number(value.currentStep) < 0 || Number(value.currentStep) > 5) return false;
 ```
 
-Replace the final normalization in `loadDraft()` with:
+Replace the end of `loadDraft()` with:
 
 ```ts
 parsed.currentStep = Math.min(parsed.currentStep, 4);
@@ -248,20 +247,25 @@ parsed.answers = sanitizeStoredIntakeAnswers(parsed.answers);
 return parsed as IntakeDraft;
 ```
 
-Keep `createEmptyAnswers()` and its empty `budgetAndTiming` object unchanged.
+Keep the empty `budgetAndTiming` object in `createEmptyAnswers()`.
 
-- [ ] **Step 6: Remove budget/timing conditions and required paths**
+- [ ] **Step 6: Remove budget and launch-date requirements**
 
 In `src/lib/intake/conditions.ts`:
 
-1. Remove `requireLaunchDate` from `IntakeConditions`.
-2. Remove this property from `deriveConditions()`:
+Delete this interface property:
+
+```ts
+requireLaunchDate: boolean;
+```
+
+Delete this derived property:
 
 ```ts
 requireLaunchDate: answers.budgetAndTiming.dateFlexibility === 'fixed',
 ```
 
-3. Remove these four common required paths:
+Delete these common required paths:
 
 ```ts
 'budgetAndTiming.budgetRange',
@@ -270,19 +274,17 @@ requireLaunchDate: answers.budgetAndTiming.dateFlexibility === 'fixed',
 'budgetAndTiming.decisionMaker',
 ```
 
-4. Remove this conditional requirement:
+Delete this conditional requirement:
 
 ```ts
 if (conditions.requireLaunchDate) paths.push('budgetAndTiming.launchDate');
 ```
 
-Do not change needs-branch clearing logic.
+Leave every needs-branch rule unchanged.
 
-- [ ] **Step 7: Remove budget/timing business validation but retain structural keys**
+- [ ] **Step 7: Remove budget/timing business validation while retaining structural keys**
 
-In `src/lib/intake/schema.ts`:
-
-1. Remove these imports from `../../data/intake`:
+In `src/lib/intake/schema.ts`, remove these imports from `../../data/intake`:
 
 ```ts
 customToolBudgetOptions,
@@ -292,20 +294,20 @@ timingOptions,
 websiteBudgetOptions
 ```
 
-2. Keep this structural key list unchanged so recognized legacy fields remain allowed:
+Keep this structural allowlist entry unchanged:
 
 ```ts
 budgetAndTiming: ['budgetRange', 'supportType', 'preferredTiming', 'launchDate', 'dateFlexibility', 'deadlineContext', 'readiness', 'decisionMaker', 'otherApprovers'],
 ```
 
-3. Remove these entries from `stringLimits`:
+Remove these entries from `stringLimits`:
 
 ```ts
 ['budgetAndTiming.deadlineContext', 1000],
 ['budgetAndTiming.otherApprovers', 500],
 ```
 
-4. Delete the complete budget/timing value-validation block:
+Delete this value-validation block:
 
 ```ts
 const budgetAllowed = answers.project.primaryType === 'custom-tool'
@@ -317,7 +319,7 @@ if (!budgetAllowed.has(answers.budgetAndTiming.budgetRange as never)) issues.pus
 if (!new Set(timingOptions).has(answers.budgetAndTiming.preferredTiming as never)) issues.push({ path: 'budgetAndTiming.preferredTiming', message: 'Choose a preferred timeframe.' });
 ```
 
-5. Delete the launch-date parsing rule:
+Delete this date-validation block:
 
 ```ts
 if (answers.budgetAndTiming.launchDate && Number.isNaN(Date.parse(answers.budgetAndTiming.launchDate))) {
@@ -325,11 +327,11 @@ if (answers.budgetAndTiming.launchDate && Number.isNaN(Date.parse(answers.budget
 }
 ```
 
-Keep `budgetAndTiming` in the required answer structure at the beginning of validation.
+Keep `budgetAndTiming` in the required answer structure and strict known-key checks.
 
-- [ ] **Step 8: Make the standard test fixture represent a new five-step submission**
+- [ ] **Step 8: Make the standard fixture represent a new submission**
 
-In `tests/intake/fixtures.ts`, replace the populated compatibility object with:
+Replace `tests/intake/fixtures.ts` budget data with:
 
 ```ts
 budgetAndTiming: {
@@ -345,9 +347,7 @@ budgetAndTiming: {
 },
 ```
 
-- [ ] **Step 9: Run focused validation tests**
-
-Run:
+- [ ] **Step 9: Run focused compatibility and schema tests**
 
 ```bash
 npx vitest run tests/intake/storage.test.ts tests/intake/conditions.test.ts tests/intake/schema.test.ts
@@ -355,7 +355,7 @@ npx vitest run tests/intake/storage.test.ts tests/intake/conditions.test.ts test
 
 Expected: all tests pass.
 
-- [ ] **Step 10: Commit the compatibility and validation changes**
+- [ ] **Step 10: Commit Task 1**
 
 ```bash
 git add src/lib/intake/types.ts src/data/intake.ts src/lib/intake/storage.ts src/lib/intake/conditions.ts src/lib/intake/schema.ts tests/intake/fixtures.ts tests/intake/storage.test.ts tests/intake/conditions.test.ts tests/intake/schema.test.ts
@@ -376,16 +376,17 @@ git commit -m "refactor: remove budget requirements from intake schema"
 - Modify: `tests/intake/wizard.test.ts`
 
 **Interfaces:**
-- Consumes: the five-item `wizardSteps` and `WizardStepIndex` from Task 1.
-- Produces: a DOM containing indexes `0` through `4`; dynamic progress copy based on `wizardSteps.length`; final-step behavior driven by the last `wizardSteps` entry.
+- Consumes: the five-item `wizardSteps` and reduced `WizardStepIndex` from Task 1.
+- Produces: rendered indexes `0` through `4`, progress text based on `wizardSteps.length`, and final-step behavior based on `LAST_STEP_INDEX`.
 
-- [ ] **Step 1: Update markup tests to require five steps and prohibit removed controls**
+- [ ] **Step 1: Update markup tests for five steps and no removed controls**
 
 Replace the six-step test in `tests/intake/markup.test.ts` with:
 
 ```ts
-test('wizard markup contains five steps, exact active answer paths, and no budget controls', async () => {
+test('wizard markup contains five active steps and no budget controls', async () => {
   const wizard = await read('src/components/intake/IntakeWizard.astro');
+  const progress = await read('src/components/intake/WizardProgress.astro');
   const stepFiles = await Promise.all([
     'BusinessStep.astro',
     'ProjectStep.astro',
@@ -393,7 +394,6 @@ test('wizard markup contains five steps, exact active answer paths, and no budge
     'MaterialsStep.astro',
     'ReviewStep.astro'
   ].map((name) => read(`src/components/intake/steps/${name}`)));
-  const progress = await read('src/components/intake/WizardProgress.astro');
   const markup = [wizard, progress, ...stepFiles].join('\n');
 
   expect(markup.match(/data-step-index=/g)).toHaveLength(5);
@@ -423,15 +423,15 @@ test('wizard markup contains five steps, exact active answer paths, and no budge
 });
 ```
 
-- [ ] **Step 2: Change the happy-dom wizard fixture to five steps and add a final-step assertion**
+- [ ] **Step 2: Change the happy-dom fixture and add a final-step test**
 
-In `tests/intake/wizard.test.ts`, replace the two six-item generated arrays in `html()` with:
+In `tests/intake/wizard.test.ts`, replace the progress-button array with:
 
 ```ts
 ${[0,1,2,3,4].map((index) => `<button data-progress-step="${index}" ${index ? 'disabled' : ''}></button>`).join('')}
 ```
 
-and:
+Replace the step array with:
 
 ```ts
 ${[0,1,2,3,4].map((index) => `<section data-step-index="${index}" data-step-id="${['business','project','needs','materials','review'][index]}" ${index ? 'hidden' : ''}><header class="step-heading" tabindex="-1"></header><section data-error-summary hidden tabindex="-1"><ul data-error-list></ul></section>${index === 0 ? '<div data-field-path="business.fullName"><input name="business.fullName"><p data-field-error hidden></p></div><div data-field-path="business.businessName"><input name="business.businessName"><p data-field-error hidden></p></div><div data-field-path="business.email"><input name="business.email"><p data-field-error hidden></p></div><div data-field-path="business.location"><input name="business.location"><p data-field-error hidden></p></div><div data-field-path="business.serviceAreas"><input type="checkbox" name="business.serviceAreas" value="local"><p data-field-error hidden></p></div><div data-field-path="business.offer"><textarea name="business.offer"></textarea><p data-field-error hidden></p></div><div data-field-path="business.customers"><textarea name="business.customers"></textarea><p data-field-error hidden></p></div>' : ''}${index === 1 ? '<input type="radio" name="project.primaryType" value="new-website"><input type="radio" name="project.primaryType" value="custom-tool"><input type="checkbox" name="project.addOns" value="booking">' : ''}${index === 2 ? '<div data-condition="standard-website" hidden></div><div data-condition="custom-tool" hidden></div>' : ''}${index === 4 ? '<div data-review-summary></div><div data-turnstile-widget></div><p data-turnstile-status></p><button type="button" data-turnstile-retry hidden>Try security check again</button><div data-submission-error hidden></div>' : ''}</section>`).join('')}
@@ -440,14 +440,20 @@ ${[0,1,2,3,4].map((index) => `<section data-step-index="${index}" data-step-id="
 Add this test:
 
 ```ts
-test('review is the fifth and final active step', () => {
-  initializeIntakeWizard(root);
-  (root.querySelector('[data-start-intake]') as HTMLButtonElement).click();
+test('restores review as the fifth and final active step', () => {
+  const request = createValidWebsiteSubmission();
+  const timestamp = new Date().toISOString();
+  window.localStorage.setItem(DRAFT_KEY, JSON.stringify({
+    version: 1,
+    submissionId: request.submissionId,
+    startedAt: request.startedAt,
+    updatedAt: timestamp,
+    currentStep: 4,
+    answers: request.answers
+  }));
 
-  for (const index of [1, 2, 3, 4]) {
-    (root.querySelector(`[data-progress-step="${index}"]`) as HTMLButtonElement).disabled = false;
-  }
-  (root.querySelector('[data-progress-step="4"]') as HTMLButtonElement).click();
+  initializeIntakeWizard(root);
+  (root.querySelector('[data-restore-draft]') as HTMLButtonElement).click();
 
   expect(root.querySelector('[data-step-index="4"]')?.hasAttribute('hidden')).toBe(false);
   expect(root.querySelector('[data-step-index="5"]')).toBeNull();
@@ -457,45 +463,35 @@ test('review is the fifth and final active step', () => {
 });
 ```
 
-- [ ] **Step 3: Run the focused markup and wizard tests to verify they fail**
-
-Run:
+- [ ] **Step 3: Run UI tests and confirm the red state**
 
 ```bash
 npx vitest run tests/intake/markup.test.ts tests/intake/wizard.test.ts
 ```
 
-Expected: failures showing six rendered steps, the budget component and controls still present, and review still at index `5`.
+Expected: failures for six rendered steps, visible budget markup, and review at index `5`.
 
 - [ ] **Step 4: Remove the budget component and renumber review**
 
-In `src/components/intake/IntakeWizard.astro`:
-
-1. Delete:
+In `src/components/intake/IntakeWizard.astro`, delete:
 
 ```ts
 import BudgetStep from './steps/BudgetStep.astro';
 ```
 
-2. Delete:
+Delete:
 
 ```astro
 <BudgetStep />
 ```
 
-3. Change the hidden-selector rule from:
-
-```css
-.wizard-step[hidden], [data-condition][hidden], [data-value-condition][hidden], [data-budget-set][hidden], [data-support-budget][hidden] { display: none !important; }
-```
-
-To:
+Replace the hidden-selector rule with:
 
 ```css
 .wizard-step[hidden], [data-condition][hidden], [data-value-condition][hidden] { display: none !important; }
 ```
 
-4. Change the desktop progress grid to:
+Replace the desktop progress grid rule with:
 
 ```css
 .wizard-progress ol { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
@@ -503,19 +499,22 @@ To:
 
 Delete `src/components/intake/steps/BudgetStep.astro`.
 
-In `src/components/intake/steps/ReviewStep.astro`, replace the opening section and eyebrow with:
+In `src/components/intake/steps/ReviewStep.astro`, replace the opening markup with:
 
 ```astro
 <section class="wizard-step" data-step-index="4" data-step-id="review" aria-labelledby="review-step-title" hidden>
   <header class="step-heading" tabindex="-1">
     <p class="eyebrow">Step 5 of 5</p>
+    <h2 id="review-step-title">Review the request and choose how I should respond.</h2>
+    <p>No price is generated here. I’ll personally review the information and follow up within 2–3 business days.</p>
+  </header>
 ```
 
-Keep the review heading, contact fields, consent, Turnstile, and submission error unchanged.
+Keep the existing `ErrorSummary`, `ReviewSummary`, contact preferences, consent, Turnstile region, and submission error after the header.
 
-- [ ] **Step 5: Make initial progress copy derive from metadata**
+- [ ] **Step 5: Derive progress copy from wizard metadata**
 
-In `src/components/intake/WizardProgress.astro`, replace the initial paragraph with:
+In `src/components/intake/WizardProgress.astro`, replace the initial progress paragraph with:
 
 ```astro
 <p class="wizard-progress__current" aria-live="polite" data-progress-current>
@@ -523,9 +522,9 @@ In `src/components/intake/WizardProgress.astro`, replace the initial paragraph w
 </p>
 ```
 
-- [ ] **Step 6: Replace hard-coded six-step routing in the browser controller**
+- [ ] **Step 6: Replace hard-coded six-step browser routing**
 
-In `src/scripts/intake-wizard.ts`, replace `STEP_PREFIXES` with:
+In `src/scripts/intake-wizard.ts`, replace `STEP_PREFIXES` and add the final-step constant:
 
 ```ts
 const STEP_PREFIXES: ReadonlyArray<readonly string[]> = [
@@ -539,20 +538,29 @@ const STEP_PREFIXES: ReadonlyArray<readonly string[]> = [
 const LAST_STEP_INDEX = wizardSteps.at(-1)?.index ?? 0;
 ```
 
-Remove all `data-budget-set` and `data-support-budget` loops from `updateConditions()`:
+Replace `updateConditions()` with:
 
 ```ts
-for (const element of root.querySelectorAll<HTMLElement>('[data-budget-set]')) { /* remove entire loop */ }
-for (const element of root.querySelectorAll<HTMLElement>('[data-support-budget]')) { /* remove entire loop */ }
+function updateConditions(): void {
+  if (!draft) return;
+  for (const element of root.querySelectorAll<HTMLElement>('[data-condition]')) {
+    element.hidden = !conditionState(draft.answers, element.dataset.condition ?? '');
+  }
+  for (const element of root.querySelectorAll<HTMLElement>('[data-value-condition]')) {
+    const [path, expected] = (element.dataset.valueCondition ?? '').split(':');
+    const value = path ? getPath(draft.answers, path) : undefined;
+    element.hidden = !(Array.isArray(value) ? value.includes(expected) : value === expected);
+  }
+}
 ```
 
-Replace the beginning of `showStep()` with:
+At the start of `showStep()`, use:
 
 ```ts
 const safeIndex = Math.max(0, Math.min(LAST_STEP_INDEX, index)) as WizardStepIndex;
 ```
 
-Replace the navigation visibility rules with:
+Use these navigation rules:
 
 ```ts
 if (back) back.hidden = safeIndex === 0;
@@ -560,13 +568,13 @@ if (next) next.hidden = safeIndex === LAST_STEP_INDEX;
 if (submit) submit.hidden = safeIndex !== LAST_STEP_INDEX;
 ```
 
-Replace progress copy with:
+Use dynamic progress copy:
 
 ```ts
 if (progress) progress.textContent = `Step ${safeIndex + 1} of ${wizardSteps.length}: ${wizardSteps[safeIndex]?.label ?? ''}`;
 ```
 
-Replace the review trigger with:
+Use the final-step constant for review and Turnstile:
 
 ```ts
 if (safeIndex === LAST_STEP_INDEX) {
@@ -575,20 +583,13 @@ if (safeIndex === LAST_STEP_INDEX) {
 }
 ```
 
-Replace the continue-button maximum calculation with:
+Use the final-step constant when advancing:
 
 ```ts
 maximumCompletedStep = Math.max(maximumCompletedStep, Math.min(LAST_STEP_INDEX, draft.currentStep + 1));
 ```
 
-Replace the submit validation loop:
-
-```ts
-for (let index = 0; index < 6; index += 1) {
-  const issues = validateWizardStep(index, draft.answers);
-```
-
-with:
+Replace the submit validation loop header with:
 
 ```ts
 for (const step of wizardSteps) {
@@ -596,20 +597,18 @@ for (const step of wizardSteps) {
   const issues = validateWizardStep(index, draft.answers);
 ```
 
-Keep submission, Turnstile, saving, and confirmation behavior unchanged.
+Keep the existing loop body that shows errors and returns when `issues.length > 0`.
 
-- [ ] **Step 7: Run focused UI tests**
-
-Run:
+- [ ] **Step 7: Run focused UI verification**
 
 ```bash
 npx vitest run tests/intake/markup.test.ts tests/intake/wizard.test.ts
 npm run check
 ```
 
-Expected: all commands pass.
+Expected: both commands pass.
 
-- [ ] **Step 8: Commit the five-step UI**
+- [ ] **Step 8: Commit Task 2**
 
 ```bash
 git add src/components/intake/IntakeWizard.astro src/components/intake/WizardProgress.astro src/components/intake/steps/ReviewStep.astro src/components/intake/steps/BudgetStep.astro src/scripts/intake-wizard.ts tests/intake/markup.test.ts tests/intake/wizard.test.ts
@@ -618,7 +617,7 @@ git commit -m "feat: convert intake wizard to five steps"
 
 ---
 
-### Task 3: Remove Budget and Timing From Review and Emails
+### Task 3: Remove Budget Data From Review and Emails
 
 **Files:**
 - Modify: `src/lib/intake/email.ts:125-162`
@@ -628,11 +627,11 @@ git commit -m "feat: convert intake wizard to five steps"
 
 **Interfaces:**
 - Consumes: `buildSummarySections(intake: NormalizedIntake): SummarySection[]`.
-- Produces: exactly five summary sections in this order: Business, Project, Needs, Materials, Contact. Browser review and both email formatters consume the same list.
+- Produces: exactly five summary sections in this order: Business, Project, Needs, Materials, Contact.
 
-- [ ] **Step 1: Add failing summary and email assertions**
+- [ ] **Step 1: Add failing summary and email tests**
 
-In `tests/intake/email.test.ts`, import `buildSummarySections`:
+Change the import in `tests/intake/email.test.ts` to:
 
 ```ts
 import { buildSummarySections, formatClientEmail, formatOwnerEmail } from '../../src/lib/intake/email';
@@ -641,7 +640,7 @@ import { buildSummarySections, formatClientEmail, formatOwnerEmail } from '../..
 Add:
 
 ```ts
-test('excludes budget, timing, readiness, launch, and approval data from every summary', () => {
+test('excludes budget, timing, readiness, launch, and approval data from summaries', () => {
   const value = normalized();
   Object.assign(value.answers.budgetAndTiming, {
     budgetRange: '1000-2500',
@@ -669,7 +668,7 @@ test('excludes budget, timing, readiness, launch, and approval data from every s
 });
 ```
 
-Update the owner-email section loop to:
+Change the owner-email section assertion to:
 
 ```ts
 for (const section of ['Business', 'Project', 'Needs', 'Materials', 'Contact']) {
@@ -679,31 +678,27 @@ for (const section of ['Business', 'Project', 'Needs', 'Materials', 'Contact']) 
 expect(email.text).not.toContain('Budget & timing');
 ```
 
-In `tests/intake/markup.test.ts`, add this test:
+Add this test to `tests/intake/markup.test.ts`:
 
 ```ts
 test('review summary exposes five editable sections without budget and timing', async () => {
   const review = await read('src/components/intake/ReviewSummary.astro');
-  for (const title of ['Business', 'Project', 'Needs', 'Materials', 'Contact']) {
-    expect(review).toContain(`'${title}'`);
-  }
+  expect(review).toContain("['Business', 'Project', 'Needs', 'Materials', 'Contact']");
   expect(review).not.toContain('Budget & timing');
 });
 ```
 
-- [ ] **Step 2: Run focused output tests to verify they fail**
-
-Run:
+- [ ] **Step 2: Run output tests and confirm the red state**
 
 ```bash
 npx vitest run tests/intake/email.test.ts tests/intake/markup.test.ts
 ```
 
-Expected: failures because the sixth summary section and budget/timing values still exist.
+Expected: failures for the sixth summary section and budget/timing labels.
 
-- [ ] **Step 3: Remove the budget summary section from the shared builder**
+- [ ] **Step 3: Remove the budget summary block**
 
-In `src/lib/intake/email.ts`, delete the entire budget block:
+Delete this block from `src/lib/intake/email.ts`:
 
 ```ts
 const budget: SummaryRow[] = [];
@@ -730,7 +725,7 @@ return [
 ];
 ```
 
-- [ ] **Step 4: Remove the review card and remap contact edit to step 4**
+- [ ] **Step 4: Remove the budget review card**
 
 In `src/components/intake/ReviewSummary.astro`, replace the title array with:
 
@@ -738,11 +733,9 @@ In `src/components/intake/ReviewSummary.astro`, replace the title array with:
 {['Business', 'Project', 'Needs', 'Materials', 'Contact'].map((title, index) => (
 ```
 
-The existing `data-edit-step={index}` then maps Contact to active step `4`.
+The existing `data-edit-step={index}` maps Contact to step `4`.
 
 - [ ] **Step 5: Run output tests**
-
-Run:
 
 ```bash
 npx vitest run tests/intake/email.test.ts tests/intake/markup.test.ts
@@ -750,7 +743,7 @@ npx vitest run tests/intake/email.test.ts tests/intake/markup.test.ts
 
 Expected: all tests pass.
 
-- [ ] **Step 6: Commit the output removal**
+- [ ] **Step 6: Commit Task 3**
 
 ```bash
 git add src/lib/intake/email.ts src/components/intake/ReviewSummary.astro tests/intake/email.test.ts tests/intake/markup.test.ts
@@ -759,7 +752,7 @@ git commit -m "feat: remove budget details from intake summaries"
 
 ---
 
-### Task 4: Remap Client and Server Validation Feedback to Five Steps
+### Task 4: Remap Validation Feedback to Five Steps
 
 **Files:**
 - Modify: `src/scripts/intake-server-validation-feedback.ts:12-19`
@@ -769,19 +762,17 @@ git commit -m "feat: remove budget details from intake summaries"
 
 **Interfaces:**
 - Consumes: normalized validation issue paths.
-- Produces: issue routing where `business=0`, `project=1`, `needs=2`, `materials=3`, `contact/consent=4`, and `budgetAndTiming` has no active step.
+- Produces: `business=0`, `project=1`, `needs=2`, `materials=3`, `contact/consent=4`; `budgetAndTiming` has no active step.
 
-- [ ] **Step 1: Update feedback tests to require five-step routing**
+- [ ] **Step 1: Update server-feedback test fixtures and assertions**
 
-In `tests/intake/server-validation-feedback.test.ts`:
-
-1. Replace progress generation with:
+In `tests/intake/server-validation-feedback.test.ts`, replace progress generation with:
 
 ```ts
 ${[0, 1, 2, 3, 4].map((index) => `<button data-progress-step="${index}"></button>`).join('')}
 ```
 
-2. Replace the intermediate and final sections with:
+Replace the intermediate and final section markup with:
 
 ```ts
 ${[1, 2, 3].map((index) => `<section data-step-index="${index}" hidden><section data-error-summary hidden tabindex="-1"><ul data-error-list></ul></section></section>`).join('')}
@@ -794,9 +785,13 @@ ${[1, 2, 3].map((index) => `<section data-step-index="${index}" hidden><section 
 </section>
 ```
 
-3. Store drafts at `currentStep: 4`.
+Change stored drafts to:
 
-4. Replace the mapping expectations with:
+```ts
+currentStep: 4,
+```
+
+Replace the mapping assertions with:
 
 ```ts
 expect(canonicalServerIssuePath('answers.business.socialLinks.0')).toBe('business.socialLinks');
@@ -806,12 +801,24 @@ expect(stepIndexForServerIssue('answers.budgetAndTiming.budgetRange')).toBeNull(
 expect(stepIndexForServerIssue('submissionId')).toBeNull();
 ```
 
-In `tests/intake/direct-server-feedback.test.ts`, replace both generated arrays with `[0, 1, 2, 3, 4]` and change the initially visible step condition from `index === 5` to `index === 4`.
+- [ ] **Step 2: Update direct-response feedback tests**
 
-Add this direct-feedback assertion:
+In `tests/intake/direct-server-feedback.test.ts`, replace both `[0, 1, 2, 3, 4, 5]` arrays with:
 
 ```ts
-test('legacy budget issues have no active field step and use the generic fallback', () => {
+[0, 1, 2, 3, 4]
+```
+
+Change the initially visible step condition to:
+
+```ts
+index === 4
+```
+
+Add:
+
+```ts
+test('legacy budget issues use the generic fallback instead of a removed step', () => {
   const window = buildWindow();
   const shown = showIntakeValidationIssues(window.document as unknown as Document, [
     { path: 'budgetAndTiming.budgetRange', message: 'Legacy budget issue.' }
@@ -822,9 +829,7 @@ test('legacy budget issues have no active field step and use the generic fallbac
 });
 ```
 
-- [ ] **Step 2: Run feedback tests to verify they fail**
-
-Run:
+- [ ] **Step 3: Run feedback tests and confirm the red state**
 
 ```bash
 npx vitest run tests/intake/server-validation-feedback.test.ts tests/intake/direct-server-feedback.test.ts
@@ -832,9 +837,9 @@ npx vitest run tests/intake/server-validation-feedback.test.ts tests/intake/dire
 
 Expected: failures because contact still maps to step `5` and budget still maps to step `4`.
 
-- [ ] **Step 3: Replace both feedback prefix maps**
+- [ ] **Step 4: Replace both production prefix maps**
 
-In both `src/scripts/intake-server-validation-feedback.ts` and `src/scripts/intake-response-feedback.ts`, replace `STEP_PREFIXES` with:
+In `src/scripts/intake-server-validation-feedback.ts` and `src/scripts/intake-response-feedback.ts`, replace `STEP_PREFIXES` with:
 
 ```ts
 const STEP_PREFIXES: ReadonlyArray<readonly string[]> = [
@@ -846,11 +851,9 @@ const STEP_PREFIXES: ReadonlyArray<readonly string[]> = [
 ];
 ```
 
-Do not alter path normalization, field highlighting, generic fallback copy, or fetch interception.
+Do not change path normalization, field highlighting, generic fallback copy, or fetch interception.
 
-- [ ] **Step 4: Run feedback tests**
-
-Run:
+- [ ] **Step 5: Run feedback tests**
 
 ```bash
 npx vitest run tests/intake/server-validation-feedback.test.ts tests/intake/direct-server-feedback.test.ts
@@ -858,7 +861,7 @@ npx vitest run tests/intake/server-validation-feedback.test.ts tests/intake/dire
 
 Expected: all tests pass.
 
-- [ ] **Step 5: Commit feedback routing changes**
+- [ ] **Step 6: Commit Task 4**
 
 ```bash
 git add src/scripts/intake-server-validation-feedback.ts src/scripts/intake-response-feedback.ts tests/intake/server-validation-feedback.test.ts tests/intake/direct-server-feedback.test.ts
@@ -867,19 +870,19 @@ git commit -m "fix: route intake validation across five steps"
 
 ---
 
-### Task 5: Update Browser Journeys and Production Build Verification
+### Task 5: Update Browser Journeys and Build Verification
 
 **Files:**
 - Modify: `tests/e2e/intake.spec.ts`
 - Modify: `scripts/verify-build-output.mjs`
 
 **Interfaces:**
-- Consumes: the complete five-step browser flow from Tasks 1–4.
-- Produces: Chromium and WebKit coverage proving submission, delayed confirmation handling, legacy draft restoration, and absence of removed budget UI.
+- Consumes: the complete five-step flow from Tasks 1–4.
+- Produces: Chromium and WebKit coverage for submission, delayed confirmation handling, legacy-step restoration, and absence of removed budget UI.
 
-- [ ] **Step 1: Remove the budget helper and update E2E expectations**
+- [ ] **Step 1: Remove the budget E2E helper and update flow assertions**
 
-Delete `completeBudget()` from `tests/e2e/intake.spec.ts`:
+Delete this helper from `tests/e2e/intake.spec.ts`:
 
 ```ts
 async function completeBudget(page: Page): Promise<void> {
@@ -891,13 +894,15 @@ async function completeBudget(page: Page): Promise<void> {
 }
 ```
 
-Rename the main test and remove its `completeBudget(page)` call:
+Rename the main flow test to:
 
 ```ts
 test('completes the five-step website flow and confirms receipt', async ({ page }) => {
 ```
 
-After `continueMaterials(page)`, assert:
+Remove both `completeBudget(page)` calls.
+
+After `continueMaterials(page)` in the main flow, add:
 
 ```ts
 await expect(page.getByText('Step 5 of 5', { exact: true })).toBeVisible();
@@ -911,8 +916,6 @@ Change the required-error expectation to:
 ```ts
 await expect(page.getByText('Step 1 of 5', { exact: true })).toBeVisible();
 ```
-
-Remove `completeBudget(page)` from the delayed-client-copy test.
 
 - [ ] **Step 2: Add a legacy-step restoration browser test**
 
@@ -948,7 +951,7 @@ for (const required of ['data-intake-form', 'Your Business', 'Project Type', 'Pr
 }
 ```
 
-Extend the forbidden list to prove the removed UI is absent:
+Replace the forbidden-copy loop with:
 
 ```js
 for (const forbidden of [
@@ -964,9 +967,7 @@ for (const forbidden of [
 }
 ```
 
-- [ ] **Step 4: Run the complete verification sequence**
-
-Run in this order:
+- [ ] **Step 4: Run the full verification sequence**
 
 ```bash
 npm test
@@ -984,12 +985,10 @@ Expected:
 - Asset and content verification exit successfully.
 - Astro and TypeScript checks report zero errors.
 - Production build succeeds.
-- Build-output verification confirms five-step intake markup and rejects removed budget copy.
+- Build-output verification confirms five-step markup and rejects removed budget copy.
 - Playwright passes in Chromium and WebKit.
 
-- [ ] **Step 5: Inspect the final diff for forbidden scope changes**
-
-Run:
+- [ ] **Step 5: Inspect scope before the final commit**
 
 ```bash
 git diff --stat main...HEAD
@@ -998,19 +997,17 @@ git diff main...HEAD -- src/lib/intake/resend.ts src/lib/intake/turnstile.ts fun
 
 Expected:
 
-- The first command lists only the files named in this plan plus the approved spec and plan documents.
-- The second command has no output, proving email provider, Turnstile verification, API delivery flow, and deployment configuration were not changed.
+- The first command lists only files named in this plan plus the approved spec and plan documents.
+- The second command has no output.
 
-- [ ] **Step 6: Commit browser and build verification updates**
+- [ ] **Step 6: Commit Task 5**
 
 ```bash
 git add tests/e2e/intake.spec.ts scripts/verify-build-output.mjs
 git commit -m "test: verify five-step intake flow"
 ```
 
-- [ ] **Step 7: Re-run the complete verification after the final commit**
-
-Run:
+- [ ] **Step 7: Re-run full verification after the final commit**
 
 ```bash
 npm test && npm run verify:assets && npm run verify:content && npm run check && npm run build && npm run verify:build && npm run test:e2e
@@ -1028,7 +1025,7 @@ Expected: exit code `0` with no failed tests or verification steps.
 - [ ] `BudgetAndTimingAnswers` and `IntakeAnswers.budgetAndTiming` still exist.
 - [ ] No `budgetAndTiming.*` path is required.
 - [ ] Recognized legacy budget values do not cause validation failure.
-- [ ] No budget/timing/readiness/launch/approval control exists in rendered markup.
+- [ ] No budget, timing, readiness, launch-date, or approval control exists in rendered markup.
 - [ ] Review contains Business, Project, Needs, Materials, and Contact only.
 - [ ] Owner and client emails contain no removed data.
 - [ ] Client and server validation feedback route Contact and Consent to step `4`.
