@@ -58,3 +58,22 @@ test('wizard has the exact production Turnstile site-key fallback', async () => 
   expect(wizard).toContain("const productionTurnstileSiteKey = '0x4AAAAAAEBqlDclbS1Wmdm0';");
   expect(wizard).toContain('configuredTurnstileSiteKey || productionTurnstileSiteKey');
 });
+
+test('intake markup uses studio voice and natural punctuation', async () => {
+  const paths = [
+    'src/components/intake/IntakeWizard.astro',
+    'src/components/intake/steps/BusinessStep.astro',
+    'src/components/intake/steps/ProjectStep.astro',
+    'src/components/intake/steps/NeedsStep.astro',
+    'src/components/intake/steps/MaterialsStep.astro',
+    'src/components/intake/steps/ReviewStep.astro',
+    'src/components/intake/SubmissionConfirmation.astro'
+  ];
+  const markup = (await Promise.all(paths.map(read))).join('\n');
+  expect(markup).not.toContain('—');
+  expect(markup).not.toContain('I’ll personally');
+  expect(markup).not.toContain('Tell me about the business');
+  expect(markup).not.toContain('choose how I should respond');
+  expect(markup).toContain('Calypso Digital Studio will review each request within two to three business days.');
+  expect(markup).toContain('Review the request and choose a contact method.');
+});
