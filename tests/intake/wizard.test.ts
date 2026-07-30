@@ -126,6 +126,23 @@ test('a valid stored draft reveals the restore choice', () => {
   expect(root.querySelector('[data-restore-notice]')?.hasAttribute('hidden')).toBe(false);
 });
 
+test('Turnstile hidden response is never saved as a project answer', () => {
+  initializeIntakeWizard(root);
+  (root.querySelector('[data-start-intake]') as HTMLButtonElement).click();
+
+  const form = root.querySelector('[data-intake-form]') as HTMLFormElement;
+  const hiddenResponse = window.document.createElement('input') as unknown as HTMLInputElement;
+  hiddenResponse.type = 'hidden';
+  hiddenResponse.name = 'cf-turnstile-response';
+  hiddenResponse.value = 'verified-token';
+  form.append(hiddenResponse);
+  hiddenResponse.dispatchEvent(new window.Event('input', { bubbles: true }) as unknown as Event);
+  (root.querySelector('[data-progress-step="0"]') as HTMLButtonElement).click();
+
+  const stored = JSON.parse(window.localStorage.getItem(DRAFT_KEY) ?? '{}');
+  expect(stored.answers).not.toHaveProperty('cf-turnstile-response');
+});
+
 test('sendIntakeRequest posts JSON and returns the safe success payload', async () => {
   const fetchMock = vi.fn(async (_url: string, init?: RequestInit) => {
     expect(init?.method).toBe('POST');
