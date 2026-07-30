@@ -19,7 +19,8 @@
     "test:e2e": "PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA npm run build && playwright test",
     "verify:content": "node scripts/verify-content-config.mjs",
     "verify:assets": "node scripts/verify-assets.mjs",
-    "verify:build": "node scripts/verify-build-output.mjs"
+    "verify:build": "node scripts/verify-build-output.mjs",
+    "verify:copy": "node scripts/verify-copy-output.mjs"
   },
   "dependencies": {
     "astro": "7.0.9"

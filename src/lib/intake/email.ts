@@ -168,7 +168,7 @@ export function formatOwnerEmail(intake: NormalizedIntake): EmailContent {
   const projectLabel = primaryLabels.get(intake.answers.project.primaryType as never) ?? humanize(intake.answers.project.primaryType);
   const sections = buildSummarySections(intake);
   return {
-    subject: `New project inquiry — ${intake.answers.business.businessName} — ${projectLabel} — ${intake.reference}`,
+    subject: `New project inquiry | ${intake.answers.business.businessName} | ${projectLabel} | ${intake.reference}`,
     replyTo: intake.answers.business.email,
     text: `Reference: ${intake.reference}\n\n${summaryText(sections)}`,
     html: `<main><h1>New project inquiry</h1><p><strong>Reference:</strong> ${escapeHtml(intake.reference)}</p>${summaryHtml(sections)}</main>`
@@ -177,9 +177,9 @@ export function formatOwnerEmail(intake: NormalizedIntake): EmailContent {
 
 export function formatClientEmail(intake: NormalizedIntake): EmailContent {
   const sections = buildSummarySections(intake);
-  const intro = 'I received your project details and will personally review them within 2–3 business days. No quote has been generated. Submitting this request does not commit you to purchasing services.';
+  const intro = 'Calypso Digital Studio received your project details and will review them within two to three business days. No quote has been generated. Submitting this request does not commit you to purchasing services.';
   return {
-    subject: `We received your Calypso Digital Studio project details — ${intake.reference}`,
+    subject: `Calypso Digital Studio received your project details | ${intake.reference}`,
     replyTo: 'calydigital@outlook.com',
     text: `${intro}\n\nReference: ${intake.reference}\n\n${summaryText(sections)}`,
     html: `<main><h1>Your project details have been received.</h1><p>${escapeHtml(intro)}</p><p><strong>Reference:</strong> ${escapeHtml(intake.reference)}</p>${summaryHtml(sections)}</main>`

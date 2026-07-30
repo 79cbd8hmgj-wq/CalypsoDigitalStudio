@@ -2,7 +2,7 @@
 title: LRL Photography
 slug: lrl-photography
 status: live
-summary: A complete photography website that guides visitors from learning about the photographer to choosing and booking a session.
+summary: A complete photography website where visitors can learn about the photographer, compare services, and book a session.
 projectType: Website design and development
 focus:
   - Brand translation

@@ -8,11 +8,11 @@ import { addOnOptions, primaryProjectTypes } from '../../../data/intake';
   <header class="step-heading" tabindex="-1">
     <p class="eyebrow">Step 2 of 5</p>
     <h2 id="project-step-title">Choose the closest project type.</h2>
-    <p>Pick one main direction. Optional additions can be combined with it.</p>
+    <p>Choose one main direction. Add any optional features that may also be needed.</p>
   </header>
   <ErrorSummary />
   <ChoiceGroup id="project-primary-type" name="project.primaryType" legend="Primary project type" options={primaryProjectTypes} mode="radio" required card />
-  <ChoiceGroup id="project-add-ons" name="project.addOns" legend="Optional additions" help="Select everything that may be useful. Final scope will be recommended after review." options={addOnOptions} card />
+  <ChoiceGroup id="project-add-ons" name="project.addOns" legend="Optional additions" help="Select anything that may be useful. The final scope will be recommended after review." options={addOnOptions} card />
   <div data-condition="other-add-on" hidden>
     <TextAreaField id="project-other-addon" name="project.otherAddOn" label="Describe the other addition" required maxlength={500} />
   </div>
