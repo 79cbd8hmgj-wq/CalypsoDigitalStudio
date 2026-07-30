@@ -48,8 +48,9 @@ function createWindow(): Window {
   return window;
 }
 
-function storeValidDraft(window: Window): void {
+function storeDraft(window: Window, existingWebsite = ''): void {
   const request = createValidWebsiteSubmission();
+  request.answers.business.existingWebsite = existingWebsite;
   window.localStorage.setItem(DRAFT_KEY, JSON.stringify({
     version: 1,
     submissionId: request.submissionId,
@@ -85,14 +86,10 @@ test('server validation issues open the earliest affected step and highlight its
   expect(submissionError.hidden).toBe(true);
 });
 
-test('the client precheck uses the server schema and returns the exact invalid field', () => {
+test('the client precheck uses the server schema and returns the exact invalid saved field', () => {
   const window = createWindow();
-  storeValidDraft(window);
+  storeDraft(window, 'ftp://example.com');
   const form = window.document.querySelector('[data-intake-form]') as unknown as HTMLFormElement;
-  const website = window.document.querySelector('[name="business.existingWebsite"]') as unknown as HTMLInputElement;
-  const email = window.document.querySelector('[name="business.email"]') as unknown as HTMLInputElement;
-  website.value = 'not a website';
-  email.value = 'jordan@example.com';
 
   const issues = validateCurrentIntakeForm(form, window.localStorage);
   expect(issues).toContainEqual({
@@ -101,14 +98,11 @@ test('the client precheck uses the server schema and returns the exact invalid f
   });
 });
 
-test('invalid server-schema data is blocked and highlighted before the API request', () => {
+test('invalid saved data is blocked and highlighted before the API request', () => {
   const window = createWindow();
-  storeValidDraft(window);
+  storeDraft(window, 'ftp://example.com');
   const form = window.document.querySelector('[data-intake-form]') as unknown as HTMLFormElement;
   const website = window.document.querySelector('[name="business.existingWebsite"]') as unknown as HTMLInputElement;
-  const email = window.document.querySelector('[name="business.email"]') as unknown as HTMLInputElement;
-  website.value = 'not a website';
-  email.value = 'jordan@example.com';
 
   installServerValidationFeedback(window as unknown as Parameters<typeof installServerValidationFeedback>[0]);
   const event = new window.Event('submit', { bubbles: true, cancelable: true });
