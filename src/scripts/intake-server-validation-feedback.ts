@@ -39,6 +39,14 @@ function isInput(element: HTMLInputElement | HTMLSelectElement | HTMLTextAreaEle
   return element.tagName.toLowerCase() === 'input';
 }
 
+function isIntakeFormTarget(target: EventTarget | null): target is HTMLFormElement {
+  if (typeof target !== 'object' || target === null) return false;
+  const candidate = target as unknown as { tagName?: unknown; matches?: unknown };
+  if (typeof candidate.tagName !== 'string' || candidate.tagName.toLowerCase() !== 'form') return false;
+  if (typeof candidate.matches !== 'function') return false;
+  return (candidate.matches as (selector: string) => boolean)('[data-intake-form]');
+}
+
 function activeElement(element: HTMLElement): boolean {
   let current: HTMLElement | null = element;
   while (current) {
@@ -225,10 +233,10 @@ export function installServerValidationFeedback(view: FeedbackWindow): void {
   view.__calypsoValidationFeedbackInstalled = true;
 
   view.document.addEventListener('submit', (event) => {
-    const form = event.target;
-    if (!(form instanceof view.HTMLFormElement) || !form.matches('[data-intake-form]')) return;
+    const target = event.target;
+    if (!isIntakeFormTarget(target)) return;
 
-    const issues = validateCurrentIntakeForm(form, view.localStorage);
+    const issues = validateCurrentIntakeForm(target, view.localStorage);
     if (issues.length === 0) return;
 
     event.preventDefault();
