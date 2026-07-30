@@ -37,11 +37,13 @@ function createWindow(): Window {
       </form>
     </div>`;
 
-  for (const button of Array.from(window.document.querySelectorAll('[data-progress-step]'))) {
+  for (const rawButton of Array.from(window.document.querySelectorAll('[data-progress-step]'))) {
+    const button = rawButton as unknown as HTMLElement;
     button.addEventListener('click', () => {
-      const target = Number((button as HTMLElement).dataset.progressStep);
-      for (const step of Array.from(window.document.querySelectorAll('[data-step-index]'))) {
-        (step as HTMLElement).hidden = Number((step as HTMLElement).dataset.stepIndex) !== target;
+      const target = Number(button.dataset.progressStep);
+      for (const rawStep of Array.from(window.document.querySelectorAll('[data-step-index]'))) {
+        const step = rawStep as unknown as HTMLElement;
+        step.hidden = Number(step.dataset.stepIndex) !== target;
       }
     });
   }
@@ -106,7 +108,7 @@ test('invalid saved data is blocked and highlighted before the API request', () 
 
   installServerValidationFeedback(window as unknown as Parameters<typeof installServerValidationFeedback>[0]);
   const event = new window.Event('submit', { bubbles: true, cancelable: true });
-  const allowed = form.dispatchEvent(event);
+  const allowed = form.dispatchEvent(event as unknown as Event);
 
   const step = window.document.querySelector('[data-step-index="0"]') as unknown as HTMLElement;
   expect(allowed).toBe(false);
