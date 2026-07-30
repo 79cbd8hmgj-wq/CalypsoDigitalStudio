@@ -22,7 +22,7 @@ The removed information must also disappear from the review screen and from both
 
 Use a compatibility-first removal.
 
-The `budgetAndTiming` object remains in the internal draft and API data structure for now, but it is not displayed, required, validated for business rules, or included in generated summaries. Existing saved drafts continue to load without a schema-version migration, while clients no longer see or submit budget, timing, readiness, launch-date, or approval information.
+The `budgetAndTiming` object remains in the internal draft and API data structure for now, but it is not displayed, required, validated for business rules, or included in generated summaries. New clients cannot enter these answers. Existing drafts may retain historical values internally so they remain loadable without a schema-version migration, but those values are ignored and never shown or emailed.
 
 ## User experience
 
@@ -65,8 +65,8 @@ The `budgetAndTiming` object remains in the internal draft and API data structur
   - `data-support-budget`
 - Remap review behavior from index `5` to index `4`.
 - Clamp restored drafts with `currentStep` greater than `4` to `4`.
-- Preserve the internal `budgetAndTiming` object in drafts as an empty compatibility container.
-- Do not restore old budget values into any visible controls because no such controls remain.
+- Preserve the internal `budgetAndTiming` object as an empty compatibility container for new drafts.
+- Permit historical values to remain internally in restored drafts, but do not restore them into visible controls or include them in output.
 
 ### Validation
 
@@ -87,7 +87,7 @@ The `budgetAndTiming` object remains in the internal draft and API data structur
 
 1. A new or restored draft still contains an internal `budgetAndTiming` object.
 2. The browser collects answers only from visible, allowlisted form fields; no budget/timing fields exist in the DOM.
-3. The submitted payload includes the compatibility object, normally empty.
+3. New drafts submit an empty compatibility object; restored legacy drafts may still carry recognized historical values internally.
 4. Server validation accepts the object but does not require or business-validate its contents.
 5. Email and review summary builders ignore the object entirely.
 6. The final visible and delivered output contains no budget/timing information.
