@@ -22,7 +22,7 @@ export type AddOn =
   | 'other';
 
 export type ContactMethod = 'email' | 'phone' | 'text' | 'instagram' | 'facebook';
-export type WizardStepIndex = 0 | 1 | 2 | 3 | 4 | 5;
+export type WizardStepIndex = 0 | 1 | 2 | 3 | 4;
 
 export interface BusinessAnswers {
   fullName: string;
