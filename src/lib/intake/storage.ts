@@ -1,3 +1,4 @@
+import { sanitizeStoredIntakeAnswers } from './form-fields';
 import { isValidSubmissionId } from './reference';
 import type { IntakeAnswers, IntakeDraft, WizardStepIndex } from './types';
 
@@ -116,6 +117,7 @@ export function loadDraft(now: Date | number = new Date(), storage: Storage | nu
       return null;
     }
     parsed.currentStep = parsed.currentStep as WizardStepIndex;
+    parsed.answers = sanitizeStoredIntakeAnswers(parsed.answers);
     return parsed;
   } catch {
     return null;
