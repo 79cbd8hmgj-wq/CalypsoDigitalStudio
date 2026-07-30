@@ -4,7 +4,7 @@
 
 **Goal:** Make all customer-facing website, intake, confirmation, and email copy sound professional, natural, and direct without changing services, facts, layout, or behavior.
 
-**Architecture:** Keep copy in its existing page, component, data, content, and email modules. Add a small reusable copy-quality checker that scans built HTML and JavaScript for prohibited punctuation and retired phrases, while focused Vitest and Playwright assertions protect the approved wording and studio voice.
+**Architecture:** Keep copy in its existing Astro pages, components, data modules, content entries, scripts, and email formatter. Add a small built-output checker for prohibited punctuation and retired phrases, plus focused source, email, and browser assertions for studio voice and approved wording.
 
 **Tech Stack:** Astro 7, TypeScript 5.9, Vitest 4, Node.js test runner, Playwright 1.62, GitHub Actions.
 
@@ -15,66 +15,82 @@
 - Evan’s personal biography on the About page must remain in first person.
 - Use professional, natural, direct sentences with limited marketing language.
 - Remove unnecessary em dashes and slash-heavy shorthand from customer-facing prose.
-- Preserve grammatically necessary compounds such as `one-time`, `follow-up`, `small-business` when adjectival, and `purpose-built`.
-- Preserve existing services, facts, calls to action, response expectations, reference behavior, and submission behavior.
-- Do not change the intake data model, validation rules, Turnstile, Resend, API delivery, Cloudflare configuration, or deployment configuration.
+- Preserve necessary compounds such as `one-time`, `follow-up`, `purpose-built`, and `small-business` when adjectival.
+- Preserve services, facts, calls to action, response expectations, project statuses, reference behavior, and submission behavior.
+- Do not change the intake data model, field names, option values, validation rules, Turnstile, Resend, API delivery, Cloudflare configuration, or deployment configuration.
 - Do not change visual layout or styling unless revised copy causes a demonstrated spacing defect.
 - Use Node.js `>=22.12.0 <23`, matching `package.json`.
 
 ---
 
-## File Structure
+## File Map
 
-### New files
+### Create
 
-- `scripts/copy-quality.mjs`: Pure copy-rule definitions and violation detection.
-- `scripts/copy-quality.test.mjs`: Node test coverage for the copy-rule helper.
-- `scripts/verify-copy-output.mjs`: Recursively scans built customer-facing HTML and JavaScript.
-- `tests/copy/public-copy.test.ts`: Source-level regression tests for marketing and studio voice.
+- `scripts/copy-quality.mjs`: Pure prohibited-pattern detection.
+- `scripts/copy-quality.test.mjs`: Node tests for the detector.
+- `scripts/verify-copy-output.mjs`: Scans built `.html` and `.js` files.
+- `tests/copy/public-copy.test.ts`: Audits public source copy and studio voice.
 
-### Existing files to modify
+### Modify
 
-- `package.json`: Add `verify:copy`.
-- `.github/workflows/validate.yml`: Run the built-output copy check after `npm run build`.
-- `src/pages/index.astro`: Light edit of home-page marketing copy.
-- `src/pages/about.astro`: Light edit while preserving Evan’s biography in first person.
-- `src/pages/services.astro`: Remove first-person recommendation wording.
-- `src/pages/process.astro`: Simplify process-page language.
-- `src/pages/work.astro`: Simplify portfolio introduction.
-- `src/pages/start.astro`: Replace the em-dash heading and first-person framing.
-- `src/data/services.ts`: Simplify service summaries without changing offerings.
-- `src/data/process.ts`: Replace mixed `I` and `we` voice with studio-neutral descriptions.
-- `src/content/projects/lrl-photography.md`: Light project-summary edit.
-- `src/content/projects/rare-treats-518.md`: Light project-summary edit.
-- `src/content/projects/good-intentions.md`: Light project-summary and focus-label edit.
-- `src/components/intake/IntakeWizard.astro`: Edit welcome and fallback copy.
-- `src/components/intake/steps/BusinessStep.astro`: Replace first-person heading and helper text.
-- `src/components/intake/steps/ProjectStep.astro`: Simplify project-selection instructions.
-- `src/components/intake/steps/NeedsStep.astro`: Replace formal introductory wording.
-- `src/components/intake/steps/MaterialsStep.astro`: Replace first-person review wording.
-- `src/components/intake/steps/ReviewStep.astro`: Replace first-person heading, response promise, and label.
-- `src/components/intake/SubmissionConfirmation.astro`: Use studio voice and natural number wording.
-- `src/scripts/intake-wizard.ts`: Update dynamic confirmation and delivery messages only.
-- `src/lib/intake/email.ts`: Update owner and client subjects and client confirmation copy.
-- `tests/intake/markup.test.ts`: Assert approved intake wording and retired phrases.
-- `tests/intake/email.test.ts`: Assert updated subjects, studio voice, and response wording.
-- `tests/e2e/intake.spec.ts`: Update visible-copy expectations.
+- `package.json`
+- `.github/workflows/validate.yml`
+- `src/pages/index.astro`
+- `src/pages/about.astro`
+- `src/pages/services.astro`
+- `src/pages/process.astro`
+- `src/pages/work.astro`
+- `src/pages/start.astro`
+- `src/data/services.ts`
+- `src/data/process.ts`
+- `src/content/projects/lrl-photography.md`
+- `src/content/projects/rare-treats-518.md`
+- `src/content/projects/good-intentions.md`
+- `src/components/intake/IntakeWizard.astro`
+- `src/components/intake/steps/BusinessStep.astro`
+- `src/components/intake/steps/ProjectStep.astro`
+- `src/components/intake/steps/NeedsStep.astro`
+- `src/components/intake/steps/MaterialsStep.astro`
+- `src/components/intake/steps/ReviewStep.astro`
+- `src/components/intake/SubmissionConfirmation.astro`
+- `src/scripts/intake-wizard.ts`
+- `src/lib/intake/email.ts`
+- `tests/intake/markup.test.ts`
+- `tests/intake/email.test.ts`
+- `tests/e2e/intake.spec.ts`
+
+### Audit without expected edits
+
+These surfaces already appear direct, but they remain inside the source and built-output review:
+
+- `src/components/SiteHeader.astro`
+- `src/components/SiteFooter.astro`
+- `src/components/ButtonLink.astro`
+- `src/components/ProjectCard.astro`
+- `src/components/intake/RestoreDraftNotice.astro`
+- `src/components/intake/ErrorSummary.astro`
+- `src/components/intake/WizardNavigation.astro`
+- `src/components/intake/WizardProgress.astro`
+- `src/data/navigation.ts`
+- `src/lib/intake/schema.ts`
+- `src/scripts/intake-server-validation-feedback.ts`
+- `public/site.webmanifest`
 
 ---
 
-### Task 1: Add an automated copy-quality gate
+### Task 1: Add the copy-quality gate
 
 **Files:**
 - Create: `scripts/copy-quality.mjs`
 - Create: `scripts/copy-quality.test.mjs`
 - Create: `scripts/verify-copy-output.mjs`
-- Modify: `package.json:11-24`
-- Modify: `.github/workflows/validate.yml:23-29`
+- Modify: `package.json`
+- Modify: `.github/workflows/validate.yml`
 
 **Interfaces:**
-- Consumes: UTF-8 strings from built `.html` and `.js` files.
-- Produces: `findCopyViolations(text: string, source?: string): CopyViolation[]`, where each violation has `source`, `rule`, `match`, and `index`.
-- Produces: `npm run verify:copy`, which exits nonzero when built customer-facing output contains a prohibited pattern.
+- Produces `findCopyViolations(text: string, source?: string)` returning `{ source, rule, match, index }[]`.
+- Produces `npm run verify:copy`, which scans built HTML and JavaScript and exits nonzero on a violation.
 
 - [ ] **Step 1: Write the failing helper tests**
 
@@ -86,19 +102,11 @@ import assert from 'node:assert/strict';
 import { findCopyViolations } from './copy-quality.mjs';
 
 test('finds prohibited customer-facing copy patterns', () => {
-  const text = [
-    'Tell me about the business—then choose website/app support.',
-    'We clarify the project and I’ll personally respond.'
-  ].join(' ');
+  const text = 'Tell me about the business—then choose website/app support.';
   const violations = findCopyViolations(text, 'fixture.html');
   assert.deepEqual(
     violations.map((item) => item.rule),
-    [
-      'unnecessary em dash',
-      'slash-heavy shorthand',
-      'retired first-person studio wording',
-      'plural studio voice'
-    ]
+    ['unnecessary em dash', 'slash-heavy shorthand', 'retired studio wording']
   );
 });
 
@@ -112,9 +120,7 @@ test('allows necessary compounds, URLs, and Evan first-person biography', () => 
 });
 ```
 
-- [ ] **Step 2: Run the helper tests and confirm they fail**
-
-Run:
+- [ ] **Step 2: Run the test and verify the expected failure**
 
 ```bash
 node --test scripts/copy-quality.test.mjs
@@ -122,7 +128,7 @@ node --test scripts/copy-quality.test.mjs
 
 Expected: FAIL because `scripts/copy-quality.mjs` does not exist.
 
-- [ ] **Step 3: Implement the pure copy-rule helper**
+- [ ] **Step 3: Implement the detector**
 
 Create `scripts/copy-quality.mjs`:
 
@@ -131,10 +137,9 @@ export const copyRules = [
   { name: 'unnecessary em dash', pattern: /—/g },
   { name: 'slash-heavy shorthand', pattern: /\b(?:website\/app|email\/text|booking\/payments)\b/gi },
   {
-    name: 'retired first-person studio wording',
-    pattern: /\b(?:I’ll personally|I'll personally|Tell me about the business|choose how I should respond)\b/gi
-  },
-  { name: 'plural studio voice', pattern: /\bwe\b/gi }
+    name: 'retired studio wording',
+    pattern: /\b(?:I’ll personally|I'll personally|Tell me about the business|choose how I should respond|We clarify goals)\b/gi
+  }
 ];
 
 export function findCopyViolations(text, source = 'unknown') {
@@ -150,9 +155,9 @@ export function findCopyViolations(text, source = 'unknown') {
 }
 ```
 
-- [ ] **Step 4: Run the helper tests and confirm they pass**
+Do not scan minified JavaScript for the standalone word `we`; minifiers may generate that identifier. Source-level tests in Task 2 enforce the studio-voice rule instead.
 
-Run:
+- [ ] **Step 4: Run the helper test**
 
 ```bash
 node --test scripts/copy-quality.test.mjs
@@ -160,7 +165,7 @@ node --test scripts/copy-quality.test.mjs
 
 Expected: 2 tests PASS.
 
-- [ ] **Step 5: Add the built-output scanner**
+- [ ] **Step 5: Implement the built-output scanner**
 
 Create `scripts/verify-copy-output.mjs`:
 
@@ -172,7 +177,7 @@ import { findCopyViolations } from './copy-quality.mjs';
 
 const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 const distRoot = fileURLToPath(new URL('../dist/', import.meta.url));
-const scannedExtensions = new Set(['.html', '.js']);
+const extensions = new Set(['.html', '.js']);
 
 async function collectFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -180,7 +185,7 @@ async function collectFiles(directory) {
   for (const entry of entries) {
     const path = `${directory}/${entry.name}`;
     if (entry.isDirectory()) files.push(...await collectFiles(path));
-    else if (scannedExtensions.has(extname(entry.name))) files.push(path);
+    else if (extensions.has(extname(entry.name))) files.push(path);
   }
   return files;
 }
@@ -189,13 +194,12 @@ const files = await collectFiles(distRoot);
 const violations = [];
 for (const file of files) {
   const source = relative(projectRoot, file);
-  const text = await readFile(file, 'utf8');
-  violations.push(...findCopyViolations(text, source));
+  violations.push(...findCopyViolations(await readFile(file, 'utf8'), source));
 }
 
 if (violations.length > 0) {
-  for (const violation of violations) {
-    console.error(`${violation.source}: ${violation.rule}: ${JSON.stringify(violation.match)}`);
+  for (const item of violations) {
+    console.error(`${item.source}: ${item.rule}: ${JSON.stringify(item.match)}`);
   }
   process.exitCode = 1;
 } else {
@@ -203,60 +207,43 @@ if (violations.length > 0) {
 }
 ```
 
-- [ ] **Step 6: Wire the scanner into package scripts and CI**
+- [ ] **Step 6: Wire the checker into scripts and CI**
 
-Add this entry to `package.json` immediately after `verify:build` or alongside the other verification scripts:
+Add to `package.json`:
 
 ```json
 "verify:copy": "node scripts/verify-copy-output.mjs"
 ```
 
-Add this workflow step after `npm run build` and before `npm run verify:build`:
+Add after `npm run build` in `.github/workflows/validate.yml`:
 
 ```yaml
       - run: npm run verify:copy
 ```
 
-- [ ] **Step 7: Run the full foundation test command**
-
-Run:
+- [ ] **Step 7: Verify and commit**
 
 ```bash
 npm run test:foundation
-```
-
-Expected: all Node foundation tests PASS.
-
-- [ ] **Step 8: Commit the copy gate**
-
-```bash
 git add scripts/copy-quality.mjs scripts/copy-quality.test.mjs scripts/verify-copy-output.mjs package.json .github/workflows/validate.yml
 git commit -m "test: add customer copy quality gate"
 ```
 
+Expected: foundation tests PASS. Do not run `verify:copy` until the old copy is replaced.
+
 ---
 
-### Task 2: Edit marketing pages, service data, process data, and project summaries
+### Task 2: Edit the marketing and shared public copy
 
 **Files:**
 - Create: `tests/copy/public-copy.test.ts`
-- Modify: `src/pages/index.astro`
-- Modify: `src/pages/about.astro`
-- Modify: `src/pages/services.astro`
-- Modify: `src/pages/process.astro`
-- Modify: `src/pages/work.astro`
-- Modify: `src/pages/start.astro`
-- Modify: `src/data/services.ts`
-- Modify: `src/data/process.ts`
-- Modify: `src/content/projects/lrl-photography.md`
-- Modify: `src/content/projects/rare-treats-518.md`
-- Modify: `src/content/projects/good-intentions.md`
+- Modify: the marketing, data, and project files listed in the File Map.
+- Audit: the shared public files listed under “Audit without expected edits.”
 
 **Interfaces:**
-- Consumes: Existing Astro pages, service/process arrays, and project content collection fields.
-- Produces: The same routes, content schemas, service entries, process steps, and project entries with revised prose only.
+- Preserves all routes, collection schemas, array values, links, images, statuses, classes, and component structure.
 
-- [ ] **Step 1: Write the failing marketing-copy regression tests**
+- [ ] **Step 1: Write the failing source-copy tests**
 
 Create `tests/copy/public-copy.test.ts`:
 
@@ -265,14 +252,10 @@ import { readFile } from 'node:fs/promises';
 import { expect, test } from 'vitest';
 
 const root = new URL('../../', import.meta.url);
+const read = (path: string) => readFile(new URL(path, root), 'utf8');
 
-async function read(path: string): Promise<string> {
-  return readFile(new URL(path, root), 'utf8');
-}
-
-const auditedPaths = [
+const studioCopyPaths = [
   'src/pages/index.astro',
-  'src/pages/about.astro',
   'src/pages/services.astro',
   'src/pages/process.astro',
   'src/pages/work.astro',
@@ -281,24 +264,30 @@ const auditedPaths = [
   'src/data/process.ts',
   'src/content/projects/lrl-photography.md',
   'src/content/projects/rare-treats-518.md',
-  'src/content/projects/good-intentions.md'
+  'src/content/projects/good-intentions.md',
+  'src/components/SiteHeader.astro',
+  'src/components/SiteFooter.astro',
+  'src/components/ButtonLink.astro',
+  'src/components/ProjectCard.astro',
+  'src/data/navigation.ts',
+  'public/site.webmanifest'
 ] as const;
 
-test('public marketing copy avoids retired punctuation and studio voice', async () => {
-  const combined = (await Promise.all(auditedPaths.map(read))).join('\n');
+test('studio marketing copy avoids em dashes, slash shorthand, and plural voice', async () => {
+  const combined = (await Promise.all(studioCopyPaths.map(read))).join('\n');
   expect(combined).not.toContain('—');
-  expect(combined).not.toMatch(/\bWe\b/);
+  expect(combined).not.toMatch(/\bwe\b/i);
+  expect(combined).not.toMatch(/\b(?:website\/app|email\/text|booking\/payments)\b/i);
   expect(combined).not.toContain('I also build');
   expect(combined).not.toContain('I will recommend');
   expect(combined).not.toContain('Tell me what the business needs');
 });
 
-test('approved natural copy and Evan biography remain present', async () => {
+test('approved copy and Evan biography remain present', async () => {
   const home = await read('src/pages/index.astro');
   const about = await read('src/pages/about.astro');
   const process = await read('src/data/process.ts');
   const start = await read('src/pages/start.astro');
-
   expect(home).toContain('You can begin without planning every part of the website.');
   expect(about).toContain('I’m Evan Lebrecht, the designer and developer behind Calypso Digital Studio.');
   expect(process).toContain('A discovery conversation confirms the goals');
@@ -306,19 +295,17 @@ test('approved natural copy and Evan biography remain present', async () => {
 });
 ```
 
-- [ ] **Step 2: Run the focused test and confirm it fails**
-
-Run:
+- [ ] **Step 2: Run the focused test and verify it fails**
 
 ```bash
 npm run test:unit -- tests/copy/public-copy.test.ts
 ```
 
-Expected: FAIL on the current em dashes, `I` or `we` studio wording, and missing replacement text.
+Expected: FAIL on current em dashes, mixed studio voice, and missing approved sentences.
 
-- [ ] **Step 3: Apply the approved home-page copy**
+- [ ] **Step 3: Apply the approved Home copy**
 
-In `src/pages/index.astro`, use these final customer-facing strings:
+In `src/pages/index.astro`, use:
 
 ```text
 Hero description:
@@ -337,11 +324,9 @@ Intake paragraph:
 The guided project form organizes the business, goals, features, and available materials into clear steps.
 ```
 
-Do not change component structure, links, image data, project ordering, classes, or styles.
+- [ ] **Step 4: Apply the approved About copy**
 
-- [ ] **Step 4: Apply the approved About-page copy**
-
-In `src/pages/about.astro`, use these final strings:
+In `src/pages/about.astro`, use:
 
 ```text
 Page title:
@@ -359,25 +344,19 @@ The work should fit the business, not add features it will never use.
 Mindset introduction:
 Each project is considered in real use: what customers need to understand, what the owner needs to manage, where the current process causes problems, and what will remain practical after launch.
 
-Business-first recommendations paragraph:
+Business-first recommendations:
 Recommendations come from the business goals, customer journey, and actual workflow. They are not based on trends, templates, or a platform the studio is trying to sell.
 
-Clear accountability paragraph:
+Clear accountability:
 Scope, limitations, progress, and recommendations should remain clear throughout the project. That includes explaining when a feature is unnecessary.
 
 Contact paragraph:
 Email is the most direct way to begin. Current work is also shared through the studio’s social profiles.
 ```
 
-Keep the personal biography paragraphs in first person, including:
+Keep Evan’s biography in first person, including the sentence `I’m Evan Lebrecht, the designer and developer behind Calypso Digital Studio.`
 
-```text
-I’m Evan Lebrecht, the designer and developer behind Calypso Digital Studio.
-```
-
-- [ ] **Step 5: Apply the approved Services, Process, Work, and Start-page copy**
-
-Use these exact strings:
+- [ ] **Step 5: Apply the approved Services, Process, Work, and Start copy**
 
 `src/pages/services.astro`
 
@@ -428,9 +407,9 @@ Direct-contact paragraph:
 Email is available for accessibility issues, corrections, or projects that cannot be described through the form.
 ```
 
-- [ ] **Step 6: Normalize process data to studio-neutral language**
+- [ ] **Step 6: Normalize the process descriptions**
 
-Replace `src/data/process.ts` with the same eight entries and these descriptions:
+Replace only the descriptions in `src/data/process.ts`:
 
 ```ts
 export const processSteps = [
@@ -445,30 +424,21 @@ export const processSteps = [
 ] as const;
 ```
 
-- [ ] **Step 7: Lightly simplify service summaries**
+- [ ] **Step 7: Simplify the service summaries**
 
-Keep all five service titles and example arrays unchanged. Use these summaries in `src/data/services.ts`:
+Keep titles and example arrays unchanged. Use these summaries in `src/data/services.ts`:
 
 ```text
-Website design and development:
 A custom website built around what customers need to understand and what the business needs to accomplish.
-
-Website redesigns:
 A clearer, faster, more professional replacement for a website that no longer represents the business.
-
-E-commerce and online selling:
 Planning and development for businesses that need to sell products, accept payments, arrange shipping, or prepare a controlled launch.
-
-Custom business tools:
 Purpose-built digital tools for repetitive processes, customer workflows, data organization, or internal operations.
-
-Ongoing support:
 Continued help after launch for updates, new pages, added features, and technical maintenance.
 ```
 
-- [ ] **Step 8: Lightly edit project descriptions without changing status or claims**
+Apply them in the existing service order.
 
-Use these exact content changes:
+- [ ] **Step 8: Edit the three project entries**
 
 `src/content/projects/lrl-photography.md`
 
@@ -476,15 +446,11 @@ Use these exact content changes:
 summary: A complete photography website where visitors can learn about the photographer, compare services, and book a session.
 ```
 
-Keep the body sentence unchanged.
-
 `src/content/projects/rare-treats-518.md`
 
 ```yaml
 summary: A colorful small-business website for rotating treats, custom orders, and local market information, without forcing the business into a fixed catalog.
 ```
-
-Keep `small-business` hyphenated because it modifies `website`. Keep the body sentence unchanged.
 
 `src/content/projects/good-intentions.md`
 
@@ -492,73 +458,50 @@ Keep `small-business` hyphenated because it modifies `website`. Keep the body se
 summary: An editorial storefront and service experience for a secondhand clothing business, with collection stories and clear customer steps.
 ```
 
-Change the focus labels to:
+Change only these two focus labels:
 
 ```yaml
   - Style bundle process
   - Clothing donation workflow
 ```
 
-Replace the body with:
+Replace its body with:
 
 ```text
 This project is still in progress. Draft inventory and inactive checkout are clearly identified rather than presented as live commerce.
 ```
 
-- [ ] **Step 9: Run the focused copy test**
+Keep every title, slug, status, project type, image, featured flag, and live URL unchanged.
 
-Run:
+- [ ] **Step 9: Audit shared copy that does not need rewriting**
+
+Read every file listed under “Audit without expected edits.” Confirm that it contains no unnecessary em dash, slash-heavy shorthand, mixed studio voice, or awkward sentence. Do not change wording merely to increase the diff.
+
+- [ ] **Step 10: Verify and commit**
 
 ```bash
 npm run test:unit -- tests/copy/public-copy.test.ts
-```
-
-Expected: PASS.
-
-- [ ] **Step 10: Run content and type checks**
-
-Run:
-
-```bash
 npm run verify:content
 npm run check
-```
-
-Expected: both commands PASS with unchanged content schemas and Astro structure.
-
-- [ ] **Step 11: Commit the marketing copy edit**
-
-```bash
 git add tests/copy/public-copy.test.ts src/pages/index.astro src/pages/about.astro src/pages/services.astro src/pages/process.astro src/pages/work.astro src/pages/start.astro src/data/services.ts src/data/process.ts src/content/projects/lrl-photography.md src/content/projects/rare-treats-518.md src/content/projects/good-intentions.md
 git commit -m "copy: make studio marketing language more natural"
 ```
+
+Expected: all commands PASS.
 
 ---
 
 ### Task 3: Edit intake, dynamic feedback, confirmation, and email copy
 
 **Files:**
-- Modify: `src/components/intake/IntakeWizard.astro`
-- Modify: `src/components/intake/steps/BusinessStep.astro`
-- Modify: `src/components/intake/steps/ProjectStep.astro`
-- Modify: `src/components/intake/steps/NeedsStep.astro`
-- Modify: `src/components/intake/steps/MaterialsStep.astro`
-- Modify: `src/components/intake/steps/ReviewStep.astro`
-- Modify: `src/components/intake/SubmissionConfirmation.astro`
-- Modify: `src/scripts/intake-wizard.ts`
-- Modify: `src/lib/intake/email.ts`
-- Modify: `tests/intake/markup.test.ts`
-- Modify: `tests/intake/email.test.ts`
-- Modify: `tests/e2e/intake.spec.ts`
+- Modify all intake, script, email, and test files listed in the File Map.
 
 **Interfaces:**
-- Consumes: Existing form field names, step indexes, conditions, submission request data, Turnstile state, and normalized intake summaries.
-- Produces: Identical form behavior and email structure with revised visible strings only.
-- Preserves: `IntakeSubmissionRequest`, `NormalizedIntake`, response codes, reference generation, validation paths, and all API behavior.
+- Preserves all form names, IDs, values, conditions, step indexes, request types, response codes, summary sections, HTML escaping, and email addresses.
 
 - [ ] **Step 1: Add failing static intake-copy assertions**
 
-Add this test to `tests/intake/markup.test.ts`:
+Add to `tests/intake/markup.test.ts`:
 
 ```ts
 test('intake markup uses studio voice and natural punctuation', async () => {
@@ -572,7 +515,6 @@ test('intake markup uses studio voice and natural punctuation', async () => {
     'src/components/intake/SubmissionConfirmation.astro'
   ];
   const markup = (await Promise.all(paths.map(read))).join('\n');
-
   expect(markup).not.toContain('—');
   expect(markup).not.toContain('I’ll personally');
   expect(markup).not.toContain('Tell me about the business');
@@ -582,161 +524,130 @@ test('intake markup uses studio voice and natural punctuation', async () => {
 });
 ```
 
-- [ ] **Step 2: Update email expectations before implementation**
+- [ ] **Step 2: Update failing email expectations**
 
-In `tests/intake/email.test.ts`, replace the owner subject expectation with:
+In `tests/intake/email.test.ts`:
 
 ```ts
 expect(email.subject).toBe('New project inquiry | Example Studio | New business website | CDS-1111111122');
 ```
 
-Replace the client response-time assertion with:
-
-```ts
-expect(email.text).toContain('two to three business days');
-```
-
-Add these assertions to the client confirmation test:
+For the client email, assert:
 
 ```ts
 expect(email.subject).toBe('Calypso Digital Studio received your project details | CDS-1111111122');
 expect(email.text).toContain('Calypso Digital Studio received your project details');
+expect(email.text).toContain('two to three business days');
 expect(email.text).not.toContain('I received');
 expect(email.text).not.toContain('We received');
 expect(email.text).not.toContain('—');
 ```
 
-- [ ] **Step 3: Update browser expectations before implementation**
+- [ ] **Step 3: Update failing browser expectations**
 
-In `tests/e2e/intake.spec.ts`:
+In `tests/e2e/intake.spec.ts`, use:
 
 ```ts
 await expect(page.locator('[data-confirmation-message]')).toContainText('two to three business days');
 ```
 
-Replace the legacy-draft review heading expectation with:
+For the restored final-step draft, use:
 
 ```ts
 await expect(page.getByRole('heading', { name: 'Review the request and choose a contact method.' })).toBeVisible();
 ```
 
-Keep all field labels, route behavior, step counts, Turnstile behavior, and submission mocks unchanged.
-
-- [ ] **Step 4: Run the focused tests and confirm they fail**
-
-Run:
+- [ ] **Step 4: Run the focused tests and verify they fail**
 
 ```bash
 npm run test:unit -- tests/intake/markup.test.ts tests/intake/email.test.ts
 ```
 
-Expected: FAIL on current first-person copy, em dashes, subjects, and response-time wording.
+Expected: FAIL on current first-person copy, subjects, and response-time wording.
 
-- [ ] **Step 5: Edit the intake welcome and JavaScript fallback**
+- [ ] **Step 5: Edit the wizard welcome and no-script fallback**
 
 In `src/components/intake/IntakeWizard.astro`, use:
 
 ```text
-Welcome paragraph:
 The form usually takes 5 to 10 minutes. Technical knowledge is not required. It does not generate a price or commit you to purchasing services.
 
-Saved-progress item:
 Your unfinished progress is saved on this device for 30 days.
-
-Materials item:
 No logo, photos, or documents need to be uploaded now.
-
-Review item:
 Calypso Digital Studio will review each request within two to three business days.
 
-No-script paragraph:
 Email calydigital@outlook.com. Include the business name, what you need, important features, available branding, and preferred contact method.
 ```
 
-Keep the Turnstile key, form structure, imports, data attributes, and styles unchanged.
+Keep the existing heading, button, data attributes, form structure, Turnstile key, imports, and styles.
 
-- [ ] **Step 6: Edit the five step introductions and contact label**
+- [ ] **Step 6: Edit the five step introductions**
 
-Use these exact strings:
-
-`src/components/intake/steps/BusinessStep.astro`
+`BusinessStep.astro`
 
 ```text
-Heading:
 Share the basics about the business.
-
-Description:
 Business details provide context for later recommendations about pages and features.
 ```
 
-`src/components/intake/steps/ProjectStep.astro`
+`ProjectStep.astro`
 
 ```text
-Description:
 Choose one main direction. Add any optional features that may also be needed.
-
-Optional additions help:
 Select anything that may be useful. The final scope will be recommended after review.
 ```
 
-`src/components/intake/steps/NeedsStep.astro`
+`NeedsStep.astro`
 
 ```text
-Description:
 Focus on what customers or staff should be able to do. The technical solution can be worked out later.
 ```
 
-`src/components/intake/steps/MaterialsStep.astro`
+`MaterialsStep.astro`
 
 ```text
-Description:
 No files are needed yet. The studio will request relevant materials after reviewing the project.
 ```
 
-`src/components/intake/steps/ReviewStep.astro`
+`ReviewStep.astro`
 
 ```text
-Heading:
 Review the request and choose a contact method.
-
-Description:
 No price is generated here. Calypso Digital Studio will review the information and respond within two to three business days.
-
-Additional-information label:
 Anything else Calypso Digital Studio should know about the project?
 ```
 
-Do not change field names, IDs, option values, required flags, consent text, conditions, or data attributes.
+Change only the corresponding heading, description, helper text, and additional-information label. Keep consent language in the client’s first person.
 
-- [ ] **Step 7: Edit the submission confirmation**
+- [ ] **Step 7: Edit the confirmation component**
 
 In `src/components/intake/SubmissionConfirmation.astro`, use:
 
 ```text
-Confirmation paragraph:
 Calypso Digital Studio will review the information and respond within two to three business days. No price has been generated, and submitting this request does not commit you to purchasing services. A copy of the submission has been sent to your email.
+```
 
-Expected response:
+Set the expected-response value to:
+
+```text
 Within two to three business days
 ```
 
-Keep the heading, reference field, email field, correction email, and buttons unchanged.
+- [ ] **Step 8: Edit dynamic feedback without changing behavior**
 
-- [ ] **Step 8: Edit dynamic client feedback without changing error codes**
-
-In `src/scripts/intake-wizard.ts`, change only these customer-facing strings:
+In `src/scripts/intake-wizard.ts`, change only:
 
 ```text
 delivery_unconfirmed:
 Your answers are still saved, but delivery could not be confirmed. Try again in a moment or email calydigital@outlook.com.
 
-Delayed confirmation-email message:
+Delayed email-copy message:
 Your project was received, but the email copy could not be confirmed. Keep this reference number and email Calypso Digital Studio at calydigital@outlook.com if you need a copy.
 ```
 
-Leave every error-code key, Turnstile diagnostic, timeout, save behavior, request payload, and state transition unchanged.
+Keep all error-code keys, Turnstile diagnostics, save behavior, request payloads, and state transitions unchanged.
 
-- [ ] **Step 9: Edit owner and client email wording**
+- [ ] **Step 9: Edit the email formatter**
 
 In `src/lib/intake/email.ts`, use:
 
@@ -744,161 +655,100 @@ In `src/lib/intake/email.ts`, use:
 subject: `New project inquiry | ${intake.answers.business.businessName} | ${projectLabel} | ${intake.reference}`
 ```
 
-For the client email, set:
+Set the client intro to:
 
 ```ts
 const intro = 'Calypso Digital Studio received your project details and will review them within two to three business days. No quote has been generated. Submitting this request does not commit you to purchasing services.';
 ```
 
-Use this client subject:
+Set the client subject to:
 
 ```ts
 subject: `Calypso Digital Studio received your project details | ${intake.reference}`
 ```
 
-Keep summary generation, HTML escaping, reply-to addresses, section order, and field labels unchanged.
+Keep summary generation, escaping, reply-to addresses, labels, and section order unchanged.
 
-- [ ] **Step 10: Run focused unit tests**
-
-Run:
+- [ ] **Step 10: Verify and commit**
 
 ```bash
 npm run test:unit -- tests/intake/markup.test.ts tests/intake/email.test.ts tests/intake/wizard.test.ts
-```
-
-Expected: all focused tests PASS.
-
-- [ ] **Step 11: Run the focused browser suite**
-
-Run:
-
-```bash
 PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA npx playwright test tests/e2e/intake.spec.ts --project=chromium
-```
-
-Expected: all intake browser tests PASS in Chromium.
-
-- [ ] **Step 12: Commit the intake and email copy edit**
-
-```bash
 git add src/components/intake/IntakeWizard.astro src/components/intake/steps/BusinessStep.astro src/components/intake/steps/ProjectStep.astro src/components/intake/steps/NeedsStep.astro src/components/intake/steps/MaterialsStep.astro src/components/intake/steps/ReviewStep.astro src/components/intake/SubmissionConfirmation.astro src/scripts/intake-wizard.ts src/lib/intake/email.ts tests/intake/markup.test.ts tests/intake/email.test.ts tests/e2e/intake.spec.ts
 git commit -m "copy: simplify intake and email language"
 ```
 
+Expected: focused unit and Chromium intake tests PASS.
+
 ---
 
-### Task 4: Run the complete verification and review the final copy diff
+### Task 4: Complete verification and final review
 
 **Files:**
-- Review: all files changed in Tasks 1 through 3
-- No new production behavior is introduced in this task.
-
-**Interfaces:**
-- Consumes: The completed copy edit and copy-quality gate.
-- Produces: Verification evidence that copy, rendering, submission behavior, and browser flows remain valid.
+- Review every file changed in Tasks 1 through 3.
+- Do not introduce new production behavior in this task.
 
 - [ ] **Step 1: Install exact dependencies**
-
-Run:
 
 ```bash
 npm ci
 ```
 
-Expected: clean installation with Node 22 and no lockfile change.
+Expected: installation succeeds without a lockfile change.
 
-- [ ] **Step 2: Run all unit and foundation tests**
-
-Run:
+- [ ] **Step 2: Run the complete test and validation sequence**
 
 ```bash
 npm test
-```
-
-Expected: all Node and Vitest tests PASS.
-
-- [ ] **Step 3: Run asset, content, and type validation**
-
-Run:
-
-```bash
 npm run verify:assets
 npm run verify:content
 npm run check
-```
-
-Expected: all three commands PASS.
-
-- [ ] **Step 4: Build the production site**
-
-Run:
-
-```bash
 PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA npm run build
-```
-
-Expected: Astro production build completes successfully.
-
-- [ ] **Step 5: Run built-output verification**
-
-Run:
-
-```bash
 npm run verify:copy
 npm run verify:build
-```
-
-Expected: both commands PASS. The copy check reports no em dashes, slash-heavy shorthand, retired first-person studio wording, or `we` voice in built HTML or JavaScript.
-
-- [ ] **Step 6: Run the complete Chromium and WebKit browser suite**
-
-Run:
-
-```bash
 npm run test:e2e
 ```
 
-Expected: all Playwright tests PASS in Chromium and WebKit.
+Expected: every command PASS, including Chromium and WebKit.
 
-- [ ] **Step 7: Perform the final source audit**
-
-Run:
+- [ ] **Step 3: Run the final source audit**
 
 ```bash
-git grep -n '—' -- src/pages src/components src/data src/content src/lib/intake/email.ts src/scripts/intake-wizard.ts || true
-git grep -nE '\b(We|I’ll personally|Tell me about the business|choose how I should respond)\b' -- src/pages src/components src/data src/content src/lib/intake/email.ts src/scripts/intake-wizard.ts || true
+git grep -n '—' -- src/pages src/components src/data src/content src/lib/intake/email.ts src/scripts/intake-wizard.ts public/site.webmanifest || true
+git grep -niE '\b(we|I’ll personally|Tell me about the business|choose how I should respond)\b' -- src/pages src/components src/data src/content src/lib/intake/email.ts src/scripts/intake-wizard.ts public/site.webmanifest || true
 git diff --check
 git status --short
 ```
 
 Expected:
 
-- The em-dash search returns no customer-facing source matches.
-- The retired studio-voice search returns no matches. User-perspective consent wording and Evan’s first-person About biography remain allowed.
+- No unwanted customer-facing matches.
+- Evan’s first-person biography and client-perspective consent statements remain allowed.
 - `git diff --check` prints nothing.
-- `git status --short` shows only intentional changes, or is clean after commits.
+- Status contains only intentional changes, or is clean after commits.
 
-- [ ] **Step 8: Review factual and behavioral boundaries**
+- [ ] **Step 4: Review factual and behavioral boundaries**
 
-Inspect the final diff and confirm:
+Confirm from the final diff:
 
 ```text
-Services and project statuses are unchanged.
-The response promise remains two to three business days.
-No prices or new claims were introduced.
-Every intake field name, option value, required flag, condition, and step index is unchanged.
-Turnstile, Resend, API, Cloudflare, and deployment configuration are unchanged except for adding the validation workflow command.
-No CSS or layout change was made without a demonstrated text-overflow reason.
+Services and project statuses did not change.
+The response expectation remains two to three business days.
+No price, promise, urgency, or authority claim was added.
+Form field names, values, conditions, required rules, and step indexes did not change.
+Turnstile, Resend, API, Cloudflare, and deployment settings did not change.
+The GitHub workflow changed only to run the new validation command.
+No CSS or layout changed without a reproduced spacing problem.
 Evan’s About biography remains in first person.
 ```
 
-- [ ] **Step 9: Commit any verification-only assertion correction**
+- [ ] **Step 5: Commit a test-only correction only when verification required one**
 
-Only when a test expectation needed correction to match the already approved copy, commit it separately:
+When an assertion alone needed correction to match the approved copy:
 
 ```bash
 git add tests scripts package.json .github/workflows/validate.yml
 git commit -m "test: finalize natural copy verification"
 ```
 
-Do not create an empty commit when no correction was needed.
+Skip this step when no correction was needed. Never create an empty commit.
