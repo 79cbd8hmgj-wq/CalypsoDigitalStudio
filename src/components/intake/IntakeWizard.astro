@@ -13,7 +13,7 @@ import WizardProgress from './WizardProgress.astro';
 // Turnstile site keys are intentionally public and are embedded in browser markup.
 // Keep the environment variable as an override, but do not disable production intake
 // when a static Pages build does not receive build-time dashboard variables.
-const productionTurnstileSiteKey = '0x4AAAAAAEBqIDclbS1Wmdm0';
+const productionTurnstileSiteKey = '0x4AAAAAAEBq1Dc1bS1Wmdm0';
 const configuredTurnstileSiteKey = (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '').trim();
 const turnstileSiteKey = configuredTurnstileSiteKey || productionTurnstileSiteKey;
 const submissionEnabled = turnstileSiteKey.length > 0;
