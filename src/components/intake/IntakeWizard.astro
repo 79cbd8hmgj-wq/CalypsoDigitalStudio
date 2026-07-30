@@ -9,8 +9,14 @@ import RestoreDraftNotice from './RestoreDraftNotice.astro';
 import SubmissionConfirmation from './SubmissionConfirmation.astro';
 import WizardNavigation from './WizardNavigation.astro';
 import WizardProgress from './WizardProgress.astro';
-const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
-const submissionEnabled = turnstileSiteKey.trim().length > 0;
+
+// Turnstile site keys are intentionally public and are embedded in browser markup.
+// Keep the environment variable as an override, but do not disable production intake
+// when a static Pages build does not receive build-time dashboard variables.
+const productionTurnstileSiteKey = '0x4AAAAAAEBqIDclbS1Wmdm0';
+const configuredTurnstileSiteKey = (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '').trim();
+const turnstileSiteKey = configuredTurnstileSiteKey || productionTurnstileSiteKey;
+const submissionEnabled = turnstileSiteKey.length > 0;
 ---
 <div
   class="intake-wizard container"
