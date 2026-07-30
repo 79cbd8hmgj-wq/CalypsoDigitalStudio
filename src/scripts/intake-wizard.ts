@@ -11,7 +11,7 @@ interface TurnstileApi {
     action: string;
     callback: (token: string) => void;
     'expired-callback': () => void;
-    'error-callback': () => void;
+    'error-callback': (errorCode: string) => boolean | void;
   }): string;
   reset(widgetId?: string): void;
   remove(widgetId?: string): void;
@@ -28,10 +28,35 @@ const STEP_PREFIXES: ReadonlyArray<readonly string[]> = [
   ['contact.', 'consent.']
 ];
 
-
 export type IntakeRequestResult =
   | { ok: true; reference: string; confirmationEmailSent: boolean }
   | { ok: false; code: string };
+
+export function turnstileErrorMessage(errorCode: string): string {
+  const code = errorCode.trim() || 'unknown';
+  if (code === '110100' || code === '110110' || code === '400020') {
+    return `The Turnstile site key is invalid or unavailable (error ${code}).`;
+  }
+  if (code === '110200') {
+    return `This website hostname is not authorized for the security check (error ${code}).`;
+  }
+  if (code === '400070') {
+    return `The Turnstile site key is disabled in Cloudflare (error ${code}).`;
+  }
+  if (code === '110600' || code === '110620') {
+    return `The security check timed out. Try the check again (error ${code}).`;
+  }
+  if (code === '200100') {
+    return `The device clock or a cached security response caused the check to fail. Reload the page and verify the device time (error ${code}).`;
+  }
+  if (code === '200500') {
+    return `The security frame could not load. Check the connection, disable content blockers, and try again (error ${code}).`;
+  }
+  if (code.startsWith('300') || code.startsWith('600')) {
+    return `Cloudflare rejected the security challenge. Reload the page or try a different browser or network (error ${code}).`;
+  }
+  return `The security check could not be confirmed (error ${code}). Try again or use a different browser or network.`;
+}
 
 export async function sendIntakeRequest(
   request: IntakeSubmissionRequest,
@@ -281,6 +306,7 @@ export function initializeIntakeWizard(root: HTMLElement): void {
   const submitButton = root.querySelector<HTMLButtonElement>('[data-submit]');
   const turnstileStatus = root.querySelector<HTMLElement>('[data-turnstile-status]');
   const turnstileContainer = root.querySelector<HTMLElement>('[data-turnstile-widget]');
+  const turnstileRetry = root.querySelector<HTMLButtonElement>('[data-turnstile-retry]');
   const submissionError = root.querySelector<HTMLElement>('[data-submission-error]');
   const siteKey = root.dataset.turnstileSiteKey?.trim() ?? '';
   const submissionEnabled = root.dataset.submissionEnabled === 'true' && siteKey.length > 0;
@@ -339,9 +365,11 @@ export function initializeIntakeWizard(root: HTMLElement): void {
   async function ensureTurnstile(): Promise<void> {
     if (!submissionEnabled || !turnstileContainer || turnstileWidgetId) return;
     if (turnstileStatus) turnstileStatus.textContent = 'Loading security verification…';
+    if (turnstileRetry) turnstileRetry.hidden = true;
     const api = await loadTurnstile();
     if (!api) {
       if (turnstileStatus) turnstileStatus.textContent = 'The security check could not load. Check your connection and try again.';
+      if (turnstileRetry) turnstileRetry.hidden = false;
       return;
     }
     turnstileWidgetId = api.render(turnstileContainer, {
@@ -350,14 +378,19 @@ export function initializeIntakeWizard(root: HTMLElement): void {
       callback: (token) => {
         turnstileToken = token;
         if (turnstileStatus) turnstileStatus.textContent = 'Security verification complete.';
+        if (turnstileRetry) turnstileRetry.hidden = true;
+        if (submissionError) submissionError.hidden = true;
       },
       'expired-callback': () => {
         turnstileToken = '';
         if (turnstileStatus) turnstileStatus.textContent = 'Security verification expired. Complete it again before submitting.';
+        if (turnstileRetry) turnstileRetry.hidden = false;
       },
-      'error-callback': () => {
+      'error-callback': (errorCode) => {
         turnstileToken = '';
-        if (turnstileStatus) turnstileStatus.textContent = 'The security check could not be confirmed. Try it again.';
+        if (turnstileStatus) turnstileStatus.textContent = turnstileErrorMessage(errorCode);
+        if (turnstileRetry) turnstileRetry.hidden = false;
+        return true;
       }
     });
     if (turnstileStatus) turnstileStatus.textContent = 'Complete the security check before submitting.';
@@ -367,6 +400,7 @@ export function initializeIntakeWizard(root: HTMLElement): void {
     turnstileToken = '';
     const api = turnstileWindow()?.turnstile;
     if (api && turnstileWidgetId) api.reset(turnstileWidgetId);
+    if (turnstileRetry) turnstileRetry.hidden = true;
   }
 
   function submissionMessage(code: string): string {
@@ -547,6 +581,11 @@ export function initializeIntakeWizard(root: HTMLElement): void {
   });
   root.querySelector<HTMLButtonElement>('[data-start-over]')?.addEventListener('click', () => {
     if (view?.confirm('Start over and delete the saved project details?') !== false) newRequest();
+  });
+  turnstileRetry?.addEventListener('click', () => {
+    if (turnstileStatus) turnstileStatus.textContent = 'Retrying security verification…';
+    resetTurnstile();
+    if (!turnstileWidgetId) void ensureTurnstile();
   });
 
   for (const group of root.querySelectorAll<HTMLElement>('[data-repeatable]')) {
