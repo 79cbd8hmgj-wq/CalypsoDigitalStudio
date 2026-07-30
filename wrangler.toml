@@ -1,3 +1,8 @@
 name = "calypso-digital-studio"
 compatibility_date = "2026-07-29"
 pages_build_output_dir = "./dist"
+
+[vars]
+INTAKE_ALLOWED_ORIGINS = "https://calypsodigitalstudio.pages.dev"
+INTAKE_FROM_EMAIL = "onboarding@resend.dev"
+PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAAEBqlDclbS1Wmdm0"
