@@ -24,8 +24,7 @@ test('wizard markup contains five active steps and no budget controls', async ()
     'MaterialsStep.astro',
     'ReviewStep.astro'
   ].map((name) => read(`src/components/intake/steps/${name}`)));
-  const markup = [wizard, progress, ...stepFiles].join('
-');
+  const markup = [wizard, progress, ...stepFiles].join('\n');
 
   expect(markup.match(/data-step-index=/g)).toHaveLength(5);
   for (const name of [
