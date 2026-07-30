@@ -1,7 +1,7 @@
 # Remove Budget, Timing, and Readiness Step
 
 **Date:** 2026-07-30  
-**Status:** Approved design  
+**Status:** Implemented; full validation rerun pending  
 **Repository:** `79cbd8hmgj-wq/CalypsoDigitalStudio`
 
 ## Objective
