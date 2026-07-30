@@ -1,7 +1,8 @@
 import { Window } from 'happy-dom';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { DRAFT_KEY } from '../../src/lib/intake/storage';
-import { initializeIntakeWizard } from '../../src/scripts/intake-wizard';
+import { initializeIntakeWizard, sendIntakeRequest, turnstileErrorMessage } from '../../src/scripts/intake-wizard';
+import { createValidWebsiteSubmission } from './fixtures';
 
 function html(): string {
   return `
@@ -12,7 +13,7 @@ function html(): string {
       <p data-progress-current></p>
       ${[0,1,2,3,4,5].map((index) => `<button data-progress-step="${index}" ${index ? 'disabled' : ''}></button>`).join('')}
       <form data-intake-form novalidate>
-        ${[0,1,2,3,4,5].map((index) => `<section data-step-index="${index}" data-step-id="${['business','project','needs','materials','budget','review'][index]}" ${index ? 'hidden' : ''}><header class="step-heading" tabindex="-1"></header><section data-error-summary hidden tabindex="-1"><ul data-error-list></ul></section>${index === 0 ? '<div data-field-path="business.fullName"><input name="business.fullName"><p data-field-error hidden></p></div><div data-field-path="business.businessName"><input name="business.businessName"><p data-field-error hidden></p></div><div data-field-path="business.email"><input name="business.email"><p data-field-error hidden></p></div><div data-field-path="business.location"><input name="business.location"><p data-field-error hidden></p></div><div data-field-path="business.serviceAreas"><input type="checkbox" name="business.serviceAreas" value="local"><p data-field-error hidden></p></div><div data-field-path="business.offer"><textarea name="business.offer"></textarea><p data-field-error hidden></p></div><div data-field-path="business.customers"><textarea name="business.customers"></textarea><p data-field-error hidden></p></div>' : ''}${index === 1 ? '<input type="radio" name="project.primaryType" value="new-website"><input type="radio" name="project.primaryType" value="custom-tool"><input type="checkbox" name="project.addOns" value="booking">' : ''}${index === 2 ? '<div data-condition="standard-website" hidden></div><div data-condition="custom-tool" hidden></div>' : ''}${index === 5 ? '<div data-review-summary></div><div data-turnstile-widget></div><p data-turnstile-status></p><div data-submission-error hidden></div>' : ''}</section>`).join('')}
+        ${[0,1,2,3,4,5].map((index) => `<section data-step-index="${index}" data-step-id="${['business','project','needs','materials','budget','review'][index]}" ${index ? 'hidden' : ''}><header class="step-heading" tabindex="-1"></header><section data-error-summary hidden tabindex="-1"><ul data-error-list></ul></section>${index === 0 ? '<div data-field-path="business.fullName"><input name="business.fullName"><p data-field-error hidden></p></div><div data-field-path="business.businessName"><input name="business.businessName"><p data-field-error hidden></p></div><div data-field-path="business.email"><input name="business.email"><p data-field-error hidden></p></div><div data-field-path="business.location"><input name="business.location"><p data-field-error hidden></p></div><div data-field-path="business.serviceAreas"><input type="checkbox" name="business.serviceAreas" value="local"><p data-field-error hidden></p></div><div data-field-path="business.offer"><textarea name="business.offer"></textarea><p data-field-error hidden></p></div><div data-field-path="business.customers"><textarea name="business.customers"></textarea><p data-field-error hidden></p></div>' : ''}${index === 1 ? '<input type="radio" name="project.primaryType" value="new-website"><input type="radio" name="project.primaryType" value="custom-tool"><input type="checkbox" name="project.addOns" value="booking">' : ''}${index === 2 ? '<div data-condition="standard-website" hidden></div><div data-condition="custom-tool" hidden></div>' : ''}${index === 5 ? '<div data-review-summary></div><div data-turnstile-widget></div><p data-turnstile-status></p><button type="button" data-turnstile-retry hidden>Try security check again</button><div data-submission-error hidden></div>' : ''}</section>`).join('')}
         <button type="button" data-back hidden>Back</button><span data-save-status></span><button type="button" data-continue>Continue</button><button type="submit" data-submit hidden>Submit</button>
       </form>
     </section>
@@ -125,9 +126,6 @@ test('a valid stored draft reveals the restore choice', () => {
   expect(root.querySelector('[data-restore-notice]')?.hasAttribute('hidden')).toBe(false);
 });
 
-import { createValidWebsiteSubmission } from './fixtures';
-import { sendIntakeRequest } from '../../src/scripts/intake-wizard';
-
 test('sendIntakeRequest posts JSON and returns the safe success payload', async () => {
   const fetchMock = vi.fn(async (_url: string, init?: RequestInit) => {
     expect(init?.method).toBe('POST');
@@ -161,4 +159,17 @@ test('missing Turnstile key disables final submission', () => {
   const status = root.querySelector('[data-turnstile-status]') as HTMLElement | null;
   expect(submit.disabled).toBe(true);
   expect(status?.textContent ?? '').toContain('temporarily unavailable');
+});
+
+test('Turnstile configuration errors expose the exact diagnostic code', () => {
+  expect(turnstileErrorMessage('110200')).toContain('110200');
+  expect(turnstileErrorMessage('110200')).toContain('hostname');
+  expect(turnstileErrorMessage('110100')).toContain('site key');
+});
+
+test('Turnstile network and challenge failures expose recovery guidance', () => {
+  expect(turnstileErrorMessage('200500')).toContain('200500');
+  expect(turnstileErrorMessage('200500')).toContain('connection');
+  expect(turnstileErrorMessage('600123')).toContain('600123');
+  expect(turnstileErrorMessage('600123')).toContain('different browser');
 });
