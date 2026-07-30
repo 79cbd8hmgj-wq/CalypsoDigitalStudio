@@ -1,3 +1,4 @@
+import { isIntakeAnswerFieldName } from '../lib/intake/form-fields';
 import { validateAndNormalizeIntake } from '../lib/intake/schema';
 import { loadDraft } from '../lib/intake/storage';
 import type { IntakeAnswers, IntakeSubmissionRequest, ValidationIssue } from '../lib/intake/types';
@@ -68,7 +69,7 @@ function collectCurrentStepAnswers(form: HTMLFormElement, answers: IntakeAnswers
     Array.from(form.elements)
       .filter(isNamedControl)
       .map((element) => element.name)
-      .filter((name) => name.length > 0 && name !== 'honeypot')
+      .filter(isIntakeAnswerFieldName)
   );
 
   for (const name of names) {

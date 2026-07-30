@@ -1,6 +1,7 @@
 import { wizardSteps } from '../data/intake';
 import { clearIrrelevantNeeds, deriveConditions, requiredPathsFor } from '../lib/intake/conditions';
 import { buildSummarySections } from '../lib/intake/email';
+import { isIntakeAnswerFieldName } from '../lib/intake/form-fields';
 import { createSubmissionReference } from '../lib/intake/reference';
 import { clearDraft, createEmptyDraft, loadDraft, saveDraft } from '../lib/intake/storage';
 import type { AddOn, IntakeAnswers, IntakeDraft, IntakeSubmissionRequest, ValidationIssue, WizardStepIndex } from '../lib/intake/types';
@@ -138,7 +139,7 @@ function collectFormAnswers(form: HTMLFormElement, answers: IntakeAnswers): Inta
   const names = new Set<string>();
   for (const element of Array.from(form.elements)) {
     if ((element instanceof HTMLInputElement || element instanceof HTMLSelectElement || element instanceof HTMLTextAreaElement) &&
-        element.name && element.name !== 'honeypot') names.add(element.name);
+        element.name && isIntakeAnswerFieldName(element.name)) names.add(element.name);
   }
 
   for (const name of names) {
@@ -205,7 +206,7 @@ function applyAnswersToForm(form: HTMLFormElement, answers: IntakeAnswers): void
   const names = new Set<string>();
   for (const element of Array.from(form.elements)) {
     if ((element instanceof HTMLInputElement || element instanceof HTMLSelectElement || element instanceof HTMLTextAreaElement) &&
-        element.name && element.name !== 'honeypot') names.add(element.name);
+        element.name && isIntakeAnswerFieldName(element.name)) names.add(element.name);
   }
   for (const name of names) {
     const elements = fieldElements(form, name);
