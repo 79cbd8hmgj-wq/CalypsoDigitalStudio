@@ -14,7 +14,7 @@ test('formats the owner notification with safe complete summaries', () => {
   const value = normalized();
   value.answers.business.difference = `Clear & calm <script>alert("x")</script> 'service'`;
   const email = formatOwnerEmail(value);
-  expect(email.subject).toBe('New project inquiry — Example Studio — New business website — CDS-1111111122');
+  expect(email.subject).toBe('New project inquiry | Example Studio | New business website | CDS-1111111122');
   expect(email.replyTo).toBe('jordan@example.com');
   for (const section of ['Business', 'Project', 'Needs', 'Materials', 'Contact']) {
     expect(email.text).toContain(section);
@@ -43,8 +43,12 @@ test('excludes budget, timing, readiness, launch, and approval data from summari
 
 test('formats the client confirmation with response expectations', () => {
   const email = formatClientEmail(normalized());
-  expect(email.subject).toContain('CDS-1111111122');
-  expect(email.text).toContain('2–3 business days');
+  expect(email.subject).toBe('Calypso Digital Studio received your project details | CDS-1111111122');
+  expect(email.text).toContain('Calypso Digital Studio received your project details');
+  expect(email.text).toContain('two to three business days');
   expect(email.text).toContain('No quote has been generated');
   expect(email.text).toContain('does not commit you to purchasing');
+  expect(email.text).not.toContain('I received');
+  expect(email.text).not.toContain('We received');
+  expect(email.text).not.toContain('—');
 });
