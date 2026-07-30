@@ -39,17 +39,18 @@ test('rejects missing common required fields and consent', () => {
   ]));
 });
 
-test('enforces phone and fixed-date conditional requirements', () => {
+test('enforces phone without requiring budget or timing fields', () => {
   const request = createValidWebsiteSubmission();
   request.answers.contact.preferredMethod = 'phone';
-  request.answers.budgetAndTiming.dateFlexibility = 'fixed';
+  request.answers.budgetAndTiming = {
+    budgetRange: '', supportType: '', preferredTiming: '', launchDate: '', dateFlexibility: '',
+    deadlineContext: '', readiness: '', decisionMaker: '', otherApprovers: ''
+  };
   const result = validateAndNormalizeIntake(request);
   expect(result.ok).toBe(false);
   if (result.ok) return;
-  expect(result.issues.map((issue) => issue.path)).toEqual(expect.arrayContaining([
-    'business.phone',
-    'budgetAndTiming.launchDate'
-  ]));
+  expect(result.issues.map((issue) => issue.path)).toContain('business.phone');
+  expect(result.issues.some((issue) => issue.path.startsWith('budgetAndTiming.'))).toBe(false);
 });
 
 test('rejects malformed envelope values and unknown top-level keys', () => {
@@ -77,6 +78,22 @@ test('rejects invalid email, URL scheme, and overly long text', () => {
   ]));
 });
 
+test('accepts recognized historical budget data as ignored compatibility data', () => {
+  const request = createValidWebsiteSubmission();
+  Object.assign(request.answers.budgetAndTiming, {
+    budgetRange: 'legacy-range',
+    supportType: 'legacy-support',
+    preferredTiming: 'legacy-timing',
+    launchDate: 'not-a-date',
+    dateFlexibility: 'legacy-flexibility',
+    deadlineContext: 'Historical deadline context',
+    readiness: 'legacy-readiness',
+    decisionMaker: 'legacy-decision-maker',
+    otherApprovers: 'Historical approver'
+  });
+  expect(validateAndNormalizeIntake(request).ok).toBe(true);
+});
+
 describe('primary project branches', () => {
   test.each([
     ['website-redesign', (request: ReturnType<typeof createValidWebsiteSubmission>) => {
@@ -95,8 +112,6 @@ describe('primary project branches', () => {
     }],
     ['ongoing-support', (request: ReturnType<typeof createValidWebsiteSubmission>) => {
       request.answers.business.existingWebsite = 'https://example.com';
-      request.answers.budgetAndTiming.supportType = 'one-time';
-      request.answers.budgetAndTiming.budgetRange = '500-1000';
       Object.assign(request.answers.needs.support, {
         helpTypes: ['content'], supportCadence: 'one-time', urgency: 'normal',
         currentIssue: 'Outdated copy', desiredResult: 'Updated pages', accessStatus: 'yes'

@@ -3,7 +3,6 @@ import BusinessStep from './steps/BusinessStep.astro';
 import ProjectStep from './steps/ProjectStep.astro';
 import NeedsStep from './steps/NeedsStep.astro';
 import MaterialsStep from './steps/MaterialsStep.astro';
-import BudgetStep from './steps/BudgetStep.astro';
 import ReviewStep from './steps/ReviewStep.astro';
 import RestoreDraftNotice from './RestoreDraftNotice.astro';
 import SubmissionConfirmation from './SubmissionConfirmation.astro';
@@ -45,7 +44,6 @@ const submissionEnabled = turnstileSiteKey.length > 0;
       <ProjectStep />
       <NeedsStep />
       <MaterialsStep />
-      <BudgetStep />
       <ReviewStep />
       <div class="honeypot" aria-hidden="true">
         <label for="company-confirmation">Leave this field empty</label>
@@ -60,7 +58,7 @@ const submissionEnabled = turnstileSiteKey.length > 0;
   <noscript>
     <section class="noscript-fallback surface">
       <h2>The guided form requires JavaScript.</h2>
-      <p>Email <a href="mailto:calydigital@outlook.com">calydigital@outlook.com</a> with your business name, what you need, desired features, available branding, approximate budget, timeline, and preferred contact method.</p>
+      <p>Email <a href="mailto:calydigital@outlook.com">calydigital@outlook.com</a> with your business name, what you need, desired features, available branding, and preferred contact method.</p>
     </section>
   </noscript>
 </div>
@@ -83,7 +81,7 @@ const submissionEnabled = turnstileSiteKey.length > 0;
   .wizard-progress button[data-complete="true"] { color: var(--color-sage); cursor: pointer; }
   [data-intake-form] { padding: clamp(1.25rem, 3vw, 2.5rem); }
   .wizard-step { display: grid; gap: var(--space-5); }
-  .wizard-step[hidden], [data-condition][hidden], [data-value-condition][hidden], [data-budget-set][hidden], [data-support-budget][hidden] { display: none !important; }
+  .wizard-step[hidden], [data-condition][hidden], [data-value-condition][hidden] { display: none !important; }
   .step-heading { scroll-margin-top: 1rem; }
   .step-heading p:last-child { margin-bottom: 0; color: var(--color-muted); }
   .form-grid { display: grid; gap: var(--space-4); }
@@ -128,7 +126,7 @@ const submissionEnabled = turnstileSiteKey.length > 0;
   .submission-confirmation { display: grid; gap: var(--space-4); }
   .submission-confirmation[hidden] { display: none; }
   @media (min-width: 48rem) {
-    .wizard-progress ol { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .wizard-progress ol { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
     .wizard-progress__current { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
     .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .form-field--wide, .choice-group, .conditional-panel, .repeatable-field { grid-column: 1 / -1; }

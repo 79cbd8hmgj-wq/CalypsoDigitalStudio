@@ -131,16 +131,6 @@ export function buildSummarySections(intake: NormalizedIntake): SummarySection[]
   addRow(materials, 'Disliked websites', answers.materials.dislikedSites);
   addRow(materials, 'What they dislike', answers.materials.dislikedReasons);
 
-  const budget: SummaryRow[] = [];
-  addRow(budget, 'Budget range', humanize(answers.budgetAndTiming.budgetRange));
-  addRow(budget, 'Support type', answers.budgetAndTiming.supportType);
-  addRow(budget, 'Preferred timing', answers.budgetAndTiming.preferredTiming);
-  addRow(budget, 'Desired launch date', answers.budgetAndTiming.launchDate);
-  addRow(budget, 'Date flexibility', answers.budgetAndTiming.dateFlexibility);
-  addRow(budget, 'Deadline context', answers.budgetAndTiming.deadlineContext);
-  addRow(budget, 'Readiness', answers.budgetAndTiming.readiness);
-  addRow(budget, 'Decision maker', answers.budgetAndTiming.decisionMaker);
-  addRow(budget, 'Other approvers', answers.budgetAndTiming.otherApprovers);
 
   const contact: SummaryRow[] = [];
   addRow(contact, 'Preferred contact', answers.contact.preferredMethod);
@@ -155,7 +145,6 @@ export function buildSummarySections(intake: NormalizedIntake): SummarySection[]
     { title: 'Project', rows: project },
     { title: 'Needs', rows: needs },
     { title: 'Materials', rows: materials },
-    { title: 'Budget & timing', rows: budget },
     { title: 'Contact', rows: contact }
   ];
 }

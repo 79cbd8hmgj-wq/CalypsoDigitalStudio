@@ -11,8 +11,7 @@ export const wizardSteps: ReadonlyArray<{ index: WizardStepIndex; id: string; la
   { index: 1, id: 'project', label: 'Project Type' },
   { index: 2, id: 'needs', label: 'Project Needs' },
   { index: 3, id: 'materials', label: 'Branding & Materials' },
-  { index: 4, id: 'budget', label: 'Budget & Timing' },
-  { index: 5, id: 'review', label: 'Review & Contact' }
+  { index: 4, id: 'review', label: 'Review & Contact' }
 ];
 
 export const primaryProjectTypes: ReadonlyArray<IntakeOption<PrimaryProjectType>> = [

@@ -1,6 +1,8 @@
 import { sanitizeStoredIntakeAnswers } from './form-fields';
 import { isValidSubmissionId } from './reference';
-import type { IntakeAnswers, IntakeDraft, WizardStepIndex } from './types';
+import type { IntakeAnswers, IntakeDraft } from './types';
+
+type StoredIntakeDraft = Omit<IntakeDraft, 'currentStep'> & { currentStep: number };
 
 export const DRAFT_KEY = 'calypso:intake:v1';
 export const DRAFT_TTL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -59,7 +61,7 @@ function hasObjectKeys(value: unknown, keys: readonly string[]): boolean {
   return isObject(value) && keys.every((key) => key in value);
 }
 
-function isDraft(value: unknown): value is IntakeDraft {
+function isDraft(value: unknown): value is StoredIntakeDraft {
   if (!isObject(value)) return false;
   if (value.version !== 1 || typeof value.submissionId !== 'string' || !isValidSubmissionId(value.submissionId)) return false;
   if (typeof value.startedAt !== 'string' || typeof value.updatedAt !== 'string') return false;
@@ -116,9 +118,9 @@ export function loadDraft(now: Date | number = new Date(), storage: Storage | nu
       storage.removeItem(DRAFT_KEY);
       return null;
     }
-    parsed.currentStep = parsed.currentStep as WizardStepIndex;
+    parsed.currentStep = Math.min(parsed.currentStep, 4);
     parsed.answers = sanitizeStoredIntakeAnswers(parsed.answers);
-    return parsed;
+    return parsed as IntakeDraft;
   } catch {
     return null;
   }

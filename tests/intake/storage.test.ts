@@ -35,6 +35,17 @@ test('round trips a valid draft', () => {
   expect(loadDraft(new Date('2026-07-30T12:00:00.000Z'))?.answers.business.fullName).toBe('Jordan');
 });
 
+test('clamps a legacy final-step draft to the new review step', () => {
+  const draft = createEmptyDraft(new Date('2026-07-29T12:00:00.000Z'));
+  draft.answers.budgetAndTiming.budgetRange = '1000-2500';
+  localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...draft, currentStep: 5 }));
+
+  const restored = loadDraft(new Date('2026-07-30T12:00:00.000Z'));
+
+  expect(restored?.currentStep).toBe(4);
+  expect(restored?.answers.budgetAndTiming.budgetRange).toBe('1000-2500');
+});
+
 test('removes a Turnstile field already stored in a legacy draft', () => {
   const draft = createEmptyDraft(new Date('2026-07-29T12:00:00.000Z'));
   const contaminated = draft.answers as unknown as Record<string, unknown>;

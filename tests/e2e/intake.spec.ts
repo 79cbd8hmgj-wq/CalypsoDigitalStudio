@@ -58,24 +58,19 @@ async function continueMaterials(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Continue' }).click();
 }
 
-async function completeBudget(page: Page): Promise<void> {
-  await page.locator('#budget-website').selectOption('1000-2500');
-  await page.getByLabel('Preferred timing').selectOption('1-3-months');
-  await page.getByLabel('How ready are you to begin?').selectOption('ready');
-  await page.getByLabel('Who makes the final project decision?').selectOption('client');
-  await page.getByRole('button', { name: 'Continue' }).click();
-}
 
-test('completes the six-step website flow and confirms receipt', async ({ page }) => {
+test('completes the five-step website flow and confirms receipt', async ({ page }) => {
   await prepare(page);
   await begin(page);
   await completeBusiness(page);
   await chooseProject(page, 'New business website');
   await completeWebsiteNeeds(page);
   await continueMaterials(page);
-  await completeBudget(page);
 
-  await expect(page.getByText('Step 6 of 6', { exact: true })).toBeVisible();
+  await expect(page.getByText('Step 5 of 5', { exact: true })).toBeVisible();
+  await expect(page.getByText('Approximate budget range')).toHaveCount(0);
+  await expect(page.getByText('Preferred timing')).toHaveCount(0);
+  await expect(page.getByText('How ready are you to begin?')).toHaveCount(0);
   await page.getByLabel('Email', { exact: true }).check();
   await page.getByLabel('The information is accurate to the best of my knowledge.').check();
   await page.getByLabel(/I understand that submitting/).check();
@@ -91,7 +86,7 @@ test('shows required errors without losing the current step', async ({ page }) =
   await begin(page);
   await page.getByRole('button', { name: 'Continue' }).click();
   await expect(page.getByRole('heading', { name: 'Please review the highlighted information.' })).toBeVisible();
-  await expect(page.getByText('Step 1 of 6', { exact: true })).toBeVisible();
+  await expect(page.getByText('Step 1 of 5', { exact: true })).toBeVisible();
 });
 
 for (const [project, heading] of [
@@ -135,6 +130,22 @@ test('restores an unfinished request after refresh', async ({ page }) => {
   await expect(page.getByLabel('Your full name')).toHaveValue('Jordan Example');
 });
 
+test('restores a legacy step-six draft at the new review step', async ({ page }) => {
+  await begin(page);
+  await page.evaluate(() => {
+    const key = 'calypso:intake:v1';
+    const raw = window.localStorage.getItem(key);
+    if (!raw) throw new Error('Expected an intake draft');
+    const draft = JSON.parse(raw) as { currentStep: number };
+    draft.currentStep = 5;
+    window.localStorage.setItem(key, JSON.stringify(draft));
+  });
+  await page.reload();
+  await page.getByRole('button', { name: 'Continue Saved Project' }).click();
+  await expect(page.getByText('Step 5 of 5', { exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Review the request and choose how I should respond.' })).toBeVisible();
+});
+
 test('confirms receipt when the client copy is delayed', async ({ page }) => {
   await prepare(page, { confirmationEmailSent: false });
   await begin(page);
@@ -142,7 +153,6 @@ test('confirms receipt when the client copy is delayed', async ({ page }) => {
   await chooseProject(page, 'New business website');
   await completeWebsiteNeeds(page);
   await continueMaterials(page);
-  await completeBudget(page);
   await page.getByLabel('Email', { exact: true }).check();
   await page.getByLabel('The information is accurate to the best of my knowledge.').check();
   await page.getByLabel(/I understand that submitting/).check();

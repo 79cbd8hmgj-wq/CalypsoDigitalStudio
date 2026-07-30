@@ -14,25 +14,26 @@ function createWindow(): Window {
   const window = new Window({ url: 'https://calypsodigitalstudio.pages.dev/start' });
   window.document.body.innerHTML = `
     <div data-intake-wizard>
-      ${[0, 1, 2, 3, 4, 5].map((index) => `<button data-progress-step="${index}"></button>`).join('')}
+      ${[0, 1, 2, 3, 4].map((index) => `<button data-progress-step="${index}"></button>`).join('')}
       <form data-intake-form>
         <section data-step-index="0" hidden>
-          <section data-error-summary hidden tabindex="-1"><ul data-error-list></ul></section>
-          <div data-field-path="business.existingWebsite">
-            <input id="business-existing-website" name="business.existingWebsite" />
-            <p data-field-error hidden></p>
-          </div>
-          <div data-field-path="business.email">
-            <input id="business-email" name="business.email" />
-            <p data-field-error hidden></p>
-          </div>
+<section data-error-summary hidden tabindex="-1"><ul data-error-list></ul></section>
+<div data-field-path="business.existingWebsite">
+  <input id="business-existing-website" name="business.existingWebsite" />
+  <p data-field-error hidden></p>
+</div>
+<div data-field-path="business.email">
+  <input id="business-email" name="business.email" />
+  <p data-field-error hidden></p>
+</div>
         </section>
-        ${[1, 2, 3, 4].map((index) => `<section data-step-index="${index}" hidden><section data-error-summary hidden tabindex="-1"><ul data-error-list></ul></section></section>`).join('')}
-        <section data-step-index="5">
-          <section data-error-summary hidden tabindex="-1"><ul data-error-list></ul></section>
-          <input name="honeypot" value="" />
-          <div data-submission-error>Generic error</div>
-          <button type="submit">Submit</button>
+        ${[1, 2, 3].map((index) => `<section data-step-index="${index}" hidden><section data-error-summary hidden tabindex="-1"><ul data-error-list></ul></section></section>`).join('')}
+        <section data-step-index="4">
+<section data-error-summary hidden tabindex="-1"><ul data-error-list></ul></section>
+<input name="contact.preferredMethod" value="email" />
+<input name="honeypot" value="" />
+<div data-submission-error>Generic error</div>
+<button type="submit">Submit</button>
         </section>
       </form>
     </div>`;
@@ -58,16 +59,16 @@ function storeDraft(window: Window, existingWebsite = ''): void {
     submissionId: request.submissionId,
     startedAt: request.startedAt,
     updatedAt: new Date().toISOString(),
-    currentStep: 5,
+    currentStep: 4,
     answers: request.answers
   }));
 }
 
-test('server issue paths map back to browser field names and steps', () => {
+test('server issue paths map back to browser field names and five active steps', () => {
   expect(canonicalServerIssuePath('answers.business.socialLinks.0')).toBe('business.socialLinks');
-  expect(canonicalServerIssuePath('budgetAndTiming.budgetRange')).toBe('budgetAndTiming.budgetRange');
   expect(stepIndexForServerIssue('answers.business.email')).toBe(0);
-  expect(stepIndexForServerIssue('answers.budgetAndTiming.budgetRange')).toBe(4);
+  expect(stepIndexForServerIssue('answers.contact.preferredMethod')).toBe(4);
+  expect(stepIndexForServerIssue('answers.budgetAndTiming.budgetRange')).toBeNull();
   expect(stepIndexForServerIssue('submissionId')).toBeNull();
 });
 
