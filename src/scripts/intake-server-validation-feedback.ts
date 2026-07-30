@@ -1,7 +1,8 @@
-import type { ValidationIssue } from '../lib/intake/types';
+import { validateAndNormalizeIntake } from '../lib/intake/schema';
+import { loadDraft } from '../lib/intake/storage';
+import type { IntakeAnswers, IntakeSubmissionRequest, ValidationIssue } from '../lib/intake/types';
 
 type FeedbackWindow = Window & {
-  fetch: typeof fetch;
   __calypsoValidationFeedbackInstalled?: boolean;
 };
 
@@ -18,12 +19,82 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function validIssues(value: unknown): ValidationIssue[] {
-  if (!Array.isArray(value)) return [];
-  return value.flatMap((item) => {
-    if (!isRecord(item) || typeof item.path !== 'string' || typeof item.message !== 'string') return [];
-    return [{ path: item.path, message: item.message }];
-  });
+function setPath(value: unknown, path: string, replacement: unknown): void {
+  const keys = path.split('.');
+  let current: unknown = value;
+  for (let index = 0; index < keys.length - 1; index += 1) {
+    if (!isRecord(current)) return;
+    current = current[keys[index] as string];
+  }
+  if (isRecord(current)) current[keys.at(-1) as string] = replacement;
+}
+
+function isNamedControl(element: unknown): element is HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement {
+  if (typeof element !== 'object' || element === null) return false;
+  const candidate = element as { name?: unknown; tagName?: unknown; value?: unknown };
+  return typeof candidate.name === 'string' && typeof candidate.tagName === 'string' && 'value' in candidate;
+}
+
+function isInput(element: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement): element is HTMLInputElement {
+  return element.tagName.toLowerCase() === 'input';
+}
+
+function activeElement(element: HTMLElement): boolean {
+  let current: HTMLElement | null = element;
+  while (current) {
+    if (current.hidden) return false;
+    current = current.parentElement;
+  }
+  return true;
+}
+
+function fieldElements(form: HTMLFormElement, name: string): Array<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> {
+  return Array.from(form.elements)
+    .filter(isNamedControl)
+    .filter((element) => element.name === name);
+}
+
+function collectCurrentStepAnswers(form: HTMLFormElement, answers: IntakeAnswers): IntakeAnswers {
+  const next = structuredClone(answers);
+  const names = new Set(
+    Array.from(form.elements)
+      .filter(isNamedControl)
+      .map((element) => element.name)
+      .filter((name) => name.length > 0 && name !== 'honeypot')
+  );
+
+  for (const name of names) {
+    const elements = fieldElements(form, name).filter((element) => activeElement(element as HTMLElement));
+    if (elements.length === 0) continue;
+    const first = elements[0];
+    if (!first) continue;
+
+    if (isInput(first) && first.type === 'checkbox') {
+      if (name.startsWith('consent.')) {
+        setPath(next, name, elements.some((element) => isInput(element) && element.checked));
+      } else {
+        setPath(next, name, elements
+          .filter((element): element is HTMLInputElement => isInput(element) && element.checked)
+          .map((element) => element.value));
+      }
+      continue;
+    }
+
+    if (isInput(first) && first.type === 'radio') {
+      const selected = elements.find((element) => isInput(element) && element.checked);
+      setPath(next, name, selected?.value ?? '');
+      continue;
+    }
+
+    if (elements.length > 1 || form.querySelector(`[data-repeatable="${name}"]`)) {
+      setPath(next, name, elements.map((element) => element.value.trim()).filter(Boolean));
+      continue;
+    }
+
+    setPath(next, name, first.value);
+  }
+
+  return next;
 }
 
 export function canonicalServerIssuePath(path: string): string {
@@ -37,15 +108,6 @@ export function stepIndexForServerIssue(path: string): number | null {
   const canonical = canonicalServerIssuePath(path);
   const index = STEP_PREFIXES.findIndex((prefixes) => prefixes.some((prefix) => canonical.startsWith(prefix)));
   return index >= 0 ? index : null;
-}
-
-function activeElement(element: HTMLElement): boolean {
-  let current: HTMLElement | null = element;
-  while (current) {
-    if (current.hidden) return false;
-    current = current.parentElement;
-  }
-  return true;
 }
 
 function controlsForPath(root: ParentNode, path: string): HTMLElement[] {
@@ -90,6 +152,12 @@ export function showServerValidationIssues(document: Document, issues: Validatio
   const step = root.querySelector<HTMLElement>(`[data-step-index="${earliestStep}"]`);
   if (!step) return false;
 
+  if (step.hidden) {
+    for (const candidate of root.querySelectorAll<HTMLElement>('[data-step-index]')) {
+      candidate.hidden = Number(candidate.dataset.stepIndex) !== earliestStep;
+    }
+  }
+
   const stepIssues = normalized.filter((issue) => stepIndexForServerIssue(issue.path) === earliestStep);
   const summary = step.querySelector<HTMLElement>('[data-error-summary]');
   const list = step.querySelector<HTMLElement>('[data-error-list]');
@@ -131,33 +199,42 @@ export function showServerValidationIssues(document: Document, issues: Validatio
   return true;
 }
 
-function isIntakeRequest(input: RequestInfo | URL, baseUrl: string): boolean {
-  try {
-    const raw = typeof input === 'string' || input instanceof URL ? String(input) : input.url;
-    return new URL(raw, baseUrl).pathname === '/api/intake';
-  } catch {
-    return false;
-  }
+export function validateCurrentIntakeForm(form: HTMLFormElement, storage: Storage | null): ValidationIssue[] {
+  const draft = loadDraft(new Date(), storage);
+  if (!draft) return [];
+
+  const answers = collectCurrentStepAnswers(form, draft.answers);
+  const request: IntakeSubmissionRequest = {
+    version: 1,
+    submissionId: draft.submissionId,
+    startedAt: draft.startedAt,
+    answers,
+    turnstileToken: 'client-precheck',
+    honeypot: form.querySelector<HTMLInputElement>('[name="honeypot"]')?.value ?? ''
+  };
+  const result = validateAndNormalizeIntake(request);
+  if (result.ok) return [];
+
+  return result.issues
+    .map((issue) => ({ path: canonicalServerIssuePath(issue.path), message: issue.message }))
+    .filter((issue) => stepIndexForServerIssue(issue.path) !== null);
 }
 
 export function installServerValidationFeedback(view: FeedbackWindow): void {
   if (view.__calypsoValidationFeedbackInstalled) return;
   view.__calypsoValidationFeedbackInstalled = true;
-  const originalFetch = view.fetch.bind(view);
 
-  view.fetch = (async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-    const response = await originalFetch(input, init);
-    if (!isIntakeRequest(input, view.location.href)) return response;
+  view.document.addEventListener('submit', (event) => {
+    const form = event.target;
+    if (!(form instanceof view.HTMLFormElement) || !form.matches('[data-intake-form]')) return;
 
-    void response.clone().json().then((payload: unknown) => {
-      if (!isRecord(payload) || payload.code !== 'validation_failed') return;
-      const issues = validIssues(payload.issues);
-      if (issues.length === 0) return;
-      view.setTimeout(() => showServerValidationIssues(view.document, issues), 0);
-    }).catch(() => undefined);
+    const issues = validateCurrentIntakeForm(form, view.localStorage);
+    if (issues.length === 0) return;
 
-    return response;
-  }) as typeof fetch;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    showServerValidationIssues(view.document, issues);
+  }, true);
 }
 
 if (typeof window !== 'undefined') installServerValidationFeedback(window as FeedbackWindow);
