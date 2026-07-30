@@ -31,21 +31,24 @@ test('server validation issues open the earliest affected step and highlight its
       </section>
       <div data-submission-error>Generic error</div>
     </div>`;
-  const step = window.document.querySelector<HTMLElement>('[data-step-index="4"]')!;
-  window.document.querySelector<HTMLButtonElement>('[data-progress-step="4"]')!.addEventListener('click', () => {
+  const step = window.document.querySelector('[data-step-index="4"]') as unknown as HTMLElement;
+  const progress = window.document.querySelector('[data-progress-step="4"]') as unknown as HTMLButtonElement;
+  progress.addEventListener('click', () => {
     step.hidden = false;
   });
 
-  const shown = showServerValidationIssues(window.document, [
+  const shown = showServerValidationIssues(window.document as unknown as Document, [
     { path: 'answers.budgetAndTiming.budgetRange', message: 'Choose a valid budget range.' }
   ]);
 
+  const fieldError = window.document.querySelector('[data-field-error]') as unknown as HTMLElement;
+  const submissionError = window.document.querySelector('[data-submission-error]') as unknown as HTMLElement;
   expect(shown).toBe(true);
   expect(step.hidden).toBe(false);
   expect(window.document.querySelector('[name="budgetAndTiming.budgetRange"]')?.getAttribute('aria-invalid')).toBe('true');
-  expect(window.document.querySelector<HTMLElement>('[data-field-error]')?.hidden).toBe(false);
+  expect(fieldError.hidden).toBe(false);
   expect(window.document.querySelector('[data-error-list]')?.textContent).toContain('Choose a valid budget range.');
-  expect(window.document.querySelector<HTMLElement>('[data-submission-error]')?.hidden).toBe(true);
+  expect(submissionError.hidden).toBe(true);
 });
 
 test('the fetch interceptor preserves server issues and displays them after validation fails', async () => {
@@ -62,8 +65,9 @@ test('the fetch interceptor preserves server issues and displays them after vali
       </section>
       <div data-submission-error></div>
     </div>`;
-  const step = window.document.querySelector<HTMLElement>('[data-step-index="0"]')!;
-  window.document.querySelector<HTMLButtonElement>('[data-progress-step="0"]')!.addEventListener('click', () => {
+  const step = window.document.querySelector('[data-step-index="0"]') as unknown as HTMLElement;
+  const progress = window.document.querySelector('[data-progress-step="0"]') as unknown as HTMLButtonElement;
+  progress.addEventListener('click', () => {
     step.hidden = false;
   });
   const fetchMock = vi.fn(async () => new Response(JSON.stringify({
@@ -73,8 +77,8 @@ test('the fetch interceptor preserves server issues and displays them after vali
   }), { status: 400, headers: { 'Content-Type': 'application/json' } }));
   Object.defineProperty(window, 'fetch', { value: fetchMock, writable: true });
 
-  installServerValidationFeedback(window as unknown as Window & typeof globalThis);
-  await window.fetch('/api/intake', { method: 'POST' });
+  installServerValidationFeedback(window as unknown as Parameters<typeof installServerValidationFeedback>[0]);
+  await (window.fetch as unknown as typeof fetch)('/api/intake', { method: 'POST' });
   await new Promise((resolve) => window.setTimeout(resolve, 0));
 
   expect(fetchMock).toHaveBeenCalledOnce();
