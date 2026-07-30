@@ -48,6 +48,18 @@ test('accepts a valid submission and sends owner then client emails', async () =
   expect(response.headers.get('Cache-Control')).toBe('no-store');
 });
 
+test('ignores the Cloudflare Turnstile hidden response field inside project answers', async () => {
+  const body = createValidWebsiteSubmission();
+  (body.answers as unknown as Record<string, unknown>)['cf-turnstile-response'] = 'widget-token';
+  const fetchImpl = acceptedFetch();
+
+  const response = await handleIntakeRequest(requestFor(body), env, fetchImpl);
+
+  expect(response.status).toBe(200);
+  expect(await response.json()).toEqual({ ok: true, reference: 'CDS-1111111122', confirmationEmailSent: true });
+  expect(fetchImpl).toHaveBeenCalledTimes(3);
+});
+
 test('rejects content type, body size, origin, and invalid JSON safely', async () => {
   const fetchImpl = vi.fn();
   expect((await handleIntakeRequest(requestFor({}, { 'Content-Type': 'text/plain' }), env, fetchImpl)).status).toBe(415);
