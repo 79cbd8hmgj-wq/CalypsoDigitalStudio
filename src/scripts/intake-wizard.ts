@@ -413,7 +413,7 @@ export function initializeIntakeWizard(root: HTMLElement): void {
       verification_unavailable: 'The security service is temporarily unavailable. Your answers remain saved; try again shortly.',
       request_timeout: 'The request took too long. Your answers remain saved; check your connection and try again.',
       network_error: 'Your answers are still saved on this device, but the submission could not be sent. Check your connection and try again.',
-      delivery_unconfirmed: 'Your answers are still saved, but I could not confirm delivery. Try again in a moment or email calydigital@outlook.com.',
+      delivery_unconfirmed: 'Your answers are still saved, but delivery could not be confirmed. Try again in a moment or email calydigital@outlook.com.',
       invalid_response: 'Your answers are still saved, but the response could not be confirmed. Try again in a moment.'
     };
     return messages[code] ?? messages.delivery_unconfirmed!;
@@ -778,7 +778,7 @@ export function initializeIntakeWizard(root: HTMLElement): void {
     if (reference) reference.textContent = result.reference;
     if (email) email.textContent = request.answers.business.email;
     if (message && !result.confirmationEmailSent) {
-      message.textContent = 'Your project was received, but the email copy could not be confirmed. Keep this reference number and contact me at calydigital@outlook.com if you need a copy.';
+      message.textContent = 'Your project was received, but the email copy could not be confirmed. Keep this reference number and email Calypso Digital Studio at calydigital@outlook.com if you need a copy.';
     }
     focusElement(successPanel);
   });
