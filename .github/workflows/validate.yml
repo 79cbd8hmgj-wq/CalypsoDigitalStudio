@@ -23,6 +23,7 @@ jobs:
       - run: npm run verify:content
       - run: npm run check
       - run: npm run build
+      - run: npm run verify:copy
       - run: npm run verify:build
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
