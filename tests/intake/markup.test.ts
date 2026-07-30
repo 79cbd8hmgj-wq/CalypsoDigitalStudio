@@ -43,3 +43,10 @@ test('wizard markup contains six steps, exact answer paths, and fallback content
   expect(markup).toContain('data-intake-form');
   expect(markup).toContain('<noscript>');
 });
+
+test('wizard has a production Turnstile site-key fallback when build variables are unavailable', async () => {
+  const wizard = await read('src/components/intake/IntakeWizard.astro');
+
+  expect(wizard).toContain("const productionTurnstileSiteKey = '0x4AAAAAAEBqIDclbS1Wmdm0';");
+  expect(wizard).toContain('configuredTurnstileSiteKey || productionTurnstileSiteKey');
+});
