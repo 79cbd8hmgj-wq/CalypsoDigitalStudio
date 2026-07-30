@@ -21,6 +21,19 @@ function json(status: number, payload: unknown): Response {
   return new Response(JSON.stringify(payload), { status, headers: JSON_HEADERS });
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function sanitizeTurnstileWidgetField(input: unknown): unknown {
+  if (!isRecord(input)) return input;
+  const sanitized = structuredClone(input) as Record<string, unknown>;
+  if (isRecord(sanitized.answers)) {
+    delete sanitized.answers['cf-turnstile-response'];
+  }
+  return sanitized;
+}
+
 function parseAllowedOrigins(value: string): string[] {
   return value.split(',').map((origin) => origin.trim()).filter(Boolean);
 }
@@ -94,11 +107,12 @@ export async function handleIntakeRequest(
     });
   }
 
-  const validated = validateAndNormalizeIntake(input);
+  const sanitizedInput = sanitizeTurnstileWidgetField(input);
+  const validated = validateAndNormalizeIntake(sanitizedInput);
   if (!validated.ok) return json(400, { ok: false, code: 'validation_failed', issues: validated.issues });
 
-  const turnstileToken = typeof input === 'object' && input !== null && 'turnstileToken' in input
-    ? String((input as { turnstileToken: unknown }).turnstileToken)
+  const turnstileToken = typeof sanitizedInput === 'object' && sanitizedInput !== null && 'turnstileToken' in sanitizedInput
+    ? String((sanitizedInput as { turnstileToken: unknown }).turnstileToken)
     : '';
   const verification = await verifyTurnstile({
     secret: env.TURNSTILE_SECRET_KEY,
