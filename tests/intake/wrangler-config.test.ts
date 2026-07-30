@@ -11,8 +11,8 @@ test('wrangler config provides the production intake plaintext variables', async
   const config = await read('wrangler.toml');
 
   expect(config).toContain('[vars]');
-  expect(config).toContain('INTAKE_ALLOWED_ORIGINS = "https://calypsodigitalstudio.pages.dev"');
-  expect(config).toContain('INTAKE_FROM_EMAIL = "onboarding@resend.dev"');
+  expect(config).toContain('INTAKE_ALLOWED_ORIGINS = "https://calypsodigitalstudio.pages.dev,https://calypsodigital.us,https://www.calypsodigital.us"');
+  expect(config).toContain('INTAKE_FROM_EMAIL = "Calypso Digital Studio <projects@send.calypsodigital.us>"');
   expect(config).toContain('PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAAEBqlDclbS1Wmdm0"');
 });
 
