@@ -1,0 +1,95 @@
+name: Rerun five-step intake materialization
+
+on:
+  push:
+    branches: [feat/remove-budget-step]
+    paths:
+      - .github/workflows/debug2-apply-remove-budget.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    env:
+      PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/remove-budget-step
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.2
+          cache: npm
+
+      - name: Apply patch and capture result
+        id: patch
+        shell: bash
+        run: |
+          set +e
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess
+
+          source = Path('.github/workflows/apply-remove-budget-step.yml').read_text(encoding='utf-8')
+          start_marker = "          python - <<'PY'\n"
+          end_marker = "\n          PY\n"
+          start = source.index(start_marker) + len(start_marker)
+          end = source.index(end_marker, start)
+          raw = source[start:end]
+          script = '\n'.join(line[10:] if line.startswith('          ') else line for line in raw.splitlines())
+          Path('/tmp/apply.py').write_text(script, encoding='utf-8')
+          result = subprocess.run(['python', '/tmp/apply.py'], capture_output=True, text=True)
+          Path('apply-budget-debug-2.log').write_text(
+              f'exit={result.returncode}\n\nSTDOUT\n{result.stdout}\n\nSTDERR\n{result.stderr}',
+              encoding='utf-8'
+          )
+          raise SystemExit(result.returncode)
+          PY
+          status=$?
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Commit patch diagnostic
+        if: steps.patch.outputs.status != '0'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add apply-budget-debug-2.log
+          git commit -m 'Record second budget-step patch diagnostic'
+          git push origin HEAD:feat/remove-budget-step
+
+      - name: Install dependencies
+        if: steps.patch.outputs.status == '0'
+        run: npm ci
+
+      - name: Install browsers
+        if: steps.patch.outputs.status == '0'
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Verify all checks
+        if: steps.patch.outputs.status == '0'
+        run: |
+          npm test
+          npm run verify:assets
+          npm run verify:content
+          npm run check
+          npm run build
+          npm run verify:build
+          npm run test:e2e
+
+      - name: Commit verified implementation
+        if: steps.patch.outputs.status == '0'
+        run: |
+          rm -f .github/workflows/apply-remove-budget-step.yml
+          rm -f .github/workflows/debug-apply-remove-budget.yml
+          rm -f .github/workflows/debug2-apply-remove-budget.yml
+          rm -f apply-budget-debug.log apply-budget-debug-2.log
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Implement five-step intake without budget questions'
+          git push origin HEAD:feat/remove-budget-step
