@@ -1,0 +1,65 @@
+name: Materialize five-step intake
+
+on:
+  push:
+    branches:
+      - feat/remove-budget-step
+    paths:
+      - .github/workflows/apply3-remove-budget.yml
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/remove-budget-step
+          fetch-depth: 0
+
+      - name: Apply patch and publish result
+        shell: bash
+        run: |
+          set +e
+          python - <<'PY' > apply-budget-debug-3.log 2>&1
+          from pathlib import Path
+          import subprocess
+
+          source = Path('.github/workflows/apply-remove-budget-step.yml').read_text(encoding='utf-8')
+          start_marker = "          python - <<'PY'\n"
+          end_marker = "\n          PY\n"
+          start = source.index(start_marker) + len(start_marker)
+          end = source.index(end_marker, start)
+          raw = source[start:end]
+          script = '\n'.join(line[10:] if line.startswith('          ') else line for line in raw.splitlines())
+          Path('/tmp/apply-budget.py').write_text(script, encoding='utf-8')
+          result = subprocess.run(['python', '/tmp/apply-budget.py'], text=True, capture_output=True)
+          print(f'exit={result.returncode}')
+          print('STDOUT')
+          print(result.stdout)
+          print('STDERR')
+          print(result.stderr)
+          raise SystemExit(result.returncode)
+          PY
+          status=$?
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          if [ "$status" -ne 0 ]; then
+            git add apply-budget-debug-3.log
+            git commit -m 'Record third budget-step patch diagnostic'
+            git push origin HEAD:feat/remove-budget-step
+            exit 0
+          fi
+
+          rm -f .github/workflows/apply-remove-budget-step.yml
+          rm -f .github/workflows/debug-apply-remove-budget.yml
+          rm -f .github/workflows/debug2-apply-remove-budget.yml
+          rm -f .github/workflows/apply3-remove-budget.yml
+          rm -f apply-budget-debug.log apply-budget-debug-2.log apply-budget-debug-3.log
+          git add -A
+          git commit -m 'Implement five-step intake without budget questions'
+          git push origin HEAD:feat/remove-budget-step
