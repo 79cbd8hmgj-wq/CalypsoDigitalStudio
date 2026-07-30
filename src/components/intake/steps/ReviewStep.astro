@@ -9,8 +9,8 @@ import { contactMethodOptions } from '../../../data/intake';
 <section class="wizard-step" data-step-index="4" data-step-id="review" aria-labelledby="review-step-title" hidden>
   <header class="step-heading" tabindex="-1">
     <p class="eyebrow">Step 5 of 5</p>
-    <h2 id="review-step-title">Review the request and choose how I should respond.</h2>
-    <p>No price is generated here. I’ll personally review the information and follow up within 2–3 business days.</p>
+    <h2 id="review-step-title">Review the request and choose a contact method.</h2>
+    <p>No price is generated here. Calypso Digital Studio will review the information and respond within two to three business days.</p>
   </header>
   <ErrorSummary />
   <ReviewSummary />
@@ -21,7 +21,7 @@ import { contactMethodOptions } from '../../../data/intake';
       <FormField id="contact-time" name="contact.preferredTime" label="Best days or times to respond" maxlength={120} />
       <FormField id="contact-timezone" name="contact.timeZone" label="Time zone" help="Requested when you provide a preferred time." maxlength={120} />
       <FormField id="contact-social" name="contact.socialAccount" label="Instagram or Facebook account" help="Required only when you choose a social platform and did not provide a link earlier." maxlength={500} wide />
-      <TextAreaField id="contact-additional" name="contact.additionalInfo" label="Anything else I should understand about the project?" maxlength={2000} />
+      <TextAreaField id="contact-additional" name="contact.additionalInfo" label="Anything else Calypso Digital Studio should know about the project?" maxlength={2000} />
       <FormField id="contact-referral" name="contact.referralSource" label="How did you hear about Calypso Digital Studio?" maxlength={500} wide />
     </div>
   </section>
