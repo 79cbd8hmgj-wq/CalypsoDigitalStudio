@@ -2,7 +2,7 @@
 title: Rare Treats 518
 slug: rare-treats-518
 status: live
-summary: A colorful small-business website that organizes rotating treats, custom orders, and local market information without forcing a rigid catalog.
+summary: A colorful small-business website for rotating treats, custom orders, and local market information, without forcing the business into a fixed catalog.
 projectType: Website design and development
 focus:
   - Expressive brand translation
