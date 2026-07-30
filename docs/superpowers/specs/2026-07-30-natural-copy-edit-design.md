@@ -14,7 +14,7 @@ The finished site should:
 - use straightforward sentences with limited marketing language;
 - speak consistently as Calypso Digital Studio or the studio;
 - keep Evan’s personal biography in first person;
-- avoid unnecessary em dashes and slash-heavy shorthand;
+- avoid em dashes and slash-heavy shorthand;
 - preserve useful hyphenated compounds such as one-time, follow-up, purpose-built, and small-business when it is used as an adjective;
 - retain the current meaning, services, facts, calls to action, and response expectations.
 
@@ -61,7 +61,7 @@ Internal documentation, source-code comments, test descriptions, development not
 
 ### Punctuation
 
-Unnecessary em dashes will be replaced with periods, commas, colons, parentheses, or rewritten sentence structures. Em dashes may remain only when they clearly improve a sentence and do not create the repeated dash-heavy style being corrected.
+Em dashes will be replaced with periods, commas, colons, parentheses, or rewritten sentence structures throughout customer-facing copy.
 
 Necessary hyphens inside compound words will remain.
 
@@ -143,7 +143,7 @@ The implementation will begin with a repository-wide audit of rendered customer-
 
 Each group will be edited conservatively. Existing tests that assert exact copy will be updated only after the replacement wording is finalized.
 
-A focused automated check will scan rendered customer-facing output for prohibited copy patterns. The check should target unnecessary em dashes and known removed phrases without flagging functional hyphens, source-code syntax, URLs, or internal documentation.
+A focused automated check will scan rendered customer-facing output for prohibited copy patterns. The check should target em dashes and known removed phrases without flagging functional hyphens, source-code syntax, URLs, or internal documentation.
 
 ## Verification
 
@@ -167,7 +167,7 @@ The work is complete when:
 - the full public website has been reviewed;
 - studio-facing copy consistently uses Calypso Digital Studio or the studio rather than “we” or unnecessary first-person language;
 - Evan’s personal biography remains first person;
-- unnecessary em dashes and slash-heavy phrases have been removed from customer-facing prose;
+- em dashes and slash-heavy phrases have been removed from customer-facing prose;
 - repetitive and overly formal wording has been simplified;
 - necessary compound-word hyphens remain correct;
 - form behavior, validation, submissions, and emails still function as before;

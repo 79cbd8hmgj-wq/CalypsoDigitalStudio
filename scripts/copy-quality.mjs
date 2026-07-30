@@ -1,5 +1,5 @@
 export const copyRules = [
-  { name: 'unnecessary em dash', pattern: /—/g },
+  { name: 'em dash', pattern: /—/g },
   { name: 'slash-heavy shorthand', pattern: /\b(?:website\/app|email\/text|booking\/payments)\b/gi },
   {
     name: 'retired studio wording',

@@ -14,7 +14,7 @@
 - Public business copy must use “Calypso Digital Studio” or “the studio.” It must not use “we.”
 - Evan’s personal biography on the About page must remain in first person.
 - Use professional, natural, direct sentences with limited marketing language.
-- Remove unnecessary em dashes and slash-heavy shorthand from customer-facing prose.
+- Remove all em dashes and slash-heavy shorthand from customer-facing prose.
 - Preserve necessary compounds such as `one-time`, `follow-up`, `purpose-built`, and `small-business` when adjectival.
 - Preserve services, facts, calls to action, response expectations, project statuses, reference behavior, and submission behavior.
 - Do not change the intake data model, field names, option values, validation rules, Turnstile, Resend, API delivery, Cloudflare configuration, or deployment configuration.
@@ -106,7 +106,7 @@ test('finds prohibited customer-facing copy patterns', () => {
   const violations = findCopyViolations(text, 'fixture.html');
   assert.deepEqual(
     violations.map((item) => item.rule),
-    ['unnecessary em dash', 'slash-heavy shorthand', 'retired studio wording']
+    ['em dash', 'slash-heavy shorthand', 'retired studio wording']
   );
 });
 
@@ -134,7 +134,7 @@ Create `scripts/copy-quality.mjs`:
 
 ```js
 export const copyRules = [
-  { name: 'unnecessary em dash', pattern: /—/g },
+  { name: 'em dash', pattern: /—/g },
   { name: 'slash-heavy shorthand', pattern: /\b(?:website\/app|email\/text|booking\/payments)\b/gi },
   {
     name: 'retired studio wording',
@@ -256,6 +256,7 @@ const read = (path: string) => readFile(new URL(path, root), 'utf8');
 
 const studioCopyPaths = [
   'src/pages/index.astro',
+  'src/pages/about.astro',
   'src/pages/services.astro',
   'src/pages/process.astro',
   'src/pages/work.astro',

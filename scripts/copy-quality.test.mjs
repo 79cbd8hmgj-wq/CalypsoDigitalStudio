@@ -7,7 +7,7 @@ test('finds prohibited customer-facing copy patterns', () => {
   const violations = findCopyViolations(text, 'fixture.html');
   assert.deepEqual(
     violations.map((item) => item.rule),
-    ['unnecessary em dash', 'slash-heavy shorthand', 'retired studio wording']
+    ['em dash', 'slash-heavy shorthand', 'retired studio wording']
   );
 });
 

@@ -6,6 +6,7 @@ const read = (path: string) => readFile(new URL(path, root), 'utf8');
 
 const studioCopyPaths = [
   'src/pages/index.astro',
+  'src/pages/about.astro',
   'src/pages/services.astro',
   'src/pages/process.astro',
   'src/pages/work.astro',
