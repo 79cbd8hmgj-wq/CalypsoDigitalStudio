@@ -15,7 +15,7 @@ The finished site should:
 - speak consistently as Calypso Digital Studio or the studio;
 - keep Evan’s personal biography in first person;
 - avoid unnecessary em dashes and slash-heavy shorthand;
-- preserve useful hyphenated compounds such as one-time, follow-up, small-business, and purpose-built;
+- preserve useful hyphenated compounds such as one-time, follow-up, purpose-built, and small-business when it is used as an adjective;
 - retain the current meaning, services, facts, calls to action, and response expectations.
 
 ## Voice
@@ -127,8 +127,10 @@ This pass will not:
 - alter validation rules or submission behavior;
 - change Turnstile, Resend, Cloudflare, or deployment configuration;
 - revise prices, policies, response times, or project commitments;
-- change visual layout or styling except where a copy assertion requires no visual change;
+- redesign page layouts or visual styling;
 - turn the site into a full third-person biography of Evan.
+
+Minor spacing adjustments are allowed only if revised copy creates a real display problem during browser testing.
 
 ## Implementation Approach
 
