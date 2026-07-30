@@ -35,6 +35,18 @@ test('round trips a valid draft', () => {
   expect(loadDraft(new Date('2026-07-30T12:00:00.000Z'))?.answers.business.fullName).toBe('Jordan');
 });
 
+test('removes a Turnstile field already stored in a legacy draft', () => {
+  const draft = createEmptyDraft(new Date('2026-07-29T12:00:00.000Z'));
+  const contaminated = draft.answers as unknown as Record<string, unknown>;
+  contaminated['cf-turnstile-response'] = 'legacy-widget-token';
+  expect(saveDraft(draft)).toBe(true);
+
+  const restored = loadDraft(new Date('2026-07-30T12:00:00.000Z'));
+
+  expect(restored).not.toBeNull();
+  expect(restored?.answers).not.toHaveProperty('cf-turnstile-response');
+});
+
 test('expires drafts thirty days after the last update', () => {
   const draft = createEmptyDraft(new Date('2026-06-01T12:00:00.000Z'));
   saveDraft(draft);
