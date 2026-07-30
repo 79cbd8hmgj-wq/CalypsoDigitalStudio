@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { formatClientEmail, formatOwnerEmail } from '../../src/lib/intake/email';
+import { buildSummarySections, formatClientEmail, formatOwnerEmail } from '../../src/lib/intake/email';
 import { validateAndNormalizeIntake } from '../../src/lib/intake/schema';
 import { createValidWebsiteSubmission } from './fixtures';
 
@@ -16,14 +16,29 @@ test('formats the owner notification with safe complete summaries', () => {
   const email = formatOwnerEmail(value);
   expect(email.subject).toBe('New project inquiry — Example Studio — New business website — CDS-1111111122');
   expect(email.replyTo).toBe('jordan@example.com');
-  for (const section of ['Business', 'Project', 'Needs', 'Materials', 'Budget & timing', 'Contact']) {
+  for (const section of ['Business', 'Project', 'Needs', 'Materials', 'Contact']) {
     expect(email.text).toContain(section);
     expect(email.html).toContain(section.replace('&', '&amp;'));
   }
   expect(email.html).toContain('&amp;');
   expect(email.html).toContain('&lt;script&gt;');
   expect(email.html).not.toContain('<script>');
+  expect(email.text).not.toContain('Budget & timing');
   expect(email.text).not.toContain('Product count');
+});
+
+test('excludes budget, timing, readiness, launch, and approval data from summaries', () => {
+  const value = normalized();
+  Object.assign(value.answers.budgetAndTiming, {
+    budgetRange: '1000-2500', preferredTiming: '1-3-months', launchDate: '2026-10-01',
+    deadlineContext: 'Seasonal launch', readiness: 'ready', decisionMaker: 'client', otherApprovers: 'Business partner'
+  });
+  const sections = buildSummarySections(value);
+  const combined = JSON.stringify(sections);
+  expect(sections.map((section) => section.title)).toEqual(['Business', 'Project', 'Needs', 'Materials', 'Contact']);
+  for (const removed of ['Budget & timing', 'Budget range', 'Preferred timing', 'Desired launch date', 'Deadline context', 'Readiness', 'Decision maker', 'Other approvers', 'Seasonal launch', 'Business partner']) {
+    expect(combined).not.toContain(removed);
+  }
 });
 
 test('formats the client confirmation with response expectations', () => {

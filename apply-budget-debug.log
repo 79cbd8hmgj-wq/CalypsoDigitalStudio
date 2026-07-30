@@ -1,9 +1,0 @@
-exit=1
-
-STDOUT
-
-
-STDERR
-  File "/tmp/apply-remove-budget.py", line 1
-    from pathlib import Path
-IndentationError: unexpected indent

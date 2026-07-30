@@ -26,10 +26,10 @@ for (const [route, title] of routes) {
   }
 }
 
-for (const required of ['data-intake-form', 'Your Business', 'Project Type', 'Project Needs', 'Branding &amp; Materials', 'Budget &amp; Timing', 'Review &amp; Contact', 'calydigital@outlook.com']) {
+for (const required of ['data-intake-form', 'Your Business', 'Project Type', 'Project Needs', 'Branding &amp; Materials', 'Review &amp; Contact', 'calydigital@outlook.com']) {
   if (!startHtml.includes(required)) errors.push(`/start: missing ${required}`);
 }
-for (const forbidden of ['Until the guided form is activated', 'What the full guided form will cover']) {
+for (const forbidden of ['Until the guided form is activated', 'What the full guided form will cover', 'Budget &amp; Timing', 'Approximate budget range', 'Preferred timing', 'How ready are you to begin?', 'Who makes the final project decision?', 'approximate budget']) {
   if (startHtml.includes(forbidden)) errors.push(`/start: old placeholder copy remains: ${forbidden}`);
 }
 

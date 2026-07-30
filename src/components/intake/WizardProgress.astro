@@ -2,7 +2,7 @@
 import { wizardSteps } from '../../data/intake';
 ---
 <nav class="wizard-progress" aria-label="Project form progress">
-  <p class="wizard-progress__current" aria-live="polite" data-progress-current>Step 1 of 6: Your Business</p>
+  <p class="wizard-progress__current" aria-live="polite" data-progress-current>{`Step 1 of ${wizardSteps.length}: ${wizardSteps[0]?.label ?? 'Your Business'}`}</p>
   <ol>
     {wizardSteps.map((step) => (
       <li>

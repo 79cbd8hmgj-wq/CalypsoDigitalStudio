@@ -25,9 +25,10 @@ const STEP_PREFIXES: ReadonlyArray<readonly string[]> = [
   ['project.'],
   ['needs.'],
   ['materials.'],
-  ['budgetAndTiming.'],
   ['contact.', 'consent.']
 ];
+
+const LAST_STEP_INDEX = wizardSteps.at(-1)?.index ?? 0;
 
 export type IntakeRequestResult =
   | { ok: true; reference: string; confirmationEmailSent: boolean }
@@ -245,7 +246,7 @@ export function validateWizardStep(stepIndex: number, answers: IntakeAnswers): V
   if (stepIndex === 3 && answers.materials.visualWords.length > 3) {
     issues.push({ path: 'materials.visualWords', message: 'Choose no more than three visual words.' });
   }
-  if (stepIndex === 5 && answers.contact.preferredTime.trim() && !answers.contact.timeZone.trim()) {
+  if (stepIndex === 4 && answers.contact.preferredTime.trim() && !answers.contact.timeZone.trim()) {
     issues.push({ path: 'contact.timeZone', message: 'Add a time zone for your preferred response time.' });
   }
   return issues;
@@ -428,18 +429,6 @@ export function initializeIntakeWizard(root: HTMLElement): void {
       const value = path ? getPath(draft.answers, path) : undefined;
       element.hidden = !(Array.isArray(value) ? value.includes(expected) : value === expected);
     }
-    for (const element of root.querySelectorAll<HTMLElement>('[data-budget-set]')) {
-      const set = element.dataset.budgetSet;
-      const primary = draft.answers.project.primaryType;
-      element.hidden = set === 'custom-tool' ? primary !== 'custom-tool'
-        : set === 'support' ? primary !== 'ongoing-support'
-          : primary === 'custom-tool' || primary === 'ongoing-support';
-    }
-    const supportType = draft.answers.budgetAndTiming.supportType;
-    for (const element of root.querySelectorAll<HTMLElement>('[data-support-budget]')) {
-      const expected = element.dataset.supportBudget;
-      element.hidden = expected === 'recurring' ? supportType !== 'recurring' : supportType === 'recurring';
-    }
   }
 
   function renderReview(): void {
@@ -526,7 +515,7 @@ export function initializeIntakeWizard(root: HTMLElement): void {
 
   function showStep(index: number, options: { updateHash?: boolean; focus?: boolean } = {}): void {
     if (!draft) return;
-    const safeIndex = Math.max(0, Math.min(5, index)) as WizardStepIndex;
+    const safeIndex = Math.max(0, Math.min(LAST_STEP_INDEX, index)) as WizardStepIndex;
     draft.currentStep = safeIndex;
     for (const step of root.querySelectorAll<HTMLElement>('[data-step-index]')) {
       step.hidden = Number(step.dataset.stepIndex) !== safeIndex;
@@ -535,10 +524,10 @@ export function initializeIntakeWizard(root: HTMLElement): void {
     const next = root.querySelector<HTMLButtonElement>('[data-continue]');
     const submit = root.querySelector<HTMLButtonElement>('[data-submit]');
     if (back) back.hidden = safeIndex === 0;
-    if (next) next.hidden = safeIndex === 5;
-    if (submit) submit.hidden = safeIndex !== 5;
+    if (next) next.hidden = safeIndex === LAST_STEP_INDEX;
+    if (submit) submit.hidden = safeIndex !== LAST_STEP_INDEX;
     const progress = root.querySelector<HTMLElement>('[data-progress-current]');
-    if (progress) progress.textContent = `Step ${safeIndex + 1} of 6: ${wizardSteps[safeIndex]?.label ?? ''}`;
+    if (progress) progress.textContent = `Step ${safeIndex + 1} of ${wizardSteps.length}: ${wizardSteps[safeIndex]?.label ?? ''}`;
     for (const button of root.querySelectorAll<HTMLButtonElement>('[data-progress-step]')) {
       const buttonIndex = Number(button.dataset.progressStep);
       button.disabled = buttonIndex > maximumCompletedStep;
@@ -546,7 +535,7 @@ export function initializeIntakeWizard(root: HTMLElement): void {
       if (buttonIndex === safeIndex) button.setAttribute('aria-current', 'step');
       else button.removeAttribute('aria-current');
     }
-    if (safeIndex === 5) {
+    if (safeIndex === LAST_STEP_INDEX) {
       renderReview();
       void ensureTurnstile();
     }
@@ -682,7 +671,7 @@ export function initializeIntakeWizard(root: HTMLElement): void {
       return;
     }
     clearErrors(draft.currentStep);
-    maximumCompletedStep = Math.max(maximumCompletedStep, Math.min(5, draft.currentStep + 1));
+    maximumCompletedStep = Math.max(maximumCompletedStep, Math.min(LAST_STEP_INDEX, draft.currentStep + 1));
     showStep(draft.currentStep + 1);
     saveNow();
   });
@@ -724,7 +713,8 @@ export function initializeIntakeWizard(root: HTMLElement): void {
     event.preventDefault();
     if (!draft || isSubmitting || !submissionEnabled) return;
     draft.answers = collectFormAnswers(wizardForm, draft.answers);
-    for (let index = 0; index < 6; index += 1) {
+    for (const step of wizardSteps) {
+      const index = step.index;
       const issues = validateWizardStep(index, draft.answers);
       if (issues.length > 0) {
         maximumCompletedStep = Math.max(maximumCompletedStep, index);

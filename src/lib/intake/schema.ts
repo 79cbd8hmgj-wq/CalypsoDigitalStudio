@@ -1,7 +1,6 @@
 import {
   addOnOptions,
   contactMethodOptions,
-  customToolBudgetOptions,
   featureOptions,
   goalOptions,
   materialOptions,
@@ -11,11 +10,7 @@ import {
   productTypeOptions,
   serviceAreaOptions,
   supportHelpOptions,
-  supportMonthlyBudgetOptions,
-  supportOneTimeBudgetOptions,
-  timingOptions,
   visualWordOptions,
-  websiteBudgetOptions
 } from '../../data/intake';
 import { clearIrrelevantNeeds, requiredPathsFor } from './conditions';
 import { createSubmissionReference, isValidSubmissionId } from './reference';
@@ -189,8 +184,8 @@ export function validateAndNormalizeIntake(input: unknown): ValidationResult {
     ['needs.booking.services', 1000], ['needs.booking.provider', 120], ['needs.payments.otherPurpose', 500], ['needs.payments.provider', 120],
     ['needs.customForms.audience', 500], ['needs.customForms.information', 2000], ['needs.customForms.afterSubmit', 2000],
     ['needs.maintenance.frequency', 500], ['materials.customVisualWord', 80], ['materials.brandMustRemain', 1000], ['materials.avoid', 1000],
-    ['materials.likedReasons', 2000], ['materials.dislikedReasons', 2000], ['budgetAndTiming.deadlineContext', 1000],
-    ['budgetAndTiming.otherApprovers', 500], ['contact.preferredTime', 500], ['contact.timeZone', 120], ['contact.socialAccount', 500],
+    ['materials.likedReasons', 2000], ['materials.dislikedReasons', 2000],
+    ['contact.preferredTime', 500], ['contact.timeZone', 120], ['contact.socialAccount', 500],
     ['contact.additionalInfo', 2000], ['contact.referralSource', 500]
   ];
   for (const [path, max] of stringLimits) validateString(answers, path, max, issues);
@@ -219,18 +214,8 @@ export function validateAndNormalizeIntake(input: unknown): ValidationResult {
     }
   }
 
-  const budgetAllowed = answers.project.primaryType === 'custom-tool'
-    ? new Set(customToolBudgetOptions)
-    : answers.project.primaryType === 'ongoing-support'
-      ? new Set(answers.budgetAndTiming.supportType === 'recurring' ? supportMonthlyBudgetOptions : supportOneTimeBudgetOptions)
-      : new Set(websiteBudgetOptions);
-  if (!budgetAllowed.has(answers.budgetAndTiming.budgetRange as never)) issues.push({ path: 'budgetAndTiming.budgetRange', message: 'Choose a budget range.' });
-  if (!new Set(timingOptions).has(answers.budgetAndTiming.preferredTiming as never)) issues.push({ path: 'budgetAndTiming.preferredTiming', message: 'Choose a preferred timeframe.' });
   if (answers.needs.store.productCount && !new Set(productCountOptions).has(answers.needs.store.productCount as never)) {
     issues.push({ path: 'needs.store.productCount', message: 'Choose a valid product count.' });
-  }
-  if (answers.budgetAndTiming.launchDate && Number.isNaN(Date.parse(answers.budgetAndTiming.launchDate))) {
-    issues.push({ path: 'budgetAndTiming.launchDate', message: 'Enter a valid date.' });
   }
 
   for (const path of requiredPathsFor(answers)) {

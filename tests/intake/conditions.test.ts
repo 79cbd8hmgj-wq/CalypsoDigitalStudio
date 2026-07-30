@@ -23,16 +23,17 @@ describe('deriveConditions', () => {
     expect(conditions.showNotSure).toBe(false);
   });
 
-  test('derives conditional contact and deadline requirements', () => {
+  test('derives contact and other-add-on requirements without budget paths', () => {
     const request = createValidWebsiteSubmission();
     request.answers.contact.preferredMethod = 'text';
-    request.answers.budgetAndTiming.dateFlexibility = 'fixed';
     request.answers.project.addOns = ['other'];
     const conditions = deriveConditions(request.answers);
+    const required = requiredPathsFor(request.answers);
     expect(conditions.requirePhone).toBe(true);
-    expect(conditions.requireLaunchDate).toBe(true);
     expect(conditions.requireOtherAddOn).toBe(true);
-    expect(requiredPathsFor(request.answers)).toContain('business.phone');
+    expect(required).toContain('business.phone');
+    expect(required).toContain('project.otherAddOn');
+    expect(required.some((path) => path.startsWith('budgetAndTiming.'))).toBe(false);
   });
 });
 

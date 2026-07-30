@@ -11,9 +11,9 @@ function html(): string {
     <section data-restore-notice hidden><button data-restore-draft>Continue Saved Project</button><button data-start-over>Start Over</button></section>
     <section data-wizard-shell hidden>
       <p data-progress-current></p>
-      ${[0,1,2,3,4,5].map((index) => `<button data-progress-step="${index}" ${index ? 'disabled' : ''}></button>`).join('')}
+      ${[0,1,2,3,4].map((index) => `<button data-progress-step="${index}" ${index ? 'disabled' : ''}></button>`).join('')}
       <form data-intake-form novalidate>
-        ${[0,1,2,3,4,5].map((index) => `<section data-step-index="${index}" data-step-id="${['business','project','needs','materials','budget','review'][index]}" ${index ? 'hidden' : ''}><header class="step-heading" tabindex="-1"></header><section data-error-summary hidden tabindex="-1"><ul data-error-list></ul></section>${index === 0 ? '<div data-field-path="business.fullName"><input name="business.fullName"><p data-field-error hidden></p></div><div data-field-path="business.businessName"><input name="business.businessName"><p data-field-error hidden></p></div><div data-field-path="business.email"><input name="business.email"><p data-field-error hidden></p></div><div data-field-path="business.location"><input name="business.location"><p data-field-error hidden></p></div><div data-field-path="business.serviceAreas"><input type="checkbox" name="business.serviceAreas" value="local"><p data-field-error hidden></p></div><div data-field-path="business.offer"><textarea name="business.offer"></textarea><p data-field-error hidden></p></div><div data-field-path="business.customers"><textarea name="business.customers"></textarea><p data-field-error hidden></p></div>' : ''}${index === 1 ? '<input type="radio" name="project.primaryType" value="new-website"><input type="radio" name="project.primaryType" value="custom-tool"><input type="checkbox" name="project.addOns" value="booking">' : ''}${index === 2 ? '<div data-condition="standard-website" hidden></div><div data-condition="custom-tool" hidden></div>' : ''}${index === 5 ? '<div data-review-summary></div><div data-turnstile-widget></div><p data-turnstile-status></p><button type="button" data-turnstile-retry hidden>Try security check again</button><div data-submission-error hidden></div>' : ''}</section>`).join('')}
+        ${[0,1,2,3,4].map((index) => `<section data-step-index="${index}" data-step-id="${['business','project','needs','materials','review'][index]}" ${index ? 'hidden' : ''}><header class="step-heading" tabindex="-1"></header><section data-error-summary hidden tabindex="-1"><ul data-error-list></ul></section>${index === 0 ? '<div data-field-path="business.fullName"><input name="business.fullName"><p data-field-error hidden></p></div><div data-field-path="business.businessName"><input name="business.businessName"><p data-field-error hidden></p></div><div data-field-path="business.email"><input name="business.email"><p data-field-error hidden></p></div><div data-field-path="business.location"><input name="business.location"><p data-field-error hidden></p></div><div data-field-path="business.serviceAreas"><input type="checkbox" name="business.serviceAreas" value="local"><p data-field-error hidden></p></div><div data-field-path="business.offer"><textarea name="business.offer"></textarea><p data-field-error hidden></p></div><div data-field-path="business.customers"><textarea name="business.customers"></textarea><p data-field-error hidden></p></div>' : ''}${index === 1 ? '<input type="radio" name="project.primaryType" value="new-website"><input type="radio" name="project.primaryType" value="custom-tool"><input type="checkbox" name="project.addOns" value="booking">' : ''}${index === 2 ? '<div data-condition="standard-website" hidden></div><div data-condition="custom-tool" hidden></div>' : ''}${index === 4 ? '<div data-review-summary></div><div data-turnstile-widget></div><p data-turnstile-status></p><button type="button" data-turnstile-retry hidden>Try security check again</button><div data-submission-error hidden></div>' : ''}</section>`).join('')}
         <button type="button" data-back hidden>Back</button><span data-save-status></span><button type="button" data-continue>Continue</button><button type="submit" data-submit hidden>Submit</button>
       </form>
     </section>
@@ -124,6 +124,27 @@ test('a valid stored draft reveals the restore choice', () => {
 
   initializeIntakeWizard(root);
   expect(root.querySelector('[data-restore-notice]')?.hasAttribute('hidden')).toBe(false);
+});
+
+test('restores a legacy final-step draft at the new review step', () => {
+  const request = createValidWebsiteSubmission();
+  const timestamp = new Date().toISOString();
+  window.localStorage.setItem(DRAFT_KEY, JSON.stringify({
+    version: 1,
+    submissionId: request.submissionId,
+    startedAt: request.startedAt,
+    updatedAt: timestamp,
+    currentStep: 5,
+    answers: request.answers
+  }));
+
+  initializeIntakeWizard(root);
+  (root.querySelector('[data-restore-draft]') as HTMLButtonElement).click();
+
+  expect(root.querySelector('[data-step-index="4"]')?.hasAttribute('hidden')).toBe(false);
+  expect(root.querySelector('[data-step-index="5"]')).toBeNull();
+  expect(root.querySelector('[data-progress-current]')?.textContent).toContain('Step 5 of 5');
+  expect((root.querySelector('[data-submit]') as HTMLButtonElement).hidden).toBe(false);
 });
 
 test('Turnstile hidden response is never saved as a project answer', () => {

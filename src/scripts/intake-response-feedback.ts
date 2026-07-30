@@ -10,7 +10,6 @@ const STEP_PREFIXES: ReadonlyArray<readonly string[]> = [
   ['project.'],
   ['needs.'],
   ['materials.'],
-  ['budgetAndTiming.'],
   ['contact.', 'consent.']
 ];
 

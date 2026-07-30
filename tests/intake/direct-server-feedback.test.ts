@@ -9,9 +9,9 @@ function buildWindow(): Window {
   const window = new Window({ url: 'https://calypsodigitalstudio.pages.dev/start' });
   window.document.body.innerHTML = `
     <div data-intake-wizard>
-      ${[0, 1, 2, 3, 4, 5].map((index) => `<button data-progress-step="${index}"></button>`).join('')}
-      ${[0, 1, 2, 3, 4, 5].map((index) => `
-        <section data-step-index="${index}" ${index === 5 ? '' : 'hidden'}>
+      ${[0, 1, 2, 3, 4].map((index) => `<button data-progress-step="${index}"></button>`).join('')}
+      ${[0, 1, 2, 3, 4].map((index) => `
+        <section data-step-index="${index}" ${index === 4 ? '' : 'hidden'}>
           <section data-error-summary hidden tabindex="-1"><ul data-error-list></ul></section>
           ${index === 0 ? `
             <div data-field-path="business.existingWebsite">
@@ -53,6 +53,15 @@ test('validation feedback opens the earliest affected step and highlights the ex
   expect(fieldError.hidden).toBe(false);
   expect(fieldError.textContent).toContain('HTTP or HTTPS');
   expect(genericError.hidden).toBe(true);
+});
+
+test('legacy budget issues use the generic fallback instead of a removed step', () => {
+  const window = buildWindow();
+  const shown = showIntakeValidationIssues(window.document as unknown as Document, [
+    { path: 'budgetAndTiming.budgetRange', message: 'Legacy budget issue.' }
+  ]);
+  expect(shown).toBe(false);
+  expect(window.document.querySelector('[data-submission-error]')?.textContent).toContain('Legacy budget issue');
 });
 
 test('response feedback runs after the wizard generic error and reveals the API issues', async () => {

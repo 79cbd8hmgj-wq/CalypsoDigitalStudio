@@ -13,7 +13,6 @@ export interface IntakeConditions {
   showMaintenance: boolean;
   requirePhone: boolean;
   requireSocialContact: boolean;
-  requireLaunchDate: boolean;
   requireOtherAddOn: boolean;
 }
 
@@ -38,7 +37,6 @@ export function deriveConditions(answers: IntakeAnswers): IntakeConditions {
     requireSocialContact:
       (answers.contact.preferredMethod === 'instagram' || answers.contact.preferredMethod === 'facebook') &&
       !hasSocialLink,
-    requireLaunchDate: answers.budgetAndTiming.dateFlexibility === 'fixed',
     requireOtherAddOn: addOns.has('other')
   };
 }
@@ -55,10 +53,6 @@ export function requiredPathsFor(answers: IntakeAnswers): string[] {
     'business.customers',
     'project.primaryType',
     'needs.goals',
-    'budgetAndTiming.budgetRange',
-    'budgetAndTiming.preferredTiming',
-    'budgetAndTiming.readiness',
-    'budgetAndTiming.decisionMaker',
     'contact.preferredMethod',
     'consent.accurate',
     'consent.contactPermission'
@@ -107,7 +101,6 @@ export function requiredPathsFor(answers: IntakeAnswers): string[] {
   if (conditions.showMaintenance) paths.push('needs.maintenance.cadence', 'needs.maintenance.frequency');
   if (conditions.requirePhone) paths.push('business.phone');
   if (conditions.requireSocialContact) paths.push('contact.socialAccount');
-  if (conditions.requireLaunchDate) paths.push('budgetAndTiming.launchDate');
   if (conditions.requireOtherAddOn) paths.push('project.otherAddOn');
   if (answers.needs.goals.includes('other')) paths.push('needs.otherGoal');
   if (answers.needs.pages.includes('other')) paths.push('needs.otherPage');
