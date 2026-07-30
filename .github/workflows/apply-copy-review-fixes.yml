@@ -1,0 +1,94 @@
+name: Apply copy review fixes
+
+on:
+  push:
+    branches:
+      - feat/natural-copy-edit
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/natural-copy-edit
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.0
+          cache: npm
+      - run: npm ci
+      - name: Apply CodeRabbit fixes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path: str, old: str, new: str) -> None:
+              file = Path(path)
+              text = file.read_text()
+              if old not in text:
+                  raise SystemExit(f"Expected text not found in {path}: {old!r}")
+              file.write_text(text.replace(old, new, 1))
+
+          replace_once(
+              'tests/copy/public-copy.test.ts',
+              "  'src/pages/index.astro',\n  'src/pages/services.astro',",
+              "  'src/pages/index.astro',\n  'src/pages/about.astro',\n  'src/pages/services.astro',",
+          )
+          replace_once(
+              'scripts/copy-quality.mjs',
+              "{ name: 'unnecessary em dash', pattern: /—/g },",
+              "{ name: 'em dash', pattern: /—/g },",
+          )
+          replace_once(
+              'scripts/copy-quality.test.mjs',
+              "['unnecessary em dash', 'slash-heavy shorthand', 'retired studio wording']",
+              "['em dash', 'slash-heavy shorthand', 'retired studio wording']",
+          )
+
+          spec = Path('docs/superpowers/specs/2026-07-30-natural-copy-edit-design.md')
+          spec_text = spec.read_text()
+          replacements = {
+              'avoid unnecessary em dashes and slash-heavy shorthand;': 'avoid em dashes and slash-heavy shorthand;',
+              'Unnecessary em dashes will be replaced with periods, commas, colons, parentheses, or rewritten sentence structures. Em dashes may remain only when they clearly improve a sentence and do not create the repeated dash-heavy style being corrected.': 'Em dashes will be replaced with periods, commas, colons, parentheses, or rewritten sentence structures throughout customer-facing copy.',
+              'target unnecessary em dashes and known removed phrases': 'target em dashes and known removed phrases',
+              'unnecessary em dashes and slash-heavy phrases have been removed from customer-facing prose;': 'em dashes and slash-heavy phrases have been removed from customer-facing prose;',
+          }
+          for old, new in replacements.items():
+              if old not in spec_text:
+                  raise SystemExit(f"Expected spec text not found: {old!r}")
+              spec_text = spec_text.replace(old, new)
+          spec.write_text(spec_text)
+
+          plan = Path('docs/superpowers/plans/2026-07-30-natural-copy-edit.md')
+          plan_text = plan.read_text()
+          plan_replacements = {
+              '- Remove unnecessary em dashes and slash-heavy shorthand from customer-facing prose.': '- Remove all em dashes and slash-heavy shorthand from customer-facing prose.',
+              "    ['unnecessary em dash', 'slash-heavy shorthand', 'retired studio wording']": "    ['em dash', 'slash-heavy shorthand', 'retired studio wording']",
+              "  { name: 'unnecessary em dash', pattern: /—/g },": "  { name: 'em dash', pattern: /—/g },",
+              "  'src/pages/index.astro',\n  'src/pages/services.astro',": "  'src/pages/index.astro',\n  'src/pages/about.astro',\n  'src/pages/services.astro',",
+          }
+          for old, new in plan_replacements.items():
+              if old not in plan_text:
+                  raise SystemExit(f"Expected plan text not found: {old!r}")
+              plan_text = plan_text.replace(old, new, 1)
+          plan.write_text(plan_text)
+          PY
+      - run: node --test scripts/copy-quality.test.mjs
+      - run: npm run test:unit -- tests/copy/public-copy.test.ts
+      - run: npm run check
+      - name: Commit fixes and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/apply-copy-review-fixes.yml
+          git add docs/superpowers/plans/2026-07-30-natural-copy-edit.md \
+                  docs/superpowers/specs/2026-07-30-natural-copy-edit-design.md \
+                  scripts/copy-quality.mjs \
+                  scripts/copy-quality.test.mjs \
+                  tests/copy/public-copy.test.ts
+          git commit -m "fix: address copy review findings"
+          git push origin HEAD:feat/natural-copy-edit
