@@ -47,6 +47,6 @@ test('wizard markup contains six steps, exact answer paths, and fallback content
 test('wizard has the exact production Turnstile site-key fallback', async () => {
   const wizard = await read('src/components/intake/IntakeWizard.astro');
 
-  expect(wizard).toContain("const productionTurnstileSiteKey = '0x4AAAAAAEBq1Dc1bS1Wmdm0';");
+  expect(wizard).toContain("const productionTurnstileSiteKey = '0x4AAAAAAEBqlDclbS1Wmdm0';");
   expect(wizard).toContain('configuredTurnstileSiteKey || productionTurnstileSiteKey');
 });
