@@ -79,7 +79,7 @@ test('completes the five-step website flow and confirms receipt', async ({ page 
 
   await expect(page.getByRole('heading', { name: 'Your project details have been received.' })).toBeVisible();
   await expect(page.getByText('CDS-1111111122')).toBeVisible();
-  await expect(page.locator('[data-confirmation-message]')).toContainText('2–3 business days');
+  await expect(page.locator('[data-confirmation-message]')).toContainText('two to three business days');
 });
 
 test('shows required errors without losing the current step', async ({ page }) => {
@@ -143,7 +143,7 @@ test('restores a legacy step-six draft at the new review step', async ({ page })
   await page.reload();
   await page.getByRole('button', { name: 'Continue Saved Project' }).click();
   await expect(page.getByText('Step 5 of 5', { exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Review the request and choose how I should respond.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Review the request and choose a contact method.' })).toBeVisible();
 });
 
 test('confirms receipt when the client copy is delayed', async ({ page }) => {
