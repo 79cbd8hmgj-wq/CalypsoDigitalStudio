@@ -18,7 +18,7 @@ for (const [route, title] of routes) {
   try {
     const html = await readFile(file, 'utf8');
     if (route === '/start') startHtml = html;
-    if (!html.includes(`<title>${title}</title>`)) errors.push(`${route}: missing expected title`);
+    if (!html.includes(`<title>${title.replaceAll('&', '&amp;')}</title>`)) errors.push(`${route}: missing expected title`);
     if (!html.includes('name="description"')) errors.push(`${route}: missing meta description`);
     if (!html.includes('id="main-content"')) errors.push(`${route}: missing main-content target`);
   } catch {
