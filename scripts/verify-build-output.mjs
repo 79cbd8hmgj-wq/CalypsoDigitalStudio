@@ -2,7 +2,7 @@ import { access, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 const routes = [
-  ['/', 'Calypso Digital Studio'],
+  ['/', 'Calypso Digital Studio | Web Design & Development in Albany, NY'],
   ['/services', 'Services | Calypso Digital Studio'],
   ['/work', 'Work | Calypso Digital Studio'],
   ['/about', 'About | Calypso Digital Studio'],
@@ -33,7 +33,7 @@ for (const forbidden of ['Until the guided form is activated', 'What the full gu
   if (startHtml.includes(forbidden)) errors.push(`/start: old placeholder copy remains: ${forbidden}`);
 }
 
-for (const fileName of ['favicon.svg', 'site.webmanifest', 'robots.txt']) {
+for (const fileName of ['favicon.svg', 'site.webmanifest', 'robots.txt', 'sitemap.xml']) {
   try {
     await access(fileURLToPath(new URL(`../dist/${fileName}`, import.meta.url)));
   } catch {
