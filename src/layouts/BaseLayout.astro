@@ -4,7 +4,24 @@ import SiteHeader from '../components/SiteHeader.astro';
 import '../styles/global.css';
 interface Props{title:string;description:string;image?:string}
 const{title,description,image='/assets/brand/calypso-master.webp'}=Astro.props;
-const fullTitle=title==='Calypso Digital Studio'?title:`${title} | Calypso Digital Studio`;
+const fullTitle=title==='Calypso Digital Studio' ? 'Calypso Digital Studio | Web Design & Development in Albany, NY' : `${title} | Calypso Digital Studio`;
+const canonicalUrl = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', 'https://calypsodigital.us').href;
+const socialImageUrl = new URL(image, 'https://calypsodigital.us').href;
+const businessSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: 'Calypso Digital Studio',
+  url: 'https://calypsodigital.us/',
+  description: 'Custom web design, website development, redesigns, e-commerce, and practical software for small businesses.',
+  image: socialImageUrl,
+  areaServed: [
+    { '@type': 'Place', name: 'Capital Region, New York' },
+    { '@type': 'Place', name: 'Albany, New York' },
+    { '@type': 'Place', name: 'Troy, New York' }
+  ],
+  founder: { '@type': 'Person', name: 'Evan Lebrecht' },
+  knowsAbout: ['Website design', 'Website development', 'Website redesign', 'E-commerce development', 'Custom business software']
+};
 ---
-<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width"/><meta name="description" content={description}/><meta name="theme-color" content="#F7F1E7"/><meta property="og:title" content={fullTitle}/><meta property="og:description" content={description}/><meta property="og:type" content="website"/><meta property="og:image" content={image}/><link rel="icon" href="/favicon.svg" type="image/svg+xml"/><link rel="manifest" href="/site.webmanifest"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet"/><title>{fullTitle}</title></head><body><a class="skip-link" href="#main-content">Skip to content</a><SiteHeader/><main id="main-content"><slot/></main><SiteFooter/></body></html>
+<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width"/><meta name="description" content={description}/><meta name="robots" content="index, follow, max-image-preview:large"/><link rel="canonical" href={canonicalUrl}/><meta property="og:site_name" content="Calypso Digital Studio"/><meta property="og:url" content={canonicalUrl}/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content={fullTitle}/><meta name="twitter:description" content={description}/><meta name="twitter:image" content={socialImageUrl}/><meta name="theme-color" content="#F7F1E7"/><meta property="og:title" content={fullTitle}/><meta property="og:description" content={description}/><meta property="og:type" content="website"/><meta property="og:image" content={socialImageUrl}/><script type="application/ld+json" set:html={JSON.stringify(businessSchema)}/><link rel="icon" href="/favicon.svg" type="image/svg+xml"/><link rel="manifest" href="/site.webmanifest"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet"/><title>{fullTitle}</title></head><body><a class="skip-link" href="#main-content">Skip to content</a><SiteHeader/><main id="main-content"><slot/></main><SiteFooter/></body></html>
 <style is:global>.skip-link{position:fixed;z-index:100;top:.5rem;left:.5rem;transform:translateY(-150%);border-radius:var(--radius-small);background:var(--color-ink);color:var(--color-surface);padding:.75rem 1rem}.skip-link:focus{transform:translateY(0)}</style>
