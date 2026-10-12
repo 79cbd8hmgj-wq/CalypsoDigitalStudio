@@ -5,7 +5,7 @@ const routes = [
   ['/', 'Calypso Digital Studio | Web Design & Development in Albany, NY'],
   ['/services', 'Services | Calypso Digital Studio'],
   ['/affordable-web-design', 'Affordable Website Design in Albany, NY | Calypso Digital Studio'],
-  ['/work', 'Work | Calypso Digital Studio'],
+  ['/work', 'Small Business Website Design Portfolio | Calypso Digital Studio'],
   ['/about', 'About | Calypso Digital Studio'],
   ['/process', 'Process | Calypso Digital Studio'],
   ['/start', 'Start Your Project | Calypso Digital Studio']

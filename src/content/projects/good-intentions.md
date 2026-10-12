@@ -14,4 +14,6 @@ primaryImage: /assets/projects/good-intentions/home-mobile.webp
 secondaryImage: /assets/projects/good-intentions/style-bundles-mobile.webp
 ---
 
-This project is still in progress. Draft inventory and inactive checkout are clearly identified rather than presented as live commerce.
+Good Intentions is an in-progress storefront and service experience for a secondhand clothing business. The design direction uses a dark editorial style to showcase collections and explain how style bundles and clothing donations are intended to work.
+
+This project is not presented as a launched e-commerce store. Draft inventory and inactive checkout remain identified as unfinished. The current work demonstrates the visual direction and planned customer workflows, not a completed live purchasing experience.
