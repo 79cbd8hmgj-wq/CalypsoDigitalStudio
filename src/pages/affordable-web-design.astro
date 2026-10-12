@@ -5,12 +5,12 @@ import ButtonLink from '../components/ButtonLink.astro';
 
 <BaseLayout
   title="Affordable Website Design in Albany, NY"
-  description="Affordable custom website design for small businesses in Albany, Troy, and beyond. Bring a comparable independent designer’s written website production quote and Calypso Digital Studio will beat it."
+  description="One-page website design starts at $89.99 for production. Affordable small-business web design in Albany, Troy and beyond, plus a qualifying independent designer price-beat guarantee."
 >
   <header class="intro container">
     <p class="eyebrow">Affordable web design · Albany, NY and beyond</p>
     <h1>Affordable website design, without cutting the parts your business needs.</h1>
-    <p class="lede">Looking for a low-cost website designer for your small business? Calypso Digital Studio builds websites around an agreed scope and offers a <strong>price-beat guarantee on comparable independent website production quotes</strong>.</p>
+    <p class="lede">Looking for a low-cost website designer for your small business? Calypso Digital Studio builds websites around an agreed scope and offers a <strong>price-beat guarantee on comparable independent website production quotes</strong>.</p><div class="starter-offer"><p class="eyebrow">Basic one-page website production</p><p class="starter-price">Starting at <strong>$89.99</strong></p><p>This entry price is for producing a basic, one-page informational website. More extensive design, content creation, extra pages, or added functionality is quoted separately. Domain registration, web hosting, subscriptions, and other third-party costs are not included.</p></div>
     <div class="actions">
       <ButtonLink href="/start">Request a Website Quote</ButtonLink>
       <ButtonLink href="/work" variant="secondary">See Our Work</ButtonLink>
@@ -66,7 +66,7 @@ import ButtonLink from '../components/ButtonLink.astro';
     <div class="questions">
       <article>
         <h3>How much does a cheap small-business website cost?</h3>
-        <p>It depends on page count, design work, content readiness, and features. We don't advertise a single starting price that implies every business needs the same website. <a href="/start">Tell us what you need</a> and we'll quote the production scope.</p>
+        <p>Production of a basic one-page informational website starts at <strong>$89.99</strong>. More pages, custom features, additional content work, or specialized design raise the production quote. Hosting, domains, subscriptions, and third-party fees are separate. <a href="/start">Tell us what you need</a> for a scope-specific quote.</p>
       </article>
       <article>
         <h3>Can you beat another website designer's price?</h3>
@@ -95,6 +95,10 @@ import ButtonLink from '../components/ButtonLink.astro';
   .intro {padding-block:var(--space-8);max-width:min(calc(100% - 2rem),var(--container))}
   .intro h1 {max-width:20ch}
   .lede {font-size:var(--step-1)}
+  .starter-offer {max-width:62ch;margin-top:var(--space-5);padding:var(--space-5);border:var(--border-thin);border-left:5px solid var(--color-rust);border-radius:var(--radius-large);background:var(--color-surface)}
+  .starter-price {font-family:var(--font-display);font-size:var(--step-2);font-weight:700;margin-bottom:var(--space-3)}
+  .starter-price strong {font-size:var(--step-3);color:var(--color-rust)}
+  .starter-offer p:last-child {margin-bottom:0}
   .actions {display:flex;flex-wrap:wrap;gap:var(--space-3);margin-top:var(--space-5)}
   .promise {padding:var(--space-6);margin-bottom:var(--space-8)}
   .promise h2 {max-width:25ch}
