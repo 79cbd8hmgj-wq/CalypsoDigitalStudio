@@ -14,6 +14,17 @@ import { contact } from '../data/contact';
     description="The guided form organizes the details needed to review the project and prepare a custom recommendation and quote."
   />
 
+  <section class="quick-contact container" aria-labelledby="quick-contact-title">
+    <div class="quick-contact__inner">
+      <div>
+        <p class="eyebrow">Need a quick answer?</p>
+        <h2 id="quick-contact-title">Start with a short email.</h2>
+        <p>Tell us what your business does and what you want your website to accomplish. No questionnaire needed to start a conversation.</p>
+      </div>
+      <a class="quick-contact__link" href={`mailto:${contact.email}?subject=${encodeURIComponent('Quick website quote request')}&body=${encodeURIComponent('Hi Calypso Digital Studio,\\n\\nMy business: \\nWhat I need: \\nMy preferred way to be contacted: \\n')}`}>Email a quick quote request</a>
+    </div>
+  </section>
+
   <IntakeWizard />
 
   <section class="direct-contact container" aria-labelledby="direct-contact-title">
@@ -30,6 +41,13 @@ import { contact } from '../data/contact';
   </section>
 </BaseLayout>
 <style>
+  .quick-contact { padding-top: var(--space-5); }
+  .quick-contact__inner { display: grid; gap: var(--space-4); align-items: center; border-top: var(--border-thin); border-bottom: var(--border-thin); padding-block: var(--space-5); }
+  .quick-contact h2 { font-size: var(--step-1); }
+  .quick-contact p:last-child { margin-bottom: 0; }
+  .quick-contact__link { display: inline-flex; justify-content: center; align-items: center; min-height: 3rem; border-radius: var(--radius-small); border: 1px solid var(--color-ink); padding: .75rem 1rem; color: var(--color-ink); font-weight: 800; text-align: center; text-decoration: none; }
+  .quick-contact__link:hover, .quick-contact__link:focus-visible { background: var(--color-ink); color: var(--color-surface); }
+  @media (min-width: 48rem) { .quick-contact__inner { grid-template-columns: minmax(0, 1fr) auto; } }
   .direct-contact { padding-bottom: var(--space-8); }
   .direct-contact > div { width: min(100%, 58rem); margin-inline: auto; padding: clamp(1.25rem, 3vw, 2.5rem); }
   .direct-contact__links { display: flex; flex-wrap: wrap; gap: var(--space-4); }
