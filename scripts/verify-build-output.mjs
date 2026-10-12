@@ -38,7 +38,7 @@ for (const forbidden of ['Until the guided form is activated', 'What the full gu
   if (startHtml.includes(forbidden)) errors.push(`/start: old placeholder copy remains: ${forbidden}`);
 }
 
-for (const mustInclude of ['Affordable website design', 'current, verifiable, written quote', '/services#price-guarantee', '/start']) {
+for (const mustInclude of ['Affordable website design', '$89.99', 'one-page informational website', 'current, verifiable, written quote', '/services#price-guarantee', '/start']) {
   if (!affordableHtml.includes(mustInclude)) errors.push(`/affordable-web-design: missing ${mustInclude}`);
 }
 try {
