@@ -3,20 +3,20 @@ import {getCollection,render} from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageIntro from '../components/PageIntro.astro';
 import ProjectCard from '../components/ProjectCard.astro';
-const projectOrder=new Map([['lrl-photography',0],['rare-treats-518',1],['good-intentions',2]]);
+const projectOrder=new Map([['lrl-photography',0],['rare-treats-518',1],['nugnav',2],['good-intentions',3]]);
 const projects=(await getCollection('projects')).sort((a,b)=>(projectOrder.get(a.data.slug)??99)-(projectOrder.get(b.data.slug)??99));
 const caseStudies=await Promise.all(projects.map(async (project)=>({project,Content:(await render(project)).Content})));
 ---
-<BaseLayout title="Small Business Website Design Portfolio" description="Explore Calypso Digital Studio website design projects for a photographer, local treats business and clothing storefront. See project goals, features and development status.">
-  <PageIntro eyebrow="Small-business website design portfolio" title="Real website projects for different small-business needs." description="Explore the design decisions, functionality and current status behind three Calypso Digital Studio projects."/>
+<BaseLayout title="Small Business Website Design Portfolio" description="Explore Calypso Digital Studio website design projects for a photographer, local treats business, cannabis price comparison platform and clothing storefront. See project goals, features and development status.">
+  <PageIntro eyebrow="Small-business website design portfolio" title="Real website projects for different small-business needs." description="Explore the design decisions, functionality and current status behind Calypso Digital Studio projects."/>
   <section class="work-list container" aria-label="Website project case studies">
     {caseStudies.map(({project:p,Content},i)=>
       <section class="entry" aria-labelledby={`project-${p.data.slug}`}>
         <div class="project-visual">
-          <ProjectCard title={p.data.title} summary={p.data.summary} projectType={p.data.projectType} status={p.data.status} image={i%2===0?p.data.primaryImage:p.data.secondaryImage}/>
+          <ProjectCard title={p.data.title} summary={p.data.summary} projectType={p.data.projectType} status={p.data.status} image={i%2===0?(p.data.primaryImage??p.data.secondaryImage):(p.data.secondaryImage??p.data.primaryImage)}/>
         </div>
         <div class="details">
-          <h2 id={`project-${p.data.slug}`}>{p.data.title} website project</h2>
+          <h2 id={`project-${p.data.slug}`}>{p.data.title} project</h2>
           <p class="eyebrow">{p.data.status==='live'?'Live project':'In-progress project'}</p>
           <div class="case-study"><Content/></div>
           <h3>Project features</h3>

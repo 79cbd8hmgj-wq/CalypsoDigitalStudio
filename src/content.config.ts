@@ -11,8 +11,8 @@ const projects = defineCollection({
     projectType: z.string().min(1),
     focus: z.array(z.string().min(1)).min(3),
     featured: z.boolean(),
-    primaryImage: z.string().startsWith('/assets/'),
-    secondaryImage: z.string().startsWith('/assets/'),
+    primaryImage: z.string().startsWith('/assets/').optional(),
+    secondaryImage: z.string().startsWith('/assets/').optional(),
     liveUrl: z.string().url().optional()
   })
 });
