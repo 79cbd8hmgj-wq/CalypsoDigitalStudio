@@ -1,5 +1,5 @@
 ---
-interface Props{title:string;summary:string;projectType:string;status:'live'|'in-progress';image?:string}
+interface Props{title:string;summary:string;projectType:string;status:'live'|'in-progress';image?:string|undefined}
 const{title,summary,projectType,status,image}=Astro.props;
 ---
 <article class="project-card surface"><div class="image">{image?<img src={image} alt={`${title} mobile website preview`} width="1242" height="2250" loading="lazy"/>:<div class="project-identity"><span>NugNav</span><small>Find better cannabis for less.</small></div>}</div><div class="content"><p class="eyebrow">{projectType}{status==='in-progress'&&' · In progress'}</p><h3>{title}</h3><p>{summary}</p></div></article>
