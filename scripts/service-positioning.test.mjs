@@ -38,3 +38,27 @@ test('service catalog distinguishes websites, software, automation and technical
     assert.ok(services.includes(term), `missing ${term}`);
   }
 });
+
+test('portfolio supports anchored software case-study navigation', async () => {
+  const portfolio = await read('src/pages/work.astro');
+  assert.match(portfolio, /id=\{`project-\$\{p\.data\.slug\}`\}/);
+  assert.match(portfolio, /Websites and Custom Software Portfolio/);
+});
+
+test('sitemap contains the new service discovery pages', async () => {
+  const sitemap = await read('public/sitemap.xml');
+  assert.match(sitemap, /https:\/\/calypsodigital\.us\/business-software/);
+  assert.match(sitemap, /https:\/\/calypsodigital\.us\/website-support/);
+});
+
+test('starter website price is scoped to the affordable offer in structured data', async () => {
+  const layout = await read('src/layouts/BaseLayout.astro');
+  assert.match(layout, /isAffordablePage/);
+  assert.match(layout, /Custom business software/);
+  assert.match(layout, /Website repair and technical support/);
+});
+
+test('quick inquiry covers custom software and repairs as well as websites', async () => {
+  const start = await read('src/pages/start.astro');
+  assert.match(start, /custom tool, an automation, or a technical fix/);
+});
