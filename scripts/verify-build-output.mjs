@@ -7,7 +7,7 @@ const routes = [
   ['/business-software', 'Custom Business Software and Automation in Albany, NY | Calypso Digital Studio'],
   ['/website-support', 'Website Repairs and Technical Support in Albany, NY | Calypso Digital Studio'],
   ['/affordable-web-design', 'Affordable Website Design in Albany, NY | Calypso Digital Studio'],
-  ['/work', 'Small Business Website Design Portfolio | Calypso Digital Studio'],
+  ['/work', 'Websites and Custom Software Portfolio | Calypso Digital Studio'],
   ['/about', 'About | Calypso Digital Studio'],
   ['/process', 'Process | Calypso Digital Studio'],
   ['/start', 'Start Your Project | Calypso Digital Studio']
