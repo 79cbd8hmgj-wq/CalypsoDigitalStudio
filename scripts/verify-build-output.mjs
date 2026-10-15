@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url';
 const routes = [
   ['/', 'Calypso Digital Studio | Web Design & Development in Albany, NY'],
   ['/services', 'Services | Calypso Digital Studio'],
+  ['/business-software', 'Custom Business Software and Automation in Albany, NY | Calypso Digital Studio'],
+  ['/website-support', 'Website Repairs and Technical Support in Albany, NY | Calypso Digital Studio'],
   ['/affordable-web-design', 'Affordable Website Design in Albany, NY | Calypso Digital Studio'],
   ['/work', 'Small Business Website Design Portfolio | Calypso Digital Studio'],
   ['/about', 'About | Calypso Digital Studio'],
@@ -13,6 +15,10 @@ const routes = [
 const errors = [];
 let startHtml = '';
 let affordableHtml = '';
+let softwareHtml = '';
+let supportHtml = '';
+let workHtml = '';
+let homeHtml = '';
 
 for (const [route, title] of routes) {
   const name = route === '/' ? '../dist/index.html' : `../dist${route}/index.html`;
@@ -20,6 +26,10 @@ for (const [route, title] of routes) {
   try {
     const html = await readFile(file, 'utf8');
     if (route === '/start') startHtml = html;
+    if (route === '/') homeHtml = html;
+    if (route === '/work') workHtml = html;
+    if (route === '/business-software') softwareHtml = html;
+    if (route === '/website-support') supportHtml = html;
     if (route === '/affordable-web-design') affordableHtml = html;
     if (!html.includes(`<title>${title.replaceAll('&', '&amp;')}</title>`)) errors.push(`${route}: missing expected title`);
     const canonical = `https://calypsodigital.us${route === '/' ? '/' : route}`;
@@ -38,6 +48,17 @@ for (const forbidden of ['Until the guided form is activated', 'What the full gu
   if (startHtml.includes(forbidden)) errors.push(`/start: old placeholder copy remains: ${forbidden}`);
 }
 
+for (const mustInclude of ['/business-software', '/website-support', 'custom applications', 'Discuss Your Project']) {
+  if (!homeHtml.includes(mustInclude)) errors.push(`/: missing ${mustInclude}`);
+}
+for (const mustInclude of ['Internal dashboards', 'Automations and integrations', 'NugNav', '/start']) {
+  if (!softwareHtml.includes(mustInclude)) errors.push(`/business-software: missing ${mustInclude}`);
+}
+for (const mustInclude of ['Broken features', 'Mobile usability', 'Technical SEO', '/start']) {
+  if (!supportHtml.includes(mustInclude)) errors.push(`/website-support: missing ${mustInclude}`);
+}
+if (!workHtml.includes('id="project-nugnav"')) errors.push('/work: NugNav anchor missing');
+if (homeHtml.includes('"price":"89.99"') || softwareHtml.includes('"price":"89.99"')) errors.push('starter-price metadata should be scoped to affordable website design');
 for (const mustInclude of ['Affordable website design', '$89.99', 'one-page informational website', 'current, verifiable, written quote', '/services#price-guarantee', '/start']) {
   if (!affordableHtml.includes(mustInclude)) errors.push(`/affordable-web-design: missing ${mustInclude}`);
 }
