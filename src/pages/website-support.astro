@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageIntro from '../components/PageIntro.astro';
+import ButtonLink from '../components/ButtonLink.astro';
+---
+
+<BaseLayout
+  title="Website Repairs and Technical Support in Albany, NY"
+  description="Need a website fixed or improved? Calypso Digital Studio handles broken forms, mobile layout issues, website performance, technical SEO, updates and troubleshooting."
+>
+  <PageIntro
+    eyebrow="Website repairs and technical support"
+    title="You may not need a new website. You may just need the right fix."
+    description="Broken contact forms, awkward mobile layouts, slow pages, and technical issues can get in the way of your business. Calypso Digital Studio can review the problem and quote a defined repair or improvement."
+  />
+  <section class="intro-cta container">
+    <ButtonLink href="/start">Request a Website Fix</ButtonLink>
+    <ButtonLink href="/services" variant="secondary">Browse All Services</ButtonLink>
+  </section>
+
+  <section class="repairs container" aria-labelledby="repairs-title">
+    <p class="eyebrow">Focused technical help</p>
+    <h2 id="repairs-title">What we can help you improve</h2>
+    <div class="repair-grid">
+      <article><h3>Broken features</h3><p>Contact forms that do not submit, links that go nowhere, display errors, and website functions that need troubleshooting.</p></article>
+      <article><h3>Mobile usability</h3><p>Layouts that overflow, difficult navigation, unreadable content, and page elements that behave poorly on phones.</p></article>
+      <article><h3>Speed and performance</h3><p>Review slow-loading pages, oversized assets, unnecessary scripts, and other issues that may affect the browsing experience.</p></article>
+      <article><h3>Technical SEO</h3><p>Review page titles, search indexing, metadata, crawlability, and technical search issues. No ranking promises.</p></article>
+      <article><h3>Updates and maintenance</h3><p>Update content, add features, investigate deployment problems, or plan ongoing support when a website needs regular attention.</p></article>
+      <article><h3>Integrations and forms</h3><p>Add or improve inquiries, appointment requests, analytics, and connections to compatible third-party services.</p></article>
+    </div>
+  </section>
+
+  <section class="process container surface" aria-labelledby="process-title">
+    <p class="eyebrow">How a repair starts</p>
+    <h2 id="process-title">A defined problem. A clear scope.</h2>
+    <ol>
+      <li><strong>Tell us what is happening.</strong> Include the website address, the issue, and what you expect to happen instead.</li>
+      <li><strong>Get a scope and quote.</strong> We review the issue, discuss any access needed, and explain what can be reasonably addressed.</li>
+      <li><strong>Review the completed work.</strong> We test the agreed changes and identify anything outside the original scope before doing extra work.</li>
+    </ol>
+  </section>
+
+  <section class="contact container surface" aria-labelledby="contact-title">
+    <p class="eyebrow">Small fixes are welcome</p>
+    <h2 id="contact-title">Tell us what's not working.</h2>
+    <p>You do not have to commit to a complete redesign. Explain the issue and we can discuss a focused repair or next step.</p>
+    <ButtonLink href="/start">Start a Technical Support Request</ButtonLink>
+  </section>
+</BaseLayout>
+
+<style>
+  .intro-cta{display:flex;flex-wrap:wrap;gap:var(--space-3);padding-bottom:var(--space-7)}
+  .repairs{padding-bottom:var(--space-7)}
+  .repair-grid{display:grid;gap:var(--space-5);margin-top:var(--space-6)}
+  .repair-grid article{border-top:2px solid var(--color-ink);padding-top:var(--space-5)}
+  .process,.contact{padding:var(--space-6);margin-bottom:var(--space-7)}
+  .process h2,.contact h2{max-width:28ch}
+  .process ol{display:grid;gap:var(--space-3);padding-left:1.5rem}
+  .contact{margin-bottom:var(--space-8)}
+  @media(min-width:48rem){.repair-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.process,.contact{padding:var(--space-7)}}
+</style>
