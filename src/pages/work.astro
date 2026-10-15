@@ -7,16 +7,16 @@ const projectOrder=new Map([['lrl-photography',0],['rare-treats-518',1],['nugnav
 const projects=(await getCollection('projects')).sort((a,b)=>(projectOrder.get(a.data.slug)??99)-(projectOrder.get(b.data.slug)??99));
 const caseStudies=await Promise.all(projects.map(async (project)=>({project,Content:(await render(project)).Content})));
 ---
-<BaseLayout title="Small Business Website Design Portfolio" description="Explore Calypso Digital Studio website design projects for a photographer, local treats business, cannabis price comparison platform and clothing storefront. See project goals, features and development status.">
-  <PageIntro eyebrow="Small-business website design portfolio" title="Real website projects for different small-business needs." description="Explore the design decisions, functionality and current status behind Calypso Digital Studio projects."/>
-  <section class="work-list container" aria-label="Website project case studies">
+<BaseLayout title="Websites and Custom Software Portfolio" description="Explore Calypso Digital Studio projects, including small-business websites and the NugNav custom web application with location-based search and price comparisons.">
+  <PageIntro eyebrow="Websites and software portfolio" title="Practical digital work for different business needs." description="Explore customer-facing websites, an evolving custom web application, and the real development decisions behind each project."/>
+  <section class="work-list container" aria-label="Website and software project case studies">
     {caseStudies.map(({project:p,Content},i)=>
-      <section class="entry" aria-labelledby={`project-${p.data.slug}`}>
+      <section class="entry" id={`project-${p.data.slug}`} aria-labelledby={`project-heading-${p.data.slug}`}>
         <div class="project-visual">
           <ProjectCard title={p.data.title} summary={p.data.summary} projectType={p.data.projectType} status={p.data.status} image={i%2===0?(p.data.primaryImage??p.data.secondaryImage):(p.data.secondaryImage??p.data.primaryImage)}/>
         </div>
         <div class="details">
-          <h2 id={`project-${p.data.slug}`}>{p.data.title} project</h2>
+          <h2 id={`project-heading-${p.data.slug}`}>{p.data.title} project</h2>
           <p class="eyebrow">{p.data.status==='live'?'Live project':'In-progress project'}</p>
           <div class="case-study"><Content/></div>
           <h3>Project features</h3>
@@ -27,17 +27,18 @@ const caseStudies=await Promise.all(projects.map(async (project)=>({project,Cont
     )}
   </section>
   <section class="work-cta container surface" aria-labelledby="work-cta-heading">
-    <p class="eyebrow">Website design for your business</p>
-    <h2 id="work-cta-heading">Need a website with a clear purpose and a practical budget?</h2>
-    <p>Basic one-page website production starts at $89.99. Larger projects are quoted by scope. Our qualifying price-beat guarantee applies to comparable independent web designer production quotes, excluding hosting, domains and third-party costs.</p>
-    <p><a class="text-link" href="/affordable-web-design">Explore affordable website design and pricing</a></p>
-    <p><a class="text-link" href="/services">Explore website design services</a></p>
-    <p><a class="text-link" href="/start">Request a website quote</a></p>
+    <p class="eyebrow">Build around the problem</p>
+    <h2 id="work-cta-heading">Need a website, a custom tool, or technical help?</h2>
+    <p>From straightforward business websites to custom workflows and repairs, the right solution starts with a defined goal and a clear scope.</p>
+    <p><a class="text-link" href="/business-software">Explore custom software and automation</a></p>
+    <p><a class="text-link" href="/website-support">Explore technical repairs and improvements</a></p>
+    <p><a class="text-link" href="/affordable-web-design">Explore affordable website design</a></p>
+    <p><a class="text-link" href="/start">Discuss a project</a></p>
   </section>
 </BaseLayout>
 <style>
   .work-list{display:grid;gap:var(--space-8)}
-  .entry{display:grid;gap:var(--space-5);align-items:start}
+  .entry{display:grid;gap:var(--space-5);align-items:start;scroll-margin-top:var(--space-5)}
   .details{padding:var(--space-4)}
   .details h2{font-size:var(--step-2)}
   .details ul{padding-left:1.2rem}
