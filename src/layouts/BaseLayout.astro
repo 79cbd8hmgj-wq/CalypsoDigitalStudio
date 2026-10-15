@@ -7,7 +7,7 @@ const{title,description,image='/assets/brand/calypso-master.webp'}=Astro.props;
 const fullTitle=title==='Calypso Digital Studio' ? 'Calypso Digital Studio | Web Design & Development in Albany, NY' : `${title} | Calypso Digital Studio`;
 const canonicalUrl = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', 'https://calypsodigital.us').href;
 const socialImageUrl = new URL(image, 'https://calypsodigital.us').href;
-const isAffordablePage = Astro.url.pathname.replace(/\\/$/, '') === '/affordable-web-design';
+const isAffordablePage = Astro.url.pathname.replace(/\/$/, '') === '/affordable-web-design';
 const businessSchema = {
   '@context': 'https://schema.org',
   '@type': 'ProfessionalService',
